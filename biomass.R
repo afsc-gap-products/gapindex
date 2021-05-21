@@ -37,6 +37,14 @@ for (i in 1:length(a)) {
 }
 
 
+# Get stratum areas from GOA_STRATA table ---------------------------------
+
+
+goa_strata <- read.csv(here::here("..","Oracle connection","data",
+                                  "oracle","goa","goa_strata.csv"))
+ai_strata <- goa_strata %>% 
+  janitor::clean_names() %>%
+  filter(survey=="AI")
 
 # Add area swept to each haul ---------------------------------------------
 head(haul)
@@ -46,11 +54,12 @@ haul <- haul %>%
 
 
 # Put datasets together ---------------------------------------------------
-dat <- catch %>%
-  left_join(haul,
-    by = c("hauljoin", "cruisejoin", "region", "cruise", "vessel")
-  ) %>%
-  mutate(year = floor(cruise / 100))
+# dat <- catch %>%
+#   left_join(haul,
+#     by = c("hauljoin", "cruisejoin", 
+#            "region", "cruise", "vessel")
+#   ) %>%
+#   mutate(year = floor(cruise / 100))
 
 
 # Get cruise info from RACE.DATA ------------------------------------------
@@ -64,8 +73,6 @@ cruises <- read.csv(here::here(
 cruises <- janitor::clean_names(cruises)
 cruisedat <- cruises %>%
   select(year, survey_name, region, cruisejoin, cruise_data_in_racebase, vessel_country, survey_definition_id)
-
-
 
 speciescode <- 30060 # test species: POP
 survey_area <- "AI" # called region in RACEBASE
@@ -83,6 +90,7 @@ dat <- haul %>%
   select(
     cruisejoin.x, vessel.x, haul.x,
     haul_type, performance, duration,
+    stratum,
     distance_fished, weight, year,
     weight, start_latitude, start_longitude,
     gear_temperature, surface_temperature,
@@ -98,3 +106,5 @@ dat <- haul %>%
     Surface_temp = surface_temperature
   ) %>%
   filter(Year == survey_yr)
+
+
