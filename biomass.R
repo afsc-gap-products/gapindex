@@ -130,7 +130,9 @@ At <- sum(ai_strata$area)
 # Total CPUE for species and year across AI
 x3 <- x2 %>%
   group_by(Year, stratum) %>%
-  summarize(wCPUE = sum(meanwCPUE*area)) %>%
+  summarize(wCPUE = sum(meanwCPUE*area),
+            nCPUE = sum(meannCPUE*area)) %>%
   ungroup() %>%
   group_by(Year) %>%
-  summarize(wCPUE_total = sum(wCPUE)/At)
+  summarize(wCPUE_total = sum(wCPUE)/At,
+            nCPUE_total = sum(nCPUE)/At)
