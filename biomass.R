@@ -82,17 +82,20 @@ sp_catch <- catch %>%
   filter(species_code == speciescode)
 
 dat <- haul %>%
-  left_join(cruisedat, by = c("cruisejoin", "region")) %>%
+  left_join(cruisedat, 
+            by = c("cruisejoin", "region")) %>%
   filter(abundance_haul == "Y" &
     region == survey_area) %>%
   left_join(sp_catch, by = "hauljoin") %>%
-  replace_na(list(weight = 0)) %>%
+  replace_na(list(weight = 0, 
+                  number_fish = 0)) %>%
   select(
     cruisejoin.x, vessel.x, haul.x,
     haul_type, performance, duration,
     stratum,
     distance_fished, weight, year,
-    weight, start_latitude, start_longitude,
+    weight, number_fish,
+    start_latitude, start_longitude,
     gear_temperature, surface_temperature,
     AreaSwept_km2
   ) %>%
@@ -107,4 +110,27 @@ dat <- haul %>%
   ) %>%
   filter(Year == survey_yr)
 
+x <- dat %>%
+  mutate(wCPUE = Catch_KG/AreaSwept_km2,
+         nCPUE = number_fish/AreaSwept_km2) %>%
+  group_by(Year, stratum) %>%
+  summarize(meanwCPUE = mean(wCPUE), 
+            sumvarwCPUE = sum(var(wCPUE)),
+            meannCPUE = mean(nCPUE),
+            sumvarnCPUE = sum(var(nCPUE))
+            ) %>%
+  ungroup()
 
+x2 <- x %>% 
+  left_join(ai_strata)
+
+# Total survey area
+At <- sum(ai_strata$area) 
+
+# Total CPUE for species and year across AI
+x3 <- x2 %>%
+  group_by(Year, stratum) %>%
+  summarize(wCPUE = sum(meanwCPUE*area)) %>%
+  ungroup() %>%
+  group_by(Year) %>%
+  summarize(wCPUE_total = sum(wCPUE)/At)
