@@ -8,7 +8,7 @@ CPUE for each tow is calculated as the total catch (in kg) divided by the area s
 
 Mean CPUE is calculated for each stratum, then the total CPUE is the weighted sum of those across all strata, weighted by the total area of each stratum (equation 4 in Wakabayashi et al. 1985). The overall mean CPUE for the entire survey area is $\bar{CPUE}_{Tk}$:
 
-![image](https://github.com/MargaretSiple-NOAA/design-based-indices/blob/master/img/eqn4.PNG?raw=true)
+![eqn four](https://github.com/MargaretSiple-NOAA/design-based-indices/blob/master/img/eqn4.PNG)
 
 
 $$
