@@ -50,7 +50,7 @@ ai_strata <- goa_strata %>%
 head(haul)
 nrow(haul)
 haul <- haul %>%
-  mutate(AreaSwept_km2 = net_width / (1000 * distance_fished)) # bc distance in km and width in m
+  mutate(AreaSwept_km2 = distance_fished * (0.001 * net_width)) # bc distance in km and width in m
 
 
 # Put datasets together ---------------------------------------------------
@@ -112,7 +112,9 @@ dat <- haul %>%
 
 x <- dat %>%
   mutate(wCPUE = Catch_KG/AreaSwept_km2,
-         nCPUE = number_fish/AreaSwept_km2) %>%
+         nCPUE = number_fish/AreaSwept_km2) 
+
+x2 <- x %>%
   group_by(Year, stratum) %>%
   summarize(meanwCPUE = mean(wCPUE), 
             sumvarwCPUE = sum(var(wCPUE)),
@@ -121,14 +123,14 @@ x <- dat %>%
             ) %>%
   ungroup()
 
-x2 <- x %>% 
+x3 <- x2 %>% 
   left_join(ai_strata)
 
 # Total survey area
 At <- sum(ai_strata$area) 
 
 # Total CPUE for species and year across AI
-x3 <- x2 %>%
+x4 <- x3 %>%
   group_by(Year, stratum) %>%
   summarize(wCPUE = sum(meanwCPUE*area),
             nCPUE = sum(meannCPUE*area)) %>%
