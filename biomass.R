@@ -63,12 +63,23 @@ cruises <- read.csv(here::here(
 ))
 cruises <- janitor::clean_names(cruises)
 cruisedat <- cruises %>%
-  select(year, survey_name, region, cruisejoin, cruise_data_in_racebase, vessel_country, survey_definition_id)
+  dplyr::select(year, survey_name, region, 
+         cruisejoin, cruise_data_in_racebase, 
+         vessel_country, survey_definition_id)
 
 
-get_haul_cpue <- function(speciescode = 30060, survey_area = "AI", survey_yr = 2018) {
+get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat, 
+                                                 haul = haul, 
+                                                 catch = catch), 
+                          speciescode = 30060, 
+                          survey_area = "AI", 
+                          survey_yr = 2018) {
   # test species: POP
   #survey_area is called region in RACEBASE
+  cruisedat <- racebase_tables$cruisedat
+  haul <- racebase_tables$haul
+  catch <- racebase_tables$catch
+  
   sp_catch <- catch %>%
     filter(species_code == speciescode)
 
@@ -83,7 +94,7 @@ get_haul_cpue <- function(speciescode = 30060, survey_area = "AI", survey_yr = 2
       weight = 0,
       number_fish = 0
     )) %>%
-    select(
+    dplyr::select(
       cruisejoin.x, vessel.x, haul.x,
       haul_type, performance, duration,
       stratum,
@@ -93,7 +104,7 @@ get_haul_cpue <- function(speciescode = 30060, survey_area = "AI", survey_yr = 2
       gear_temperature, surface_temperature,
       AreaSwept_km2
     ) %>%
-    rename(
+    dplyr::rename(
       Lat = start_latitude,
       Lon = start_longitude,
       Year = year,
@@ -122,34 +133,38 @@ tail(get_haul_cpue(speciescode = 21740))
 # Pacific halibut
 head(get_haul_cpue(speciescode = 10120))
 
+# Giant grenadier
+x <- get_haul_cpue(speciescode = 21230)
+head(x)
+tail(x)
 
 
 x2 <- x %>%
   group_by(Year, stratum) %>%
-  summarize(
+  dplyr::summarize(
     meanwCPUE = mean(wCPUE),
     sumvarwCPUE = sum(var(wCPUE)),
     meannCPUE = mean(nCPUE),
     sumvarnCPUE = sum(var(nCPUE))
   ) %>%
-  ungroup()
+  dplyr::ungroup()
 
 x3 <- x2 %>%
-  left_join(ai_strata)
+  dplyr::left_join(ai_strata)
 
 # Total survey area
 At <- sum(ai_strata$area)
 
 # Total CPUE for species and year across AI
 x4 <- x3 %>%
-  group_by(Year, stratum) %>%
-  summarize(
+  dplyr::group_by(Year, stratum) %>%
+  dplyr::summarize(
     wCPUE = sum(meanwCPUE * area),
     nCPUE = sum(meannCPUE * area)
   ) %>%
-  ungroup() %>%
-  group_by(Year) %>%
-  summarize(
+  dplyr::ungroup() %>%
+  dplyr::group_by(Year) %>%
+  dplyr::summarize(
     wCPUE_total = sum(wCPUE) / At,
     nCPUE_total = sum(nCPUE) / At
   )
