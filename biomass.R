@@ -129,15 +129,20 @@ get_haul_cpue()
 
 # walleye pollock
 tail(get_haul_cpue(speciescode = 21740))
+#x <- get_haul_cpue(speciescode = 21740, survey_yr = 1994)
 
 # Pacific halibut
 head(get_haul_cpue(speciescode = 10120))
+x <- get_haul_cpue(speciescode = 10120)
 
 # Giant grenadier
 x <- get_haul_cpue(speciescode = 21230)
 head(x)
 tail(x)
 
+
+# Total survey area
+At <- sum(ai_strata$area)
 
 x2 <- x %>%
   group_by(Year, stratum) %>%
@@ -153,21 +158,22 @@ x2 <- x %>%
 x3 <- x2 %>%
   dplyr::left_join(ai_strata)
 
-# Total survey area
-At <- sum(ai_strata$area)
-
 # Total CPUE for species and year across AI
 x4 <- x3 %>%
   dplyr::group_by(Year, stratum) %>%
   dplyr::summarize(
     wCPUE = sum(mean_wgt_cpue * area),
-    nCPUE = sum(mean_num_cpue * area)
+    nCPUE = sum(mean_num_cpue * area),
+    varwCPUE = (area / At)^2 * var_wgt_cpue,
+    varnCPUE = (area / At)^2 * var_num_cpue
   ) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(Year) %>%
   dplyr::summarize(
     wCPUE_total = sum(wCPUE) / At,
-    nCPUE_total = sum(nCPUE) / At
+    nCPUE_total = sum(nCPUE) / At,
+    varwCPUE_total = sum(varwCPUE),
+    varnCPUE_total = sum(varnCPUE)
   )
 
 x4
