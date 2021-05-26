@@ -142,10 +142,11 @@ tail(x)
 x2 <- x %>%
   group_by(Year, stratum) %>%
   dplyr::summarize(
-    meanwCPUE = mean(wCPUE),
-    sumvarwCPUE = sum(var(wCPUE)),
-    meannCPUE = mean(nCPUE),
-    sumvarnCPUE = sum(var(nCPUE))
+    haul_count = length(haul.x),
+    mean_wgt_cpue = mean(wCPUE),
+    var_wgt_cpue = var(wCPUE)/length(wCPUE),
+    mean_num_cpue = mean(nCPUE),
+    var_num_cpue = var(nCPUE)/length(nCPUE)
   ) %>%
   dplyr::ungroup()
 
@@ -159,8 +160,8 @@ At <- sum(ai_strata$area)
 x4 <- x3 %>%
   dplyr::group_by(Year, stratum) %>%
   dplyr::summarize(
-    wCPUE = sum(meanwCPUE * area),
-    nCPUE = sum(meannCPUE * area)
+    wCPUE = sum(mean_wgt_cpue * area),
+    nCPUE = sum(mean_num_cpue * area)
   ) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(Year) %>%
@@ -168,3 +169,6 @@ x4 <- x3 %>%
     wCPUE_total = sum(wCPUE) / At,
     nCPUE_total = sum(nCPUE) / At
   )
+
+x4
+
