@@ -97,7 +97,7 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
     dplyr::select(
       cruisejoin.x, vessel.x, haul.x,
       haul_type, performance, duration,
-      stratum,
+      stratum, stationid,
       distance_fished, weight, year,
       weight, number_fish,
       start_latitude, start_longitude,
@@ -136,14 +136,15 @@ head(get_haul_cpue(speciescode = 10120))
 x <- get_haul_cpue(speciescode = 10120)
 
 # Giant grenadier
-x <- get_haul_cpue(speciescode = 21230)
-head(x)
-tail(x)
+# x <- get_haul_cpue(speciescode = 21230)
+# head(x)
+# tail(x)
 
 
 # Total survey area
 At <- sum(ai_strata$area)
 
+# Total CPUE for species, year, stratum
 x2 <- x %>%
   group_by(Year, stratum) %>%
   dplyr::summarize(
@@ -151,14 +152,27 @@ x2 <- x %>%
     mean_wgt_cpue = mean(wCPUE),
     var_wgt_cpue = var(wCPUE)/length(wCPUE),
     mean_num_cpue = mean(nCPUE),
-    var_num_cpue = var(nCPUE)/length(nCPUE)
+    var_num_cpue = var(nCPUE)/length(nCPUE),
+    nstations = length(unique(stationid))
   ) %>%
   dplyr::ungroup()
 
-x3 <- x2 %>%
-  dplyr::left_join(ai_strata)
+vulnerability <- 1
 
-# Total CPUE for species and year across AI
+x3 <- x2 %>%
+  dplyr::left_join(ai_strata) %>%
+  mutate(stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, #kg --> mt
+         biomass_var = area^2 * var_wgt_cpue * 1e-6, #kg--> mt, square it because it's variance
+         min_biomass = stratum_biomass - qt(0.025, df = nstations-1, lower.tail = F) * sqrt(biomass_var),
+         max_biomass = stratum_biomass + qt(0.025, df = nstations-1, lower.tail = F) * sqrt(biomass_var),
+         stratum_pop = area * mean_num_cpue / nstations*vulnerability # need to fix
+         # pop_var = ,
+         # min_pop = ,
+         # max_pop = 
+         ) %>%
+  mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass)) # set low CI to zero if it's negative
+
+# Total CPUE for species and year (whole AI)
 x4 <- x3 %>%
   dplyr::group_by(Year, stratum) %>%
   dplyr::summarize(
