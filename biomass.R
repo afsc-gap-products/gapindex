@@ -13,7 +13,7 @@
 
 # Step 1: Get RACEBASE data -----------------------------------------------
 # Where to put the cleaned/wrangled ---------------------------------------
-data_destination <- "C:/Users/margaret.siple/Work/design-based-indices/data"
+#data_destination <- "C:/Users/margaret.siple/Work/design-based-indices/data"
 
 library(tidyverse)
 
@@ -51,7 +51,7 @@ head(haul)
 nrow(haul)
 haul <- haul %>%
   mutate(AreaSwept_km2 = distance_fished * (0.001 * net_width)) # bc distance in km and width in m
-# This should match the EFFORT column in RACEBASE-->AI-->CPUE
+# This should match the EFFORT column in AI-->CPUE
 
 # Get cruise info from RACE.DATA ------------------------------------------
 # AFAIK you can only get the name of the survey from the cruises.csv file, which is from RACEDATA
@@ -60,8 +60,9 @@ cruises <- read.csv(here::here(
   "data", "oracle",
   "race_data",
   "cruises.csv"
-))
-cruises <- janitor::clean_names(cruises)
+)) %>%
+  janitor::clean_names()
+
 cruisedat <- cruises %>%
   dplyr::select(year, survey_name, region, 
          cruisejoin, cruise_data_in_racebase, 
@@ -141,6 +142,8 @@ x <- get_haul_cpue(speciescode = 10120)
 # tail(x)
 
 
+#x <- get_haul_cpue(speciescode = 69310)
+
 # Total survey area
 At <- sum(ai_strata$area)
 
@@ -165,12 +168,13 @@ x3 <- x2 %>%
          biomass_var = area^2 * var_wgt_cpue * 1e-6, #kg--> mt, square it because it's variance
          min_biomass = stratum_biomass - qt(0.025, df = nstations-1, lower.tail = F) * sqrt(biomass_var),
          max_biomass = stratum_biomass + qt(0.025, df = nstations-1, lower.tail = F) * sqrt(biomass_var),
-         stratum_pop = area * mean_num_cpue / nstations*vulnerability # need to fix
-         # pop_var = ,
-         # min_pop = ,
-         # max_pop = 
+         stratum_pop = area * mean_num_cpue,  # not sure why this calculation would be different from the stratum_biomass
+         pop_var = area^2 * var_num_cpue,
+         min_pop = stratum_pop - qt(0.025, df = nstations-1, lower.tail = F) * sqrt(pop_var),
+         max_pop = stratum_pop + qt(0.025, df = nstations-1, lower.tail = F) * sqrt(pop_var)
          ) %>%
-  mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass)) # set low CI to zero if it's negative
+  mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass),
+         min_pop = ifelse(min_pop<0, 0, min_pop)) # set low CI to zero if it's negative
 
 # Total CPUE for species and year (whole AI)
 x4 <- x3 %>%
