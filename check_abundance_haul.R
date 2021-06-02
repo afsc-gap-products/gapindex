@@ -28,31 +28,31 @@ head(haul)
 nrow(haul)
 
 # Pasted from running scripts.docx, which gives min tow duration per year
-mindurtable <- tibble::tribble(
-  ~year, ~min_dur_minutes,
-  1980L,  6L,
-  1983L,  4L,
-  1986L,  9L,
-  1991L,  9L,
-  1994L, 10L,
-  1997L, 10L,
-  2000L, 10L,
-  2002L, 10L,
-  2004L,  9L,
-  2006L, 10L,
-  2010L,  3L,
-  2012L,  3L,
-  2014L,  1L,
-  2016L,  4L,
-  2018L,  7L
-)
+mindurtable <- read.csv(here::here("data","mintowdurations.csv"))
+
+
+correct_gear_types <- c(160:172,710:717)
 
 haul2 <- haul %>%
   mutate(AreaSwept_km2 = distance_fished * (0.001 * net_width)) %>% # bc distance in km and width in m
 # This should match the EFFORT column in AI-->CPUE
   mutate(year = as.numeric(str_extract(cruise, "^\\d{4}"))) %>%
-  left_join(mindurtable)
+  left_join(mindurtable) %>%
+  mutate(abundance_haul_mcs = case_when(performance >=0 & 
+                                          haul_type==3 & 
+                                          (duration*60)>=as.numeric(min_dur_minutes) & 
+                                          gear %in% correct_gear_types & 
+                                          !is.null(stratum) & 
+                                          stratum != 0 
+                                          ~ "Y", 
+                                        TRUE ~ "N"
+                                        )) %>% 
+  filter(region == "AI")
 
 
+haul2
+all(haul2$abundance_haul == haul2$abundance_haul_mcs)
+test <- haul2 %>% filter(abundance_haul != abundance_haul_mcs)
 
-
+# Write mismatched rows to table
+write.csv(test,file = "mismatched_AI.csv",row.names = FALSE)
