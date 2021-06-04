@@ -148,6 +148,7 @@ x <- get_haul_cpue(speciescode = 10120)
 At <- sum(ai_strata$area)
 
 # Total CPUE for species, year, stratum
+# RACEBASE equivalent table: BIOMASS_STRATUM
 x2 <- x %>%
   group_by(Year, stratum) %>%
   dplyr::summarize(
@@ -156,22 +157,30 @@ x2 <- x %>%
     var_wgt_cpue = var(wCPUE)/length(wCPUE),
     mean_num_cpue = mean(nCPUE),
     var_num_cpue = var(nCPUE)/length(nCPUE),
-    nstations = length(unique(stationid))
+    haul_count = length(unique(stationid)), # number of total abundance hauls
+    catch_count = length(which(number_fish>0)) # number of hauls with nonzero catch
   ) %>%
-  dplyr::ungroup()
+  dplyr::ungroup() %>%
+  select(Year, stratum, 
+         haul_count, catch_count, 
+         mean_wgt_cpue, var_wgt_cpue, 
+         mean_num_cpue, var_num_cpue)
+
+if(all(x2$catch_count<=x2$haul_count)){print("Number of hauls with positive catches is realistic.")}
 
 vulnerability <- 1
 
+# RACEBASE equivalent table: BIOMASS_TOTAL
 x3 <- x2 %>%
   dplyr::left_join(ai_strata) %>%
   mutate(stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, #kg --> mt
          biomass_var = area^2 * var_wgt_cpue * 1e-6, #kg--> mt, square it because it's variance
-         min_biomass = stratum_biomass - qt(0.025, df = nstations-1, lower.tail = F) * sqrt(biomass_var),
-         max_biomass = stratum_biomass + qt(0.025, df = nstations-1, lower.tail = F) * sqrt(biomass_var),
+         min_biomass = stratum_biomass - qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(biomass_var),
+         max_biomass = stratum_biomass + qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(biomass_var),
          stratum_pop = area * mean_num_cpue,  # not sure why this calculation would be different from the stratum_biomass
          pop_var = area^2 * var_num_cpue,
-         min_pop = stratum_pop - qt(0.025, df = nstations-1, lower.tail = F) * sqrt(pop_var),
-         max_pop = stratum_pop + qt(0.025, df = nstations-1, lower.tail = F) * sqrt(pop_var)
+         min_pop = stratum_pop - qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(pop_var),
+         max_pop = stratum_pop + qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(pop_var)
          ) %>%
   mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass),
          min_pop = ifelse(min_pop<0, 0, min_pop)) # set low CI to zero if it's negative
