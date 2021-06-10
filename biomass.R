@@ -51,7 +51,7 @@ head(haul)
 nrow(haul)
 haul <- haul %>%
   mutate(AreaSwept_km2 = distance_fished * (0.001 * net_width)) # bc distance in km and width in m
-# This should match the EFFORT column in AI-->CPUE
+# This should match the EFFORT column in AI/CPUE
 
 # Get cruise info from RACE.DATA ------------------------------------------
 # AFAIK you can only get the name of the survey from the cruises.csv file, which is from RACEDATA
@@ -108,13 +108,13 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
     dplyr::rename(
       Lat = start_latitude,
       Lon = start_longitude,
-      Year = year,
+     # Year = year,
       Catch_KG = weight,
       Vessel = vessel.x,
       Bottom_temp = gear_temperature,
       Surface_temp = surface_temperature
     ) %>%
-    filter(Year == survey_yr)
+    filter(year == survey_yr)
 
   x <- dat %>%
     mutate(
@@ -150,7 +150,7 @@ At <- sum(ai_strata$area)
 # Total CPUE for species, year, stratum
 # RACEBASE equivalent table: BIOMASS_STRATUM
 x2 <- x %>%
-  group_by(Year, stratum) %>%
+  group_by(year, stratum) %>%
   dplyr::summarize(
     haul_count = length(haul.x),
     mean_wgt_cpue = mean(wCPUE),
@@ -161,7 +161,7 @@ x2 <- x %>%
     catch_count = length(which(number_fish>0)) # number of hauls with nonzero catch
   ) %>%
   dplyr::ungroup() %>%
-  select(Year, stratum, 
+  select(year, stratum, 
          haul_count, catch_count, 
          mean_wgt_cpue, var_wgt_cpue, 
          mean_num_cpue, var_num_cpue)
@@ -183,11 +183,11 @@ x3 <- x2 %>%
          max_pop = stratum_pop + qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(pop_var)
          ) %>%
   mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass),
-         min_pop = ifelse(min_pop<0, 0, min_pop)) # set low CI to zero if it's negative
-
+         min_pop = ifelse(min_pop<0, 0, min_pop)) %>% # set low CI to zero if it's negative
+select(survey, year, stratum, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area)
 # Total CPUE for species and year (whole AI)
 x4 <- x3 %>%
-  dplyr::group_by(Year, stratum) %>%
+  dplyr::group_by(year, stratum) %>%
   dplyr::summarize(
     wCPUE = sum(mean_wgt_cpue * area),
     nCPUE = sum(mean_num_cpue * area),
@@ -195,7 +195,7 @@ x4 <- x3 %>%
     varnCPUE = (area / At)^2 * var_num_cpue
   ) %>%
   dplyr::ungroup() %>%
-  dplyr::group_by(Year) %>%
+  dplyr::group_by(year) %>%
   dplyr::summarize(
     wCPUE_total = sum(wCPUE) / At,
     nCPUE_total = sum(nCPUE) / At,
@@ -205,3 +205,20 @@ x4 <- x3 %>%
 
 x4
 
+
+# Save/load stratum table to compare --------------------------------------
+
+
+save(x3, file = "outputs/biomass_stratum_mcs.Rda")
+
+# biomass_stratum from AI schema:
+biomass_stratum <- read.csv("data/biomass_stratum.csv") %>%
+  janitor::clean_names() %>%
+  filter(year == 2018 & species_code == 10120) %>%
+  arrange(-desc(stratum))
+head(biomass_stratum)
+
+all_equal(biomass_stratum, x3)
+all.equal(target = biomass_stratum, current = x3)
+
+diffdf::diffdf(base = biomass_stratum, compare = x3)
