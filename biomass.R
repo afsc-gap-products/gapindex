@@ -72,10 +72,10 @@ cruisedat <- cruises %>%
 get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat, 
                                                  haul = haul, 
                                                  catch = catch), 
-                          speciescode = 30060, 
+                          speciescode = 30060, #POP
                           survey_area = "AI", 
                           survey_yr = 2018) {
-  # test species: POP
+
   #survey_area is called region in RACEBASE
   cruisedat <- racebase_tables$cruisedat
   haul <- racebase_tables$haul
@@ -108,7 +108,6 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
     dplyr::rename(
       Lat = start_latitude,
       Lon = start_longitude,
-     # Year = year,
       Catch_KG = weight,
       Vessel = vessel.x,
       Bottom_temp = gear_temperature,
@@ -129,20 +128,16 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
 get_haul_cpue()
 
 # walleye pollock
-tail(get_haul_cpue(speciescode = 21740))
 #x <- get_haul_cpue(speciescode = 21740, survey_yr = 1994)
 
 # Pacific halibut
-head(get_haul_cpue(speciescode = 10120))
 x <- get_haul_cpue(speciescode = 10120)
 
 # Giant grenadier
 # x <- get_haul_cpue(speciescode = 21230)
-# head(x)
-# tail(x)
 
-
-#x <- get_haul_cpue(speciescode = 69310)
+head(x)
+tail(x)
 
 # Total survey area
 At <- sum(ai_strata$area)
@@ -166,7 +161,8 @@ x2 <- x %>%
          mean_wgt_cpue, var_wgt_cpue, 
          mean_num_cpue, var_num_cpue)
 
-if(all(x2$catch_count<=x2$haul_count)){print("Number of hauls with positive catches is realistic.")}
+if(all(x2$catch_count<=x2$haul_count)){
+  print("Number of hauls with positive catches is realistic.")}
 
 vulnerability <- 1
 
