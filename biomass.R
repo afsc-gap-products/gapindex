@@ -18,7 +18,7 @@
 library(tidyverse)
 
 # Load Oracle data (takes a while) ----------------------------------------
-# This is in my general Oracle access project. csv files of all the RACEBASE tables.
+# This local folder contains csv files of all the RACEBASE tables.
 a <- list.files(
   path = here::here("..", "Oracle connection", "data", "oracle", "racebase"),
   pattern = "\\.csv"
@@ -37,12 +37,17 @@ for (i in 1:length(a)) {
 }
 
 
-# Get stratum areas from GOA_STRATA table ---------------------------------
-goa_strata <- read.csv(here::here(
+# Get stratum areas from GOA_STRATA table----------------------------------
+goa_ai_strata <- read.csv(here::here(
   "..", "Oracle connection", "data",
   "oracle", "goa", "goa_strata.csv"
 ))
-ai_strata <- goa_strata %>%
+
+goa_strata <- goa_ai_strata %>%
+  janitor::clean_names() %>%
+  filter(survey == "GOA")
+
+ai_strata <- goa_ai_strata %>%
   janitor::clean_names() %>%
   filter(survey == "AI")
 
@@ -69,13 +74,14 @@ cruisedat <- cruises %>%
          vessel_country, survey_definition_id)
 
 
+# This function replicates the tables in RACEBASE GOA --> CPUE
 get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat, 
                                                  haul = haul, 
                                                  catch = catch), 
                           speciescode = 30060, #POP
                           survey_area = "AI", 
                           survey_yr = 2018) {
-
+  
   #survey_area is called region in RACEBASE
   cruisedat <- racebase_tables$cruisedat
   haul <- racebase_tables$haul
@@ -96,6 +102,7 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
       number_fish = 0
     )) %>%
     dplyr::select(
+      species_code,
       cruisejoin.x, vessel.x, haul.x,
       haul_type, performance, duration,
       stratum, stationid,
@@ -117,42 +124,35 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
 
   x <- dat %>%
     mutate(
-      wCPUE = Catch_KG / AreaSwept_km2,
-      nCPUE = number_fish / AreaSwept_km2
+      WGTCPUE = Catch_KG / AreaSwept_km2,
+      NUMCPUE = number_fish / AreaSwept_km2
     )
-
+#browser()
   return(x)
 }
 
 # POP
-get_haul_cpue()
+# RACEBASE equivalent table: CPUE
+x <- get_haul_cpue(survey_yr = 2019, survey_area = "GOA", speciescode = 30060)
 
-# walleye pollock
-#x <- get_haul_cpue(speciescode = 21740, survey_yr = 1994)
-
-# Pacific halibut
-x <- get_haul_cpue(speciescode = 10120)
-
-# Giant grenadier
-# x <- get_haul_cpue(speciescode = 21230)
-
-head(x)
-tail(x)
 
 # Total survey area
-At <- sum(ai_strata$area)
+region_usr <- "GOA"
+strata <- switch(region_usr,
+                 "GOA" = goa_strata,
+                 "AI" = ai_strata)
+At <- sum(strata$area)
 
 # Total CPUE for species, year, stratum
 # RACEBASE equivalent table: BIOMASS_STRATUM
 x2 <- x %>%
   group_by(year, stratum) %>%
   dplyr::summarize(
-    haul_count = length(haul.x),
-    mean_wgt_cpue = mean(wCPUE),
-    var_wgt_cpue = var(wCPUE)/length(wCPUE),
-    mean_num_cpue = mean(nCPUE),
-    var_num_cpue = var(nCPUE)/length(nCPUE),
     haul_count = length(unique(stationid)), # number of total abundance hauls
+    mean_wgt_cpue = mean(WGTCPUE),
+    var_wgt_cpue = ifelse(haul_count<=1,0,var(WGTCPUE)/haul_count),
+    mean_num_cpue = mean(NUMCPUE),
+    var_num_cpue = ifelse(haul_count<=1,0,var(NUMCPUE)/haul_count),
     catch_count = length(which(number_fish>0)) # number of hauls with nonzero catch
   ) %>%
   dplyr::ungroup() %>%
@@ -168,35 +168,38 @@ vulnerability <- 1
 
 # RACEBASE equivalent table: BIOMASS_TOTAL
 x3 <- x2 %>%
-  dplyr::left_join(ai_strata) %>%
+  dplyr::left_join(strata) %>%
+  rowwise() %>% # need this for applying ifelse by row
   mutate(stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, #kg --> mt
          biomass_var = area^2 * var_wgt_cpue * 1e-6, #kg--> mt, square it because it's variance
-         min_biomass = stratum_biomass - qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(biomass_var),
-         max_biomass = stratum_biomass + qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(biomass_var),
+         qt_size = ifelse(haul_count<= 1, 0, qt(p = 0.025, df = haul_count-1, lower.tail = F)),
+         min_biomass = stratum_biomass - qt_size * sqrt(biomass_var),
+         max_biomass = stratum_biomass + qt_size * sqrt(biomass_var),
          stratum_pop = area * mean_num_cpue,  # not sure why this calculation would be different from the stratum_biomass
          pop_var = area^2 * var_num_cpue,
-         min_pop = stratum_pop - qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(pop_var),
-         max_pop = stratum_pop + qt(0.025, df = haul_count-1, lower.tail = F) * sqrt(pop_var)
+         min_pop = stratum_pop - qt_size * sqrt(pop_var),
+         max_pop = stratum_pop + qt_size * sqrt(pop_var)
          ) %>%
   mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass),
          min_pop = ifelse(min_pop<0, 0, min_pop)) %>% # set low CI to zero if it's negative
 select(survey, year, stratum, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area)
+
 # Total CPUE for species and year (whole AI)
 x4 <- x3 %>%
   dplyr::group_by(year, stratum) %>%
   dplyr::summarize(
-    wCPUE = sum(mean_wgt_cpue * area),
-    nCPUE = sum(mean_num_cpue * area),
-    varwCPUE = (area / At)^2 * var_wgt_cpue,
-    varnCPUE = (area / At)^2 * var_num_cpue
+    WGTCPUE = sum(mean_wgt_cpue * area),
+    NUMCPUE = sum(mean_num_cpue * area),
+    varWGTCPUE = (area / At)^2 * var_wgt_cpue,
+    varNUMCPUE = (area / At)^2 * var_num_cpue
   ) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(year) %>%
   dplyr::summarize(
-    wCPUE_total = sum(wCPUE) / At,
-    nCPUE_total = sum(nCPUE) / At,
-    varwCPUE_total = sum(varwCPUE),
-    varnCPUE_total = sum(varnCPUE)
+    WGTCPUE_total = sum(WGTCPUE) / At,
+    NUMCPUE_total = sum(NUMCPUE) / At,
+    varWGTCPUE_total = sum(varWGTCPUE),
+    varNUMCPUE_total = sum(varNUMCPUE)
   )
 
 x4
