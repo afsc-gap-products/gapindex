@@ -2,7 +2,7 @@
 
 Code to generate design-based indices of abundance from survey data. Very generally, the code takes tables from RACEBASE and GOA to calculate CPUE for each species. 
 
-Equations (from Wakabayashi et al. 1985) can be found under [vignettes]().
+Equations (from Wakabayashi et al. 1985) can be found under [vignettes](https://github.com/MargaretSiple-NOAA/design-based-indices/tree/master/vignettes).
 
 
 ## Legal disclaimer
