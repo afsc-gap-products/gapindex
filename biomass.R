@@ -169,7 +169,7 @@ vulnerability <- 1
 # RACEBASE equivalent table: BIOMASS_STRATUM
 x3 <- x2 %>%
   dplyr::left_join(strata) %>%
-  rowwise() %>% # need this for applying ifelse by row
+  rowwise() %>% # need this for applying ifelse() by row
   mutate(stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, #kg --> mt
          biomass_var = area^2 * var_wgt_cpue * 1e-6, #kg--> mt, square it because it's variance
          qt_size = ifelse(haul_count<= 1, 0, qt(p = 0.025, df = haul_count-1, lower.tail = F)),
@@ -196,6 +196,14 @@ x4 <- x3 %>%
     varNUMCPUE = (area / At)^2 * var_num_cpue,
     haul_count = sum(haul_count),
     catch_count = sum(catch_count)
+  #  total_biomass = sum(stratum_biomass),
+  #  biomass_var = (area / At)^2 * biomass_var, # not sure about this one
+  #  min_biomass = ,
+  #  max_biomass = ,
+  #  total_pop = sum(stratum_pop),
+  #  pop_var = (area / At)^2 * pop_var,
+  #  min_pop = ,
+  #  max_pop = 
   ) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(year) %>%
@@ -203,8 +211,9 @@ x4 <- x3 %>%
     WGTCPUE_total = sum(WGTCPUE) / At,
     NUMCPUE_total = sum(NUMCPUE) / At,
     varWGTCPUE_total = sum(varWGTCPUE),
-    varNUMCPUE_total = sum(varNUMCPUE)
-    
+    varNUMCPUE_total = sum(varNUMCPUE),
+    haul_count = sum(haul_count),
+    catch_count = sum(catch_count)
   )
 
 x4
