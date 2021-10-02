@@ -166,7 +166,7 @@ if(all(x2$catch_count<=x2$haul_count)){
 
 vulnerability <- 1
 
-# RACEBASE equivalent table: BIOMASS_TOTAL
+# RACEBASE equivalent table: BIOMASS_STRATUM
 x3 <- x2 %>%
   dplyr::left_join(strata) %>%
   rowwise() %>% # need this for applying ifelse by row
@@ -184,14 +184,18 @@ x3 <- x2 %>%
          min_pop = ifelse(min_pop<0, 0, min_pop)) %>% # set low CI to zero if it's negative
 select(survey, year, stratum, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area)
 
-# Total CPUE for species and year (whole AI)
+# Total CPUE for species and year (whole survey region)
+# RACEBASE equivalent table: BIOMASS_TOTAL
+# BIOMASS_TOTAL has SURVEY_AREA, YEAR, HAUL_COUNT, CATCH_COUNT, MEAN_WGT_CPUE, VAR_WGT_CPUE, MEAN_NUM_CPUE, VAR_NUM_CPUE, TOTAL_BIOMASS, BIOMASS_VAR, MIN_BIOMASS, MAX_BIOMASS, TOTAL_POP, POP_VAR, MIN_POP, MAX_POP
 x4 <- x3 %>%
   dplyr::group_by(year, stratum) %>%
   dplyr::summarize(
-    WGTCPUE = sum(mean_wgt_cpue * area),
+    WGTCPUE = sum(mean_wgt_cpue * area), #total per stratum
     NUMCPUE = sum(mean_num_cpue * area),
     varWGTCPUE = (area / At)^2 * var_wgt_cpue,
-    varNUMCPUE = (area / At)^2 * var_num_cpue
+    varNUMCPUE = (area / At)^2 * var_num_cpue,
+    haul_count = sum(haul_count),
+    catch_count = sum(catch_count)
   ) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(year) %>%
@@ -200,6 +204,7 @@ x4 <- x3 %>%
     NUMCPUE_total = sum(NUMCPUE) / At,
     varWGTCPUE_total = sum(varWGTCPUE),
     varNUMCPUE_total = sum(varNUMCPUE)
+    
   )
 
 x4
