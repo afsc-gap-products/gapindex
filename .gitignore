@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 papers/
+data/
+outputs/
