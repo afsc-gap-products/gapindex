@@ -21,4 +21,4 @@ $$
 \bar{CPUE}_{Tk} = \frac{\sum_{i}{\bar{CPUE_{ik}}}\cdot A_i}{A_T}
 $$
 
-Where **k** is the species, **i** is the stratum, **A_i** is the stratum area, and **A_T** is the total survey area.
+Where $k$ is the species, $i$ is the stratum, $A_i$ is the stratum area, and $A_T$ is the total survey area.
