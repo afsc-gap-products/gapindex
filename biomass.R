@@ -144,7 +144,7 @@ strata <- switch(region_usr,
 At <- sum(strata$area)
 
 # Total CPUE for species, year, stratum
-# RACEBASE equivalent table: BIOMASS_STRATUM
+# RACEBASE equivalent table: pre- BIOMASS_STRATUM
 x2 <- x %>%
   group_by(year, stratum) %>%
   dplyr::summarize(
@@ -154,7 +154,7 @@ x2 <- x %>%
     mean_num_cpue = mean(NUMCPUE),
     var_num_cpue = ifelse(haul_count<=1,0,var(NUMCPUE)/haul_count),
     catch_count = length(which(number_fish>0)) # number of hauls with nonzero catch
-  ) %>%
+    ) %>%
   dplyr::ungroup() %>%
   select(year, stratum, 
          haul_count, catch_count, 
@@ -166,11 +166,12 @@ if(all(x2$catch_count<=x2$haul_count)){
 
 vulnerability <- 1
 
-# RACEBASE equivalent table: BIOMASS_STRATUM
+# RACEBASE equivalent table: BIOMASS_STRATUM - checked, all good.
 x3 <- x2 %>%
   dplyr::left_join(strata) %>%
-  rowwise() %>% # need this for applying ifelse() by row
+  rowwise() %>% # for applying ifelse() by row
   mutate(stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, #kg --> mt
+         stratum_ratio = area / At,
          biomass_var = area^2 * var_wgt_cpue * 1e-6, #kg--> mt, square it because it's variance
          qt_size = ifelse(haul_count<= 1, 0, qt(p = 0.025, df = haul_count-1, lower.tail = F)),
          min_biomass = stratum_biomass - qt_size * sqrt(biomass_var),
@@ -182,41 +183,41 @@ x3 <- x2 %>%
          ) %>%
   mutate(min_biomass = ifelse(min_biomass<0, 0, min_biomass),
          min_pop = ifelse(min_pop<0, 0, min_pop)) %>% # set low CI to zero if it's negative
-select(survey, year, stratum, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area)
+select(survey, year, stratum, stratum_ratio, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area) %>%
+  mutate(Ni = area/0.01,
+  fi = (Ni*(Ni-haul_count))/haul_count
+         )
+
 
 # Total CPUE for species and year (whole survey region)
 # RACEBASE equivalent table: BIOMASS_TOTAL
-# BIOMASS_TOTAL has SURVEY_AREA, YEAR, HAUL_COUNT, CATCH_COUNT, MEAN_WGT_CPUE, VAR_WGT_CPUE, MEAN_NUM_CPUE, VAR_NUM_CPUE, TOTAL_BIOMASS, BIOMASS_VAR, MIN_BIOMASS, MAX_BIOMASS, TOTAL_POP, POP_VAR, MIN_POP, MAX_POP
-x4 <- x3 %>%
-  dplyr::group_by(year, stratum) %>%
-  dplyr::summarize(
-    WGTCPUE = sum(mean_wgt_cpue * area), #total per stratum
-    NUMCPUE = sum(mean_num_cpue * area),
-    varWGTCPUE = (area / At)^2 * var_wgt_cpue,
-    varNUMCPUE = (area / At)^2 * var_num_cpue,
-    haul_count = sum(haul_count),
-    catch_count = sum(catch_count)
-  #  total_biomass = sum(stratum_biomass),
-  #  biomass_var = (area / At)^2 * biomass_var, # not sure about this one
-  #  min_biomass = ,
-  #  max_biomass = ,
-  #  total_pop = sum(stratum_pop),
-  #  pop_var = (area / At)^2 * pop_var,
-  #  min_pop = ,
-  #  max_pop = 
-  ) %>%
-  dplyr::ungroup() %>%
+# BIOMASS_TOTAL has SURVEY_AREA, YEAR, SPECIES CODE, HAUL_COUNT, CATCH_COUNT, MEAN_WGT_CPUE, VAR_WGT_CPUE, MEAN_NUM_CPUE, VAR_NUM_CPUE, TOTAL_BIOMASS, BIOMASS_VAR, MIN_BIOMASS, MAX_BIOMASS, TOTAL_POP, POP_VAR, MIN_POP, MAX_POP
+
+x3b <- x3 %>%
   dplyr::group_by(year) %>%
   dplyr::summarize(
-    WGTCPUE_total = sum(WGTCPUE) / At,
-    NUMCPUE_total = sum(NUMCPUE) / At,
-    varWGTCPUE_total = sum(varWGTCPUE),
-    varNUMCPUE_total = sum(varNUMCPUE),
     haul_count = sum(haul_count),
-    catch_count = sum(catch_count)
-  )
+    catch_count = sum(catch_count),
+    mean_wgt_cpue = sum(mean_wgt_cpue*area)/At, # weighted avg cpue across stata * total area
+    mean_num_cpue = sum(mean_num_cpue*area)/At, # Might be weighted by something else?? 
+    var_wgt_cpue = sum(stratum_ratio^2 * var_wgt_cpue),
+    var_num_cpue = sum(stratum_ratio^2 * var_num_cpue),
+    total_biomass = sum(stratum_biomass), #checked
+    biomass_var = sum(biomass_var), # checked
+    # min_biomass = ,
+    # max_biomass = ,
+    total_pop = sum(stratum_pop), #checked
+    pop_var = sum(pop_var), #checked
+   # min_pop = ,
+   # max_pop = 
+    #
+    # same for total_population
+    )
 
-x4
+
+x3b
+
+
 
 
 # Save/load stratum table to compare --------------------------------------
