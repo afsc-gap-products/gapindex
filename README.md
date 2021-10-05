@@ -1,6 +1,6 @@
 # design-based-indices (in progress)
 
-Code to generate design-based indices of abundance from survey data. Very generally, the code takes tables from RACEBASE and GOA to calculate CPUE for each species. 
+Code to generate design-based indices of abundance from survey data. The code takes tables from RACEBASE to calculate CPUE by region and species. 
 
 Equations (from Wakabayashi et al. 1985) can be found under [vignettes](https://github.com/MargaretSiple-NOAA/design-based-indices/tree/master/vignettes).
 
