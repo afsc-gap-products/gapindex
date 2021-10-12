@@ -131,9 +131,12 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
   return(x)
 }
 
-# POP
+# POP: 30060
+# walleye pollock: 21740
+# sablefish: 20510
+
 # RACEBASE equivalent table: CPUE
-x <- get_haul_cpue(survey_yr = 2019, survey_area = "GOA", speciescode = 30060)
+x <- get_haul_cpue(survey_yr = 2021, survey_area = "GOA", speciescode = 30060)
 
 
 # Total survey area
