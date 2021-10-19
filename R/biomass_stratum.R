@@ -136,7 +136,7 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
 # sablefish: 20510
 
 # RACEBASE equivalent table: CPUE
-x <- get_haul_cpue(survey_yr = 2021, survey_area = "GOA", speciescode = 30060)
+x <- get_haul_cpue(survey_yr = 2021, survey_area = "GOA", speciescode = 20510)
 
 
 # Total survey area
@@ -147,7 +147,7 @@ strata <- switch(region_usr,
 At <- sum(strata$area)
 
 # Total CPUE for species, year, stratum
-# RACEBASE equivalent table: pre- BIOMASS_STRATUM
+# no RACEBASE equivalent (building block of BIOMASS_STRATUM)
 x2 <- x %>%
   group_by(year, stratum) %>%
   dplyr::summarize(
@@ -170,7 +170,7 @@ if(all(x2$catch_count<=x2$haul_count)){
 vulnerability <- 1
 
 # RACEBASE equivalent table: BIOMASS_STRATUM - checked, all good.
-x3 <- x2 %>%
+biomass_stratum <- x2 %>%
   dplyr::left_join(strata) %>%
   rowwise() %>% # for applying ifelse() by row
   mutate(stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, #kg --> mt
@@ -196,7 +196,7 @@ select(survey, year, stratum, stratum_ratio, haul_count, catch_count, mean_wgt_c
 # RACEBASE equivalent table: BIOMASS_TOTAL
 # BIOMASS_TOTAL has SURVEY_AREA, YEAR, SPECIES CODE, HAUL_COUNT, CATCH_COUNT, MEAN_WGT_CPUE, VAR_WGT_CPUE, MEAN_NUM_CPUE, VAR_NUM_CPUE, TOTAL_BIOMASS, BIOMASS_VAR, MIN_BIOMASS, MAX_BIOMASS, TOTAL_POP, POP_VAR, MIN_POP, MAX_POP
 
-x3b <- x3 %>%
+biomass_total <- biomass_stratum %>%
   dplyr::group_by(year) %>%
   dplyr::summarize(
     haul_count = sum(haul_count),
@@ -218,17 +218,16 @@ x3b <- x3 %>%
     )
 
 
-x3b
+biomass_total
 
 
 
 
 # Save/load stratum table to compare --------------------------------------
+save(biomass_stratum, file = "outputs/biomass_stratum_mcs.Rda")
 
-
-save(x3, file = "outputs/biomass_stratum_mcs.Rda")
-
-# biomass_stratum from AI schema:
+# Code scraps for checking
+# biomass_stratum from GOA or AI schema:
 biomass_stratum <- read.csv("data/biomass_stratum.csv") %>%
   janitor::clean_names() %>%
   filter(year == 2018 & species_code == 10120) %>%
