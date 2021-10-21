@@ -17,7 +17,16 @@ The weighted mean CPUE for each stratum is:
 $$
 \overline{CPUE}{_{ik}} =  \frac{ \sum_{j=1}^{n_i} CPUE_{ijk}}{n_i}
 $$
+In the scripts in this project, this is calculated in the following step:
 
+```{r eval=FALSE}
+x <- dat %>%
+    mutate(
+      WGTCPUE = Catch_KG / AreaSwept_km2,
+      NUMCPUE = number_fish / AreaSwept_km2
+    )
+```
+Where `x` is a table where each row is one haul.
 
 ### Stratum biomass
 Stratum biomass is estimated as  `area * mean_wgt_cpue / vulnerability * 0.001`
