@@ -129,7 +129,7 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
       survey = survey_area
     ) %>%
     replace_na(list(species_code = speciescode)) %>%
-    select(year, survey, Vessel, haul.x, 
+    select(year, survey, Vessel, haul.x, stationid, 
            stratum, distance_fished, 
            species_code, Catch_KG, number_fish, 
            AreaSwept_km2, WGTCPUE, NUMCPUE)
@@ -162,7 +162,7 @@ x2 <- x %>%
     var_wgt_cpue = ifelse(haul_count<=1,0,var(WGTCPUE)/haul_count),
     mean_num_cpue = mean(NUMCPUE),
     var_num_cpue = ifelse(haul_count<=1,0,var(NUMCPUE)/haul_count),
-    catch_count = length(which(number_fish>0)) # number of hauls with nonzero catch
+    catch_count = length(which(Catch_KG>0)) # number of hauls with nonzero catch
     ) %>%
   dplyr::ungroup() %>%
   select(year, stratum, 
@@ -216,7 +216,7 @@ biomass_total <- biomass_stratum %>%
     # min_biomass = ,
     # max_biomass = ,
     total_pop = sum(stratum_pop), #checked
-    pop_var = sum(pop_var), #checked
+    pop_var = sum(pop_var) #checked
    # min_pop = ,
    # max_pop = 
     #
