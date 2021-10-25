@@ -125,8 +125,14 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
   x <- dat %>%
     mutate(
       WGTCPUE = Catch_KG / AreaSwept_km2,
-      NUMCPUE = number_fish / AreaSwept_km2
-    )
+      NUMCPUE = number_fish / AreaSwept_km2,
+      survey = survey_area
+    ) %>%
+    replace_na(list(species_code = speciescode)) %>%
+    select(year, survey, Vessel, haul.x, 
+           stratum, distance_fished, 
+           species_code, Catch_KG, number_fish, 
+           AreaSwept_km2, WGTCPUE, NUMCPUE)
 #browser()
   return(x)
 }
@@ -136,7 +142,7 @@ get_haul_cpue <- function(racebase_tables = list(cruisedat = cruisedat,
 # sablefish: 20510
 
 # RACEBASE equivalent table: CPUE
-x <- get_haul_cpue(survey_yr = 2021, survey_area = "GOA", speciescode = 20510)
+x <- get_haul_cpue(survey_yr = 2021, survey_area = "GOA", speciescode = 30060)
 
 
 # Total survey area
