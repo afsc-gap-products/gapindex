@@ -1,8 +1,8 @@
 # design-based-indices (in progress)
 
-Code to generate design-based indices of abundance from survey data. The code takes tables from RACEBASE to calculate CPUE by region and species. 
+Code to generate design-based indices of abundance from survey data. The code takes haul and catch tables from RACEBASE to calculate CPUE by region and species. The goal of this code is to reproduce the tables found in the GOA and AI schemas: `BIOMASS_STRATUM`, `BIOMASS_TOTAL`, and `CPUE`. 
 
-Equations (from Wakabayashi et al. 1985) can be found under [vignettes](https://github.com/MargaretSiple-NOAA/design-based-indices/tree/master/vignettes).
+Equations (from Wakabayashi et al. 1985) can be found under [vignettes](https://github.com/afsc-gap-products/design-based-indices/tree/master/vignettes).
 
 
 ## Legal disclaimer
