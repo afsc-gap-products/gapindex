@@ -1,22 +1,27 @@
 ---
-title: "Calculations"
+title: "Total biomass calculations"
 author: "M Siple"
-date: "10/1/2021"
+date: "10/25/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(knitr) #for tables
+library(kableExtra) #for tables
 ```
 
 ## CPUE calculations for stratum and total survey area
-CPUE for each tow is calculated as the total catch (in kg) divided by the effort (area swept in km^2). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`. 
+CPUE for each tow is calculated as the total catch (in kg) divided by the effort (area swept in $km^2$). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`. 
 
-### Mean weighted CPUE
+### Stratum CPUE
 The weighted mean CPUE for each stratum is:
 $$
 \overline{CPUE}{_{ik}} =  \frac{ \sum_{j=1}^{n_i} CPUE_{ijk}}{n_i}
 $$
+
+Where $i$ is the stratum, $k$ is the species, $j$ is the station, and $n$ is the number of stations. CPUE can be in either numbers or in weight ($kg \cdot km^-2$). 
+
 In the scripts in this project, this is calculated in the following step:
 
 ```{r eval=FALSE}
@@ -26,7 +31,7 @@ x <- dat %>%
       NUMCPUE = number_fish / AreaSwept_km2
     )
 ```
-Where `x` is a table where each row is one haul.
+Where `x` and `dat` are tables where each row is one haul.
 
 ### Stratum biomass
 Stratum biomass is estimated as  `area * mean_wgt_cpue / vulnerability * 0.001`
@@ -41,3 +46,12 @@ $$
 $$
 
 Where $k$ is the species, $i$ is the stratum, $A_i$ is the stratum area, and $A_T$ is the total survey area.
+
+# Symbols
+```{r echo=FALSE}
+x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S" ), 
+                definition = c("Geographical area", "Population weight","Vulnerability","Catch per unit effort (catch per area trawled)","Computed distance trawled","Relative fishing power correction facotr","Number of length categories","Ppopulation number","Number of individuals within a standard sampling unit"), 
+                units = c("$km^2$",rep(NA, times = 8)))
+kbl(x, escape = FALSE) %>%
+  kable_styling()
+```
