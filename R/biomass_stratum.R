@@ -159,9 +159,9 @@ x2 <- x %>%
   dplyr::summarize(
     haul_count = length(unique(stationid)), # number of total abundance hauls
     mean_wgt_cpue = mean(WGTCPUE),
-    var_wgt_cpue = ifelse(haul_count<=1,0,var(WGTCPUE)/haul_count),
+    var_wgt_cpue = ifelse(haul_count<=1,NA,var(WGTCPUE)/haul_count),
     mean_num_cpue = mean(NUMCPUE),
-    var_num_cpue = ifelse(haul_count<=1,0,var(NUMCPUE)/haul_count),
+    var_num_cpue = ifelse(haul_count<=1,NA,var(NUMCPUE)/haul_count),
     catch_count = length(which(Catch_KG>0)) # number of hauls with nonzero catch
     ) %>%
   dplyr::ungroup() %>%
@@ -197,6 +197,31 @@ select(survey, year, stratum, stratum_ratio, haul_count, catch_count, mean_wgt_c
   fi = (Ni*(Ni-haul_count))/haul_count
          )
 
+######################### All good up to this point #######################
+###########################################################################
+###########################################################################
+###########################################################################
+# Test out biomass_stratum, check with oracle verison ---------------------
+pop_check <- read.csv("data/biomass_stratum_2021.csv") #GOA
+test_stratum <- pop_check %>% 
+  filter(YEAR == 2021 & SPECIES_CODE==30060) %>%
+  left_join(strata, by= c("STRATUM" = "stratum")) %>%
+  mutate(stratum_ratio = area/At)
+
+test_total <- test_stratum %>%
+  dplyr::group_by(YEAR) %>%
+  dplyr::summarize(
+    haul_count = sum(HAUL_COUNT),
+    catch_count = sum(CATCH_COUNT),
+    mean_wgt_cpue = sum(MEAN_WGT_CPUE * area, na.rm = TRUE)/At, # weighted avg cpue across strata * total area
+    mean_num_cpue = sum(MEAN_NUM_CPUE * area, na.rm = TRUE)/At, # could this be weighted a different way??
+    var_wgt_cpue = sum(stratum_ratio^2 * VAR_WGT_CPUE, na.rm = TRUE),
+    var_num_cpue = sum(stratum_ratio^2 * VAR_NUM_CPUE , na.rm = TRUE)) %>%
+  ungroup()
+
+test_total
+# OK it's definitely how I'm calculating it that's the issue, because the BIOMASS_STRATUM table behaves the same way when I do these calculations like this
+
 
 # Total CPUE for species and year (whole survey region)
 # RACEBASE equivalent table: BIOMASS_TOTAL
@@ -207,10 +232,10 @@ biomass_total <- biomass_stratum %>%
   dplyr::summarize(
     haul_count = sum(haul_count),
     catch_count = sum(catch_count),
-    mean_wgt_cpue = sum(mean_wgt_cpue*area)/At, # weighted avg cpue across stata * total area
-    mean_num_cpue = sum(mean_num_cpue*area)/At, # Might be weighted by something else?? 
-    var_wgt_cpue = sum(stratum_ratio^2 * var_wgt_cpue),
-    var_num_cpue = sum(stratum_ratio^2 * var_num_cpue),
+    mean_wgt_cpue = sum(mean_wgt_cpue*area, na.rm = TRUE)/At, # weighted avg cpue across stata * total area
+    mean_num_cpue = sum(mean_num_cpue*area, na.rm = TRUE)/At, # could this be weighted a different way??
+    var_wgt_cpue = sum(stratum_ratio^2 * var_wgt_cpue, na.rm = TRUE),
+    var_num_cpue = sum(stratum_ratio^2 * var_num_cpue, na.rm = TRUE),
     total_biomass = sum(stratum_biomass), #checked
     biomass_var = sum(biomass_var), # checked
     # min_biomass = ,
