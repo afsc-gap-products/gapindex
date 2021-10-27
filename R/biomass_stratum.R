@@ -197,11 +197,26 @@ select(survey, year, stratum, stratum_ratio, haul_count, catch_count, mean_wgt_c
   fi = (Ni*(Ni-haul_count))/haul_count
          )
 
+
+biomass_stratum_test <- read.csv("data/biomass_stratum_2021.csv") %>% filter(YEAR==2021) %>%filter(SPECIES_CODE==30060) %>% select(-SPECIES_CODE) %>% janitor::clean_names() %>%
+  arrange(stratum)
+
+biomass_stratum2 <- biomass_stratum %>% 
+  select(-area, -Ni, -fi, -stratum_ratio) %>% 
+  mutate(stratum_pop = as.integer(stratum_pop),
+         min_pop = as.integer(min_pop)) %>%
+  as.data.frame()
+
+head(biomass_stratum2)
+head(biomass_stratum_test)
+
+diffdf::diffdf(biomass_stratum2, biomass_stratum_test)
+biomass_stratum2$mean_wgt_cpue - biomass_stratum_test$mean_wgt_cpue
 ######################### All good up to this point #######################
 ###########################################################################
 ###########################################################################
 ###########################################################################
-# Test out biomass_stratum, check with oracle verison ---------------------
+# Test out biomass_stratum, check with oracle version ---------------------
 pop_check <- read.csv("data/biomass_stratum_2021.csv") #GOA
 test_stratum <- pop_check %>% 
   filter(YEAR == 2021 & SPECIES_CODE==30060) %>%
@@ -213,14 +228,31 @@ test_total <- test_stratum %>%
   dplyr::summarize(
     haul_count = sum(HAUL_COUNT),
     catch_count = sum(CATCH_COUNT),
-    mean_wgt_cpue = sum(MEAN_WGT_CPUE * area, na.rm = TRUE)/At, # weighted avg cpue across strata * total area
-    mean_num_cpue = sum(MEAN_NUM_CPUE * area, na.rm = TRUE)/At, # could this be weighted a different way??
+    # The values below are not matching with the GOA schema
+    mean_wgt_cpue = sum(MEAN_WGT_CPUE * area, na.rm = TRUE)/At, # weighted avg cpue across strata
+    mean_num_cpue = sum(MEAN_NUM_CPUE * area, na.rm = TRUE)/At, 
     var_wgt_cpue = sum(stratum_ratio^2 * VAR_WGT_CPUE, na.rm = TRUE),
     var_num_cpue = sum(stratum_ratio^2 * VAR_NUM_CPUE , na.rm = TRUE)) %>%
   ungroup()
 
 test_total
 # OK it's definitely how I'm calculating it that's the issue, because the BIOMASS_STRATUM table behaves the same way when I do these calculations like this
+
+
+
+# Check strata ------------------------------------------------------------
+
+strata_sqldev <- read.csv("data/goastrata_test.csv")%>%filter(SURVEY=="GOA")
+
+all_equal(goa_ai_strata %>% filter(SURVEY=="GOA"), strata_sqldev)
+# interesting... stratum areas are all the same...
+
+
+
+
+
+
+
 
 
 # Total CPUE for species and year (whole survey region)
@@ -236,8 +268,8 @@ biomass_total <- biomass_stratum %>%
     mean_num_cpue = sum(mean_num_cpue*area, na.rm = TRUE)/At, # could this be weighted a different way??
     var_wgt_cpue = sum(stratum_ratio^2 * var_wgt_cpue, na.rm = TRUE),
     var_num_cpue = sum(stratum_ratio^2 * var_num_cpue, na.rm = TRUE),
-    total_biomass = sum(stratum_biomass), #checked
-    biomass_var = sum(biomass_var), # checked
+    total_biomass = sum(stratum_biomass), #checked - ok
+    biomass_var = sum(biomass_var), # checked - ok
     # min_biomass = ,
     # max_biomass = ,
     total_pop = sum(stratum_pop), #checked
