@@ -10,7 +10,6 @@
 # Stratum areas to use
 # SQL Developer: AFSC--> Other Users --> GOA --> Tables --> GOA_STRATA
 
-
 # Step 1: Get RACEBASE data -----------------------------------------------
 # Where to put the cleaned/wrangled ---------------------------------------
 #data_destination <- "C:/Users/margaret.siple/Work/design-based-indices/data"
@@ -198,20 +197,26 @@ select(survey, year, stratum, stratum_ratio, haul_count, catch_count, mean_wgt_c
          )
 
 
-biomass_stratum_test <- read.csv("data/biomass_stratum_2021.csv") %>% filter(YEAR==2021) %>%filter(SPECIES_CODE==30060) %>% select(-SPECIES_CODE) %>% janitor::clean_names() %>%
+biomass_stratum_oracle <- read.csv("data/biomass_stratum_2021.csv") %>% 
+  filter(YEAR==2021) %>%
+  filter(SPECIES_CODE==30060) %>% 
+  select(-SPECIES_CODE) %>% 
+  janitor::clean_names() %>%
   arrange(stratum)
 
-biomass_stratum2 <- biomass_stratum %>% 
+biomass_stratum_R <- biomass_stratum %>% 
   select(-area, -Ni, -fi, -stratum_ratio) %>% 
   mutate(stratum_pop = as.integer(stratum_pop),
          min_pop = as.integer(min_pop)) %>%
   as.data.frame()
 
-head(biomass_stratum2)
-head(biomass_stratum_test)
+head(biomass_stratum_R)
+head(biomass_stratum_oracle)
 
-diffdf::diffdf(biomass_stratum2, biomass_stratum_test)
-biomass_stratum2$mean_wgt_cpue - biomass_stratum_test$mean_wgt_cpue
+# Differences between BIOMASS_STRATUM 
+diffdf::diffdf(biomass_stratum_R, biomass_stratum_oracle)
+# Difference between biomass_stratum produced by this code and the table in the GOA schema for 2021 for mean_wgt_cpue: 
+biomass_stratum_R$mean_wgt_cpue - biomass_stratum_oracle$mean_wgt_cpue
 ######################### All good up to this point #######################
 ###########################################################################
 ###########################################################################
@@ -241,11 +246,9 @@ test_total
 
 
 # Check strata ------------------------------------------------------------
-
 strata_sqldev <- read.csv("data/goastrata_test.csv")%>%filter(SURVEY=="GOA")
-
 all_equal(goa_ai_strata %>% filter(SURVEY=="GOA"), strata_sqldev)
-# interesting... stratum areas are all the same...
+# interesting... stratum areas etc are all perfectly equal.
 
 
 
