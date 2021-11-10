@@ -85,4 +85,4 @@ write.csv(x=a, "./data/specimen_ADFG.csv", row.names = FALSE)
 # GOA ---------------------------------------------------------------------
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
-write.csv(x=a, "./data/oracle/goa/goa_strata.csv", row.names = FALSE)
+write.csv(x=a, "./data/goa_strata.csv", row.names = FALSE)
