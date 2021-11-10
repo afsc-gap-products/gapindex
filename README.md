@@ -6,7 +6,11 @@ Equations (from Wakabayashi et al. 1985, modified / adapted) can be found under 
 
 ## Workflow
 
-**1. Local copies of data tables.** This code assumes that you have local versions of the RACEBASE tables. I have stored them in a directory called `~/data/oracle/racebase`, with each table saved as a csv file. To set up your local data tables this way, you can use something like Emily Markowitz's [script](https://github.com/EmilyMarkowitz-NOAA/gap_bs_data_report/blob/main/code/dataDL.R) for downloading the data.
+**1. Local copies of data tables.** These scripts work off a local copy of the RACEBASE tables. The `00_download_data_from_oracle.R` script will download these tables and save them locally for you the first time you run the code (or whenever you want to update -- note that this requires you to add a `setup_channel.R` chunk that contains your Oracle info). 
+
+Before you run the summary scripts, the `01_cleanup_data.R` script cleans up the data and formats it for the other functions.
+
+**2. Summary functions.** The other functions contained in this repo will summarize data from RACEBASE as needed. Function names are based on the tables as they appear in the GOA or AI schemas. For example, `get_cpue()` produces the CPUE table from the GOA or AI schema.
 
 
 ## Legal disclaimer
