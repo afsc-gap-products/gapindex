@@ -84,7 +84,7 @@ get_cpue <- function(racebase_tables = list(
 # sablefish: 20510
 
 # RACEBASE equivalent table: CPUE
-x <- get_cpue(survey_area = "GOA", speciescode = 30060)
+# x <- get_cpue(survey_area = "GOA", speciescode = 30060)
 
 
 
