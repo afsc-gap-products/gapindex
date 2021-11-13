@@ -1,28 +1,32 @@
 # get_biomass_stratum
 
 get_biomass_stratum <- function(racebase_tables = list(
-  cruisedat = cruisedat,
-  haul = haul,
-  catch = catch
-),
-speciescode = 30060, # POP
-survey_area = "AI",
-vulnerability = 1) {
+                                  cruisedat = cruisedat,
+                                  haul = haul,
+                                  catch = catch
+                                ),
+                                speciescode = 30060, # POP
+                                survey_area = "AI",
+                                vulnerability = 1,
+                                strata = switch(survey_area,
+                                  "GOA" = goa_strata,
+                                  "AI" = ai_strata
+                                )) {
   # Total survey area
-  region_usr <- survey_area
-  strata <- switch(region_usr,
-                   "GOA" = goa_strata,
-                   "AI" = ai_strata
-  )
+  # region_usr <- survey_area
+  # strata <- switch(region_usr,
+  #   "GOA" = goa_strata,
+  #   "AI" = ai_strata
+  # )
   At <- sum(strata$area)
-  
+  #browser()
   # Get cpue table
   x <- get_cpue(
     racebase_tables = racebase_tables,
     survey_area = survey_area,
     speciescode = speciescode
   )
-  
+
   # Total CPUE for species, year, stratum
   # no RACEBASE equivalent (building block of BIOMASS_STRATUM)
   x2 <- x %>%
@@ -42,11 +46,11 @@ vulnerability = 1) {
       mean_wgt_cpue, var_wgt_cpue,
       mean_num_cpue, var_num_cpue
     )
-  
+
   if (all(x2$catch_count <= x2$haul_count)) {
     print("Number of hauls with positive catches is realistic.")
   }
-  
+
   # RACEBASE equivalent table: BIOMASS_STRATUM
   biomass_stratum <- x2 %>%
     dplyr::left_join(strata) %>%
@@ -55,8 +59,9 @@ vulnerability = 1) {
       stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, # kg --> mt
       stratum_ratio = area / At,
       biomass_var = area^2 * var_wgt_cpue * 1e-6, # kg--> mt, square it because it's variance
-      qt_size = ifelse(haul_count <= 1, 0, 
-                       qt(p = 0.025, df = haul_count - 1, lower.tail = F)),
+      qt_size = ifelse(haul_count <= 1, 0,
+        qt(p = 0.025, df = haul_count - 1, lower.tail = F)
+      ),
       min_biomass = stratum_biomass - qt_size * sqrt(biomass_var),
       max_biomass = stratum_biomass + qt_size * sqrt(biomass_var),
       stratum_pop = area * mean_num_cpue, # not sure why this calculation would be different from the stratum_biomass
@@ -78,17 +83,17 @@ vulnerability = 1) {
 
 
 
-# 
-# 
-# 
-# 
+#
+#
+#
+#
 # biomass_stratum_oracle <- read.csv("data/biomass_stratum_2021.csv") %>%
 #   filter(YEAR == 2021) %>%
 #   filter(SPECIES_CODE == 30060) %>%
 #   select(-SPECIES_CODE) %>%
 #   janitor::clean_names() %>%
 #   arrange(stratum)
-# 
+#
 # biomass_stratum_R <- biomass_stratum %>%
 #   select(-area, -Ni, -fi, -stratum_ratio) %>%
 #   mutate(
@@ -96,10 +101,10 @@ vulnerability = 1) {
 #     min_pop = as.integer(min_pop)
 #   ) %>%
 #   as.data.frame()
-# 
+#
 # head(biomass_stratum_R)
 # head(biomass_stratum_oracle)
-# 
+#
 # # Differences between BIOMASS_STRATUM
 # diffdf::diffdf(biomass_stratum_R, biomass_stratum_oracle)
 # # Difference between biomass_stratum produced by this code and the table in the GOA schema for 2021 for mean_wgt_cpue:
@@ -114,7 +119,7 @@ vulnerability = 1) {
 #   filter(YEAR == 2021 & SPECIES_CODE == 30060) %>%
 #   left_join(strata, by = c("STRATUM" = "stratum")) %>%
 #   mutate(stratum_ratio = area / At)
-# 
+#
 # test_total <- test_stratum %>%
 #   dplyr::group_by(YEAR) %>%
 #   dplyr::summarize(
@@ -127,19 +132,16 @@ vulnerability = 1) {
 #     var_num_cpue = sum(stratum_ratio^2 * VAR_NUM_CPUE, na.rm = TRUE)
 #   ) %>%
 #   ungroup()
-# 
+#
 # test_total
 # # OK it's definitely how I'm calculating it that's the issue, because the BIOMASS_STRATUM table behaves the same way when I do these calculations like this.
-# 
-# 
-# 
+#
+#
+#
 # # Check strata ------------------------------------------------------------
 # strata_sqldev <- read.csv("data/goastrata_test.csv") %>% filter(SURVEY == "GOA")
 # all_equal(goa_ai_strata %>% filter(SURVEY == "GOA"), strata_sqldev)
 # # Stratum areas all equal; no issues there.
-# 
-# 
-# 
-
-
-
+#
+#
+#

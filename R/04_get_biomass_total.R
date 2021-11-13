@@ -8,10 +8,22 @@ get_biomass_total <- function(racebase_tables = list(
                                 haul = haul,
                                 catch = catch
                               ),
-                              speciescode = 30060, # POP
+                              speciescode = 30060, #POP
                               survey_area = "AI",
-                              vulnerability = 1) {
-  biomass_stratum <- get_biomass_stratum(racebase_tables = racebase_tables, speciescode = speciescode, survey_area = survey_area, vulnerability = vulnerability)
+                              vulnerability = 1,
+                              strata = switch(survey_area,
+                                              "GOA" = goa_strata,
+                                              "AI" = ai_strata
+                              )) {
+  At <- sum(strata$area)
+  
+  biomass_stratum <- get_biomass_stratum(racebase_tables = racebase_tables, 
+                                         speciescode = speciescode, 
+                                         survey_area = survey_area, 
+                                         vulnerability = vulnerability)
+  
+  
+ 
   biomass_total <- biomass_stratum %>%
     dplyr::group_by(year) %>%
     dplyr::summarize(
