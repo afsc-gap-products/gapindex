@@ -14,6 +14,7 @@ for (p in PKG) {
 
 # Secret database login info:
 source("R/setup_channel.R")
+
 # The setup_channel.R script sets up a channel using your Oracle username and pw:
 # channel <- odbcConnect(dsn = "AFSC",
 #                        uid = "", # change
