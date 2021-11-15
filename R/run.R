@@ -7,7 +7,7 @@ source("R/package_check.R")
 if(!file.exists("data/local_racebase")){
   x <- askYesNo(msg = "No local racebase files detected in this directory. Would you like to download local copies now?")
   if(x){
-  dir.create("data/local_racebase")
+  dir.create("data/local_racebase", recursive = TRUE)
   source("R/00_download_data_from_oracle.R")
   }
 } 
@@ -16,11 +16,11 @@ if(!file.exists("data/local_racebase")){
 source("R/01_cleanup_data.R")
 
 
-# Get CPUE tables ---------------------------------------------------------
+# Get CPUE tables --------------------------------    -------------------------
 source("R/02_get_cpue.R")
 
 x <- get_cpue(survey_area = "GOA", speciescode = 30060)
-head(x)
+head(x)                  
 
 # Get biomass estimates by stratum ----------------------------------------
 

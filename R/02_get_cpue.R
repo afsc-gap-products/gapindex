@@ -9,7 +9,6 @@
 
 # Stratum areas to use
 # SQL Developer: AFSC--> Other Users --> GOA --> Tables --> GOA_STRATA
-source("R/01_cleanup_data.R")
 
 # This function replicates the tables in RACEBASE GOA --> CPUE
 get_cpue <- function(racebase_tables = list(
