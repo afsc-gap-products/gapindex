@@ -6,9 +6,13 @@ Equations (from Wakabayashi et al. 1985, modified / adapted) can be found under 
 
 ## Workflow
 
+To use this code, clone the repo and run the `run.R` script. 
+
+The workflow for this set of functions has two main components:
+
 **1. Local copies of data tables.** These scripts work off a local copy of the RACEBASE tables. The `00_download_data_from_oracle.R` script will download these tables and save them locally for you the first time you run the code (or whenever you want to update -- note that this requires you to add a `setup_channel.R` chunk that contains your Oracle info). 
 
-Before you run the summary scripts, the `01_cleanup_data.R` script cleans up the data and formats it for the other functions.
+Before you run summary functions (like `get_biomass_stratum()`), the `01_cleanup_data.R` script cleans up the data and formats it for the other functions.
 
 **2. Summary functions.** The other functions contained in this repo will summarize data from RACEBASE as needed. Function names are based on the tables as they appear in the GOA or AI schemas. For example, `get_cpue()` produces the CPUE table from the GOA or AI schema.
 
