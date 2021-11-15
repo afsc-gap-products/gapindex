@@ -1,4 +1,4 @@
-packages <- c("tidyverse","RODBC")
+packages <- c("tidyverse","RODBC", "janitor")
 source("R/package_check.R")
 
 
@@ -7,7 +7,7 @@ source("R/package_check.R")
 if(!file.exists("data/local_racebase")){
   x <- askYesNo(msg = "No local racebase files detected in this directory. Would you like to download local copies now?")
   if(x){
-  dir.create("data/local_racebase")
+  dir.create("data/local_racebase", recursive = TRUE)
   source("R/00_download_data_from_oracle.R")
   }
 } 
