@@ -1,5 +1,19 @@
 # get_biomass_stratum
 
+#' Calculate index of total biomass per stratum
+#'
+#' @param racebase_tables a list of the cruisedat, haul, and catch tables from RACEBASE (all regions, all years)
+#' @param speciescode five-digit numeric species code from the GAP species guides
+#' @param survey_area a character code for the survey area, either "GOA" or "AI"
+#' @param vulnerability the vulnerability of the species to the survey (defaults to 1)
+#' @param strata a dataframe with the number and areas of the strata. Defaults to the strata table from RACEBASE.
+#'
+#' @return a dataframe containing the mean weighted cpue, 
+#' @export
+#'
+#' @examples
+#' x <- get_biomass_stratum(speciescode = 30060,survey_area = "GOA")
+#' head(x)
 get_biomass_stratum <- function(racebase_tables = list(
                                   cruisedat = cruisedat,
                                   haul = haul,
@@ -12,14 +26,8 @@ get_biomass_stratum <- function(racebase_tables = list(
                                   "GOA" = goa_strata,
                                   "AI" = ai_strata
                                 )) {
-  # Total survey area
-  # region_usr <- survey_area
-  # strata <- switch(region_usr,
-  #   "GOA" = goa_strata,
-  #   "AI" = ai_strata
-  # )
   At <- sum(strata$area)
-  #browser()
+
   # Get cpue table
   x <- get_cpue(
     racebase_tables = racebase_tables,
