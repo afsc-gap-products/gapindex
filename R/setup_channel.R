@@ -12,7 +12,7 @@ get.connected <- function(schema='AFSC', username, password){(echo=FALSE)
 }
 
 # Execute the connection
-get.connected()
+channel <- get.connected()
 
 
 odbcGetInfo(channel)
