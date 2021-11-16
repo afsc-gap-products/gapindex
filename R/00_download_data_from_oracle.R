@@ -65,7 +65,7 @@ write.csv(x=a, "./data/local_race_data/vessels.csv", row.names = FALSE)
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.TAXONOMIC_RANKS")
 write.csv(x=a, "./data/local_race_data/taxonomic_ranks.csv", row.names = FALSE)
 
-a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMIC")
+a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMICS")
 write.csv(x=a, "./data/local_race_data/species_taxonomic.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.V_CRUISES")
