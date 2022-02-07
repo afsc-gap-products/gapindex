@@ -44,15 +44,19 @@ haul <- haul %>%
 
 # Get cruise info from RACE.DATA ------------------------------------------
 # AFAIK you can only get the name of the survey from the cruises.csv file, which is from RACEDATA
-cruises <- read.csv(here::here(
-  "data",
-  "local_race_data",
-  "cruises.csv"
-)) %>%
-  janitor::clean_names()
+# cruises <- read.csv(here::here(
+#   "data",
+#   "local_race_data",
+#   "cruises.csv"
+# )) %>%
+#   janitor::clean_names()
+cruisedat <- cruise %>%
+  dplyr::select(survey_name, region, 
+                cruisejoin,
+                agency_name)
 
-cruisedat <- cruises %>%
-  dplyr::select(year, survey_name, region, 
-                cruisejoin, cruise_data_in_racebase, 
-                vessel_country, survey_definition_id)
+# cruisedat <- cruises %>%
+#   dplyr::select(year, survey_name, region, 
+#                 cruisejoin, cruise_data_in_racebase, 
+#                 vessel_country, survey_definition_id)
 

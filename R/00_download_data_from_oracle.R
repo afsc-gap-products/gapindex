@@ -47,6 +47,9 @@ write.csv(x=a, "./data/local_racebase/stations.csv", row.names = FALSE)
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES")
 write.csv(x=a, "./data/local_racebase/species.csv", row.names = FALSE)
 
+a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CRUISE")
+write.csv(x=a, "./data/local_racebase/cruise.csv", row.names = FALSE)
+
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIES_CLASSIFICATION")
 write.csv(x=a, "./data/local_racebase/species_classification.csv", row.names = FALSE)
 
