@@ -1,4 +1,4 @@
-packages <- c("tidyverse","RODBC")
+packages <- c("tidyverse","RODBC", "janitor")
 source("R/package_check.R")
 
 
@@ -36,3 +36,4 @@ source("R/04_get_biomass_total.R")
 
 z <- get_biomass_total(speciescode = 30060,
                        survey_area = "GOA")
+

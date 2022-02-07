@@ -1,8 +1,8 @@
 # 00_download_data_from_oracle
 
 # Setup folders for local files -------------------------------------------
-if(!file.exists("data/local_racebase")) dir.create("data/local_racebase")
-if(!file.exists("data/local_race_data")) dir.create("data/local_race_data")
+if(!file.exists("data/local_racebase")) dir.create("data/local_racebase", recursive = TRUE)
+if(!file.exists("data/local_race_data")) dir.create("data/local_race_data", recursive= TRUE)
 
 # Load packages -----------------------------------------------------------
 PKG <- c("RODBC")
@@ -33,7 +33,7 @@ a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL")
 write.csv(x=a, "./data/local_racebase/haul.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH")
-write.csv(x=a, "./data/local_racebase//length.csv", row.names = FALSE)
+write.csv(x=a, "./data/local_racebase/length.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.SPECIMEN")
 write.csv(x=a, "./data/local_racebase/specimen.csv", row.names = FALSE)
@@ -68,7 +68,7 @@ write.csv(x=a, "./data/local_race_data/vessels.csv", row.names = FALSE)
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.TAXONOMIC_RANKS")
 write.csv(x=a, "./data/local_race_data/taxonomic_ranks.csv", row.names = FALSE)
 
-a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMIC")
+a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.SPECIES_TAXONOMICS")
 write.csv(x=a, "./data/local_race_data/species_taxonomic.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACE_DATA.V_CRUISES")
