@@ -16,9 +16,10 @@ Before you run summary functions (like `get_biomass_stratum()`), the `01_cleanup
 
 **2. Summary functions.** The other functions contained in this repo will summarize data from RACEBASE as needed. Function names are based on the tables as they appear in the GOA or AI schemas. For example, `get_cpue()` produces the CPUE table from the GOA or AI schema.
 
-## Contributors
+## Authors
 
 Primary contact: @MargaretSiple-NOAA
+
 Contributors: @SarahFriedman-NOAA, ...
 
 ## Legal disclaimer

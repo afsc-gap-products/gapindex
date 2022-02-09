@@ -16,7 +16,7 @@ if(!file.exists("data/local_racebase")){
 source("R/01_cleanup_data.R")
 
 
-# Get CPUE tables --------------------------------    -------------------------
+# Get CPUE tables ---------------------------------------------------------
 source("R/02_get_cpue.R")
 
 x <- get_cpue(survey_area = "GOA", speciescode = 30060)

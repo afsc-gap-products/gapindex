@@ -5,7 +5,7 @@ if(!file.exists("data/local_racebase")) dir.create("data/local_racebase", recurs
 if(!file.exists("data/local_race_data")) dir.create("data/local_race_data", recursive= TRUE)
 
 # Load packages -----------------------------------------------------------
-PKG <- c("RODBC")
+PKG <- c("RODBC", "getPass")
 for (p in PKG) {
   if(!require(p,character.only = TRUE)) {  
     install.packages(p)
