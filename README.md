@@ -2,7 +2,7 @@
 
 Code to generate design-based indices of abundance from survey data. The code takes haul and catch tables from RACEBASE to calculate CPUE by region and species. The goal of this code is to reproduce the tables found in the GOA and AI schemas: `BIOMASS_STRATUM`, `BIOMASS_TOTAL`, and `CPUE`. I (Megsie) am currently testing this code with those two regions in mind; the repo may be modified in the future to also include Bering Sea functions, OR Bering Sea indices may become their own repository.
 
-Equations (from Wakabayashi et al. 1985, modified / adapted) can be found under [vignettes](https://github.com/afsc-gap-products/design-based-indices/tree/master/vignettes).
+Equations (from [Wakabayashi et al. 1985](https://drive.google.com/file/d/1m5c1N4WYysM1pscrpcgWOGZSZIK8vIHr/view?usp=sharing), modified / adapted) can be found under [vignettes](https://github.com/afsc-gap-products/design-based-indices/tree/master/vignettes).
 
 ## Workflow
 
