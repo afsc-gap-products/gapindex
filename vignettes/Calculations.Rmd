@@ -1,7 +1,7 @@
 ---
 title: "Total biomass calculations"
 author: "M Siple"
-date: "10/25/2021"
+date: "2/8/22"
 output: html_document
 ---
 
@@ -110,8 +110,10 @@ Where $k$ is the species, $i$ is the stratum, $A_i$ is the stratum area, and $A_
 # Symbols
 ```{r echo=FALSE}
 x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S" ), 
-                definition = c("Geographical area", "Population weight","Vulnerability","Catch per unit effort (catch per area trawled)","Computed distance trawled","Relative fishing power correction facotr","Number of length categories","Ppopulation number","Number of individuals within a standard sampling unit"), 
-                units = c("$km^2$",rep(NA, times = 8)))
+                definition = c("Geographical area", "Population weight","Vulnerability","Catch per unit effort (catch per area trawled)","Computed distance trawled","Relative fishing power correction factor","Number of length categories","Population number","Number of individuals within a standard sampling unit"), 
+                units = c("$km^2$","$kg$","$scalar$","$kg/ha$","$km$",
+                          "$scalar$","$integer$","$integer$",
+                          "$n per hectare$"))
 kbl(x, escape = FALSE) %>%
   kable_styling()
 ```
