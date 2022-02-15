@@ -2,7 +2,8 @@
 
 # Setup folders for local files -------------------------------------------
 if(!file.exists("data/local_racebase")) dir.create("data/local_racebase", recursive = TRUE)
-if(!file.exists("data/local_race_data")) dir.create("data/local_race_data", recursive= TRUE)
+if(!file.exists("data/local_race_data")) dir.create("data/local_race_data", recursive = TRUE)
+if(!file.exists("data/local_nodc")) dir.create("data/local_nodc", recursive = TRUE)
 
 # Load packages -----------------------------------------------------------
 PKG <- c("RODBC", "getPass")
@@ -90,3 +91,9 @@ write.csv(x=a, "./data/specimen_ADFG.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM GOA.GOA_STRATA")
 write.csv(x=a, "./data/goa_strata.csv", row.names = FALSE)
+
+
+# NODC (Food Habits) ------------------------------------------------------
+a<-RODBC::sqlQuery(channel, "SELECT * FROM FOODLAB.NODC")
+write.csv(x=a, "./data/local_nodc/nodc.csv", row.names = FALSE)
+
