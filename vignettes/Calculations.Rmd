@@ -1,8 +1,12 @@
 ---
 title: "Total biomass calculations"
 author: "M Siple"
-date: "2/8/22"
-output: html_document
+date: "2/15/22"
+output: 
+  html_document:
+    theme: united
+    highlight: tango
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -11,20 +15,13 @@ library(knitr) #for tables
 library(kableExtra) #for tables
 ```
 
-## CPUE calculations for stratum and total survey area
-CPUE for each tow is calculated as the total catch (in kg) divided by the effort (area swept in $km^2$). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`.
+## Stratum level calculations
+Catch per unit effort (CPUE) for each tow is calculated as the total catch (in kg) divided by the effort (area swept in $km^2$). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`.
 
 ### Mean and variance of stratum CPUE
-Represented in Oracle as the `CPUE` table in the GOA or AI schema.
+Represented in Oracle as the `CPUE` table in the GOA or AI schema. Calculated here in the 02_get_cpue.R script.
 
-The weighted mean CPUE for each stratum is:
-$$
-\overline{CPUE}{_{ik}} =  \frac{ \sum_{j=1}^{n_i} CPUE_{ijk}}{n_i}
-$$
-
-Where $i$ is the stratum, $k$ is the species, $j$ is the station, and $n$ is the number of stations. CPUE can be in either numbers or in weight ($kg \cdot km^-2$). 
-
-In the scripts in this project, this is calculated with the following lines:
+In this project, CPUE for each haul is calculated in the `01_cleanup_data.R` script:
 
 ```{r eval=FALSE}
 x <- dat %>%
@@ -35,8 +32,34 @@ x <- dat %>%
 ```
 Where `x` and `dat` are each a table where each row is one haul. 
 
-### Stratum biomass
-Represented in Oracle in the `BIOMASS_STRATUM` table in the GOA or AI schema.
+#### Stratum CPUE and biomass
+Represented in Oracle in the `BIOMASS_STRATUM` table in the GOA or AI schema.The weighted mean CPUE for each stratum is:
+$$
+\overline{CPUE}{_{ik}} =  \frac{ \sum_{j=1}^{n_i} CPUE_{ijk}}{n_i}
+$$
+
+Where $i$ is the stratum, $k$ is the species, $j$ is the station, and $n$ is the number of stations. CPUE can be in either numbers or in weight ($kg \cdot km^-2$). 
+
+The variance of the mean CPUE is:
+
+$$
+VAR \overline{CPUE}{_{ik}} =  \frac{ \sum_{j=1}^{n_i} (CPUE_{ijk}-\overline{CPUE}_{i,k})^2}{n_i (n_i-1)} 
+$$
+
+This is calculated by taking the mean of the weight CPUE and the numeric CPUE:
+```{r eval=FALSE}
+x %>%
+    group_by(year, stratum) %>%
+    dplyr::summarize(
+      haul_count = length(unique(stationid)), # number of total abundance hauls
+      mean_wgt_cpue = mean(WGTCPUE),
+      var_wgt_cpue = ifelse(haul_count <= 1, NA, var(WGTCPUE) / haul_count),
+      mean_num_cpue = mean(NUMCPUE),
+      var_num_cpue = ifelse(haul_count <= 1, NA, var(NUMCPUE) / haul_count),
+      catch_count = length(which(Catch_KG > 0)) # number of hauls with nonzero catch
+    )
+```
+
 
 Mean weighted stratum biomass is calculated as:
 $$
