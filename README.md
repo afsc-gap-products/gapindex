@@ -4,6 +4,16 @@ Code to generate design-based indices of abundance from survey data. The code ta
 
 Equations (from [Wakabayashi et al. 1985](https://drive.google.com/file/d/1m5c1N4WYysM1pscrpcgWOGZSZIK8vIHr/view?usp=sharing), modified / adapted) can be found under [vignettes](https://github.com/afsc-gap-products/design-based-indices/tree/master/vignettes).
 
+## Scripts
+
+| Script                         | Description                                     | Equation number(s) in Wakabayashi et al. |
+|--------------------------------|-------------------------------------------------|------------------------------------------|
+| `00_download_data_from_oracle.R` | Download raw tables from Oracle into data/      | --                                       |
+| `01_cleanup_data.R`              | Cleanup up column names (snake case)            | --                                       |
+| `02_get_cpue.R`                  | Calculate haul CPUE (numerical and weight CPUE) | 1       |
+| `03_get_biomass_stratum.R`       | Get stratum level estimates of mean and variance of biomass      | 2, 3, 6, 7, 8          |
+| `04_get_biomass_total.R`         | Get mean and variance of CPUE and total biomass for the whole survey area            | 4, 5, 9, 10, 11, 12                         |
+
 ## Workflow
 
 To use this code, clone the repo and run the `run.R` script. 
