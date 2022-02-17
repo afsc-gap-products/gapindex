@@ -3,7 +3,7 @@ title: "Total biomass calculations"
 author: "M Siple"
 date: "2/15/22"
 output: 
-  html_document:
+  bookdown::html_document2:
     theme: united
     highlight: tango
     toc: true
@@ -16,9 +16,9 @@ library(kableExtra) #for tables
 ```
 
 ## Stratum level calculations
-Catch per unit effort (CPUE) for each tow is calculated as the total catch (in kg) divided by the effort (area swept in $km^2$). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`.
+Variables for all the following equations are defined in Table \@ref(tab:variable-names-tab)). Catch per unit effort (CPUE) for each tow is calculated as the total catch (in kg) divided by the effort (area swept in $km^2$). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`. 
 
-### Mean and variance of stratum CPUE
+### Stratum CPUE
 Represented in Oracle as the `CPUE` table in the GOA or AI schema. Calculated here in the 02_get_cpue.R script.
 
 In this project, CPUE for each haul is calculated in the `01_cleanup_data.R` script:
@@ -32,7 +32,6 @@ x <- dat %>%
 ```
 Where `x` and `dat` are each a table where each row is one haul. 
 
-#### Stratum CPUE and biomass
 Represented in Oracle in the `BIOMASS_STRATUM` table in the GOA or AI schema.The weighted mean CPUE for each stratum is:
 $$
 \overline{CPUE}{_{ik}} =  \frac{ \sum_{j=1}^{n_i} CPUE_{ijk}}{n_i}
@@ -60,12 +59,15 @@ x %>%
     )
 ```
 
+### Stratum biomass
 
-Mean weighted stratum biomass is calculated as:
+Mean biomass in stratum $i$ for species $k$ is estimated as:
 $$
 \hat{B}_{ik} = \bigg(\frac{A_i}{0.01}\bigg)^2 \cdot \overline{CPUE}{_{ik}}
 $$
-This is represented in the `get_biomass_stratum()` function with the following:
+Where $A_i$ is the area of the $i$th stratum. 
+
+This is represented in the `get_biomass_stratum()` function as follows:
 ```{r eval=FALSE}
 x2 <- x %>%
     group_by(year, stratum) %>%
@@ -120,6 +122,8 @@ x2 <- x %>%
 Where `x` is the table of CPUE by stratum that results from `get_cpue()`. 
 
 
+## Total area calculations
+
 `area * mean_wgt_cpue / vulnerability * 0.001`
  
 Mean CPUE is calculated for each stratum, then the total CPUE is the weighted sum of those across all strata, weighted by the total area of each stratum (equation 4 in Wakabayashi et al. 1985). The overall mean CPUE for the entire survey area is $\overline{CPUE}_{Tk}$:
@@ -131,12 +135,12 @@ $$
 Where $k$ is the species, $i$ is the stratum, $A_i$ is the stratum area, and $A_T$ is the total survey area.
 
 # Symbols
-```{r echo=FALSE}
+```{r variable-names-tab}
 x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S" ), 
                 definition = c("Geographical area", "Population weight","Vulnerability","Catch per unit effort (catch per area trawled)","Computed distance trawled","Relative fishing power correction factor","Number of length categories","Population number","Number of individuals within a standard sampling unit"), 
                 units = c("$km^2$","$kg$","$scalar$","$kg/ha$","$km$",
                           "$scalar$","$integer$","$integer$",
                           "$n per hectare$"))
-kbl(x, escape = FALSE) %>%
+kableExtra::kbl(x, escape = FALSE,caption = "Variable names used in these calculations") %>%
   kable_styling()
 ```
