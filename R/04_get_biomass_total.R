@@ -33,12 +33,12 @@ get_biomass_total <- function(racebase_tables = list(
       mean_num_cpue = sum(mean_num_cpue * area, na.rm = TRUE) / At,
       var_wgt_cpue = sum(stratum_ratio^2 * var_wgt_cpue, na.rm = TRUE),
       var_num_cpue = sum(stratum_ratio^2 * var_num_cpue, na.rm = TRUE),
-      total_biomass = sum(stratum_biomass), # checked - ok
-      biomass_var = sum(biomass_var), # checked - ok
+      total_biomass = sum(stratum_biomass, na.rm=TRUE), # check if this can ever be NA
+      biomass_var = sum(biomass_var, na.rm=TRUE), # checked - ok
       # min_biomass = ,
       # max_biomass = ,
-      total_pop = sum(stratum_pop), # checked
-      pop_var = sum(pop_var) # checked
+      total_pop = sum(stratum_pop, na.rm=TRUE), # checked
+      pop_var = sum(pop_var, na.rm=TRUE) # checked
       # min_pop = ,
       # max_pop =
       #
