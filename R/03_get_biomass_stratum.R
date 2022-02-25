@@ -41,9 +41,9 @@ get_biomass_stratum <- function(racebase_tables = list(
     group_by(year, stratum) %>%
     dplyr::summarize(
       haul_count = length(unique(stationid)), # number of total abundance hauls
-      mean_wgt_cpue = mean(WGTCPUE),
+      mean_wgt_cpue = mean(WGTCPUE, na.rm = TRUE),
       var_wgt_cpue = ifelse(haul_count <= 1, NA, var(WGTCPUE) / haul_count),
-      mean_num_cpue = mean(NUMCPUE),
+      mean_num_cpue = mean(NUMCPUE, na.rm = TRUE),
       var_num_cpue = ifelse(haul_count <= 1, NA, var(NUMCPUE) / haul_count),
       catch_count = length(which(Catch_KG > 0)) # number of hauls with nonzero catch
     ) %>%
