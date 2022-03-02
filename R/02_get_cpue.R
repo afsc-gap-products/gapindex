@@ -40,7 +40,7 @@ get_cpue <- function(racebase_tables = list(
     )) %>%
     dplyr::select(
       species_code,
-      cruisejoin.x, vessel.x, haul.x,
+      cruisejoin.x, vessel.x, haul.x, hauljoin,
       haul_type, performance, duration,
       stratum, stationid,
       distance_fished, weight, year,
@@ -68,7 +68,8 @@ get_cpue <- function(racebase_tables = list(
     ) %>%
     replace_na(list(species_code = speciescode)) %>%
     select(
-      year, survey, Vessel, haul.x, stationid,
+      year, survey, Vessel, haul.x, hauljoin,
+      stationid,
       stratum, distance_fished,
       species_code, Catch_KG, number_fish,
       AreaSwept_km2, WGTCPUE, NUMCPUE

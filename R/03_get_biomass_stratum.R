@@ -34,13 +34,13 @@ get_biomass_stratum <- function(racebase_tables = list(
     survey_area = survey_area,
     speciescode = speciescode
   )
-
+#browser()
   # Total CPUE for species, year, stratum
   # no RACEBASE equivalent (building block of BIOMASS_STRATUM)
   x2 <- x %>%
     group_by(year, stratum) %>%
     dplyr::summarize(
-      haul_count = length(unique(stationid)), # number of total abundance hauls
+      haul_count = length(unique(hauljoin)), # number of total abundance hauls
       mean_wgt_cpue = mean(WGTCPUE, na.rm = TRUE),
       var_wgt_cpue = ifelse(haul_count <= 1, NA, var(WGTCPUE) / haul_count),
       mean_num_cpue = mean(NUMCPUE, na.rm = TRUE),
