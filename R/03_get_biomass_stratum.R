@@ -61,7 +61,7 @@ get_biomass_stratum <- function(racebase_tables = list(
 
   # RACEBASE equivalent table: BIOMASS_STRATUM
   biomass_stratum <- x2 %>%
-    dplyr::left_join(strata) %>%
+    dplyr::left_join(strata, by = "stratum") %>%
     rowwise() %>% # for applying ifelse() by row
     mutate(
       stratum_biomass = area * mean_wgt_cpue / vulnerability * 0.001, # kg --> mt
