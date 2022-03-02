@@ -49,11 +49,12 @@ get_biomass_stratum <- function(racebase_tables = list(
     ) %>%
     dplyr::ungroup() %>%
     select(
-      year, stratum,
+      year, stratum, 
       haul_count, catch_count,
       mean_wgt_cpue, var_wgt_cpue,
       mean_num_cpue, var_num_cpue
-    )
+    ) %>%
+    add_column(.after = "stratum", species_code = speciescode)
 
   if (all(x2$catch_count <= x2$haul_count)) {
     print("Number of hauls with positive catches is realistic.")
@@ -81,7 +82,7 @@ get_biomass_stratum <- function(racebase_tables = list(
       min_biomass = ifelse(min_biomass < 0, 0, min_biomass),
       min_pop = ifelse(min_pop < 0, 0, min_pop)
     ) %>% # set low CI to zero if it's negative
-    select(survey, year, stratum, stratum_ratio, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area) %>%
+    select(survey, year, stratum, species_code, haul_count, catch_count, mean_wgt_cpue, var_wgt_cpue, mean_num_cpue, var_num_cpue, stratum_biomass, biomass_var, min_biomass, max_biomass, stratum_pop, pop_var, min_pop, max_pop, area, stratum_ratio) %>%
     mutate(
       Ni = area / 0.01,
       fi = (Ni * (Ni - haul_count)) / haul_count
