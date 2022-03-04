@@ -9,13 +9,27 @@ wayne <- read.csv("data/biomass_stratum_2021.csv")
 pop_dbe <- get_biomass_stratum(speciescode = 30060,survey_area = "GOA")
 pop_palsson <- wayne %>% filter(SPECIES_CODE==30060) %>% arrange(YEAR,STRATUM)
 
+pop_palsson2 <- pop_palsson %>% filter(STRATUM_BIOMASS>0)
+boxplot(data = pop_palsson2, log(STRATUM_BIOMASS)~STRATUM)
+
 nrow(pop_dbe)
 nrow(pop_palsson)
+
+colnames(pop_dbe)
+colnames(pop_palsson)
 
 head(pop_dbe)
 head(pop_palsson)
 
+plot(pop_dbe$mean_wgt_cpue,pop_palsson$MEAN_WGT_CPUE)
 
+# Compare dataframes
+diffdf::diffdf(janitor::clean_names(pop_palsson),pop_dbe)
 
+# First difference
+pop_dbe[16,]
 
-# haul counts are off! Palsson counts always larger than my counts
+#stratum 111
+xx <- get_cpue(speciescode = 30060,survey_area = "GOA") %>% 
+  filter(stratum==111 & year == 1984)
+xx_pal <- read.csv("data/cpue_table.csv") %>% filter(YEAR==1984)
