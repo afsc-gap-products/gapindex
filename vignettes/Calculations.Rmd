@@ -1,10 +1,10 @@
 ---
 title: "Total biomass calculations"
 author: "M Siple"
-date: "2/15/22"
+date: "last updated 3/3/22"
 output: 
   bookdown::html_document2:
-    theme: united
+    theme: yeti
     highlight: tango
     toc: true
 ---
@@ -15,10 +15,10 @@ library(knitr) #for tables
 library(kableExtra) #for tables
 ```
 
-## Stratum level calculations
+# Stratum level calculations
 Variables for all the following equations are defined in Table \@ref(tab:variable-names-tab)). Catch per unit effort (CPUE) for each tow is calculated as the total catch (in kg) divided by the effort (area swept in $km^2$). The quick calculation for this from the RACEBASE tables is `effort = distance_fished * (0.001 * net_width)`. 
 
-### Stratum CPUE
+## Stratum CPUE
 Represented in Oracle as the `CPUE` table in the GOA or AI schema. Calculated here in the 02_get_cpue.R script.
 
 In this project, CPUE for each haul is calculated in the `01_cleanup_data.R` script:
@@ -59,7 +59,7 @@ x %>%
     )
 ```
 
-### Stratum biomass
+## Stratum biomass
 
 Mean biomass in stratum $i$ for species $k$ is estimated as:
 $$
@@ -67,7 +67,7 @@ $$
 $$
 Where $A_i$ is the area of the $i$th stratum. 
 
-This is represented in the `get_biomass_stratum()` function as follows:
+This is represented in the `get_biomass_stratum()` function as follows, where `mean_wgt_cpue` is $\overline{CPUE}{_{ik}}$ and `area` is $A_i$:
 ```{r eval=FALSE}
 x2 <- x %>%
     group_by(year, stratum) %>%
@@ -122,11 +122,10 @@ x2 <- x %>%
 Where `x` is the table of CPUE by stratum that results from `get_cpue()`. 
 
 
-## Total area calculations
+# Total area calculations
 
-`area * mean_wgt_cpue / vulnerability * 0.001`
- 
-Mean CPUE is calculated for each stratum, then the total CPUE is the weighted sum of those across all strata, weighted by the total area of each stratum (equation 4 in Wakabayashi et al. 1985). The overall mean CPUE for the entire survey area is $\overline{CPUE}_{Tk}$:
+## Total area CPUE
+The total CPUE is the weighted sum of CPUE across all strata, weighted by the total area of each stratum (equation 4 in Wakabayashi et al. 1985). The overall mean CPUE for the entire survey area is $\overline{CPUE}_{Tk}$:
 
 $$
 \overline{CPUE}_{Tk} = \frac{\sum_{i}{\overline{CPUE}_{ik}}\cdot A_i}{A_T}
@@ -134,8 +133,28 @@ $$
 
 Where $k$ is the species, $i$ is the stratum, $A_i$ is the stratum area, and $A_T$ is the total survey area.
 
-# Symbols
-```{r variable-names-tab}
+## Total area biomass
+Total area biomass is calculated by summing the strata biomasses:
+$$
+\hat{B}_{Tk} = \sum_{i}{\hat{B}_{ik} }
+$$
+Variance for the total area biomass is calculated by summing the variances across strata:
+$$
+VAR \space \hat{B}_{Tk} = \sum_{i}{VAR \space \hat{B}_{ik} }
+$$
+The confidence intervals for total area biomass are calculated as:
+$$
+\hat{B}_{Tk} \mp \space t(\alpha,n_e)\sqrt{\sum_{i} VAR \space \hat{B}_{ik}}
+$$
+And the degrees of freedom $n_e$ is:
+
+$$
+n_e = \frac{(\sum_i f_i \cdot VAR \space CPUE_{i,j,k})^2}{    \sum_i {\frac{f_i^2\cdot ( VAR \space CPUE_{i,j,k})^2}{n_i -1}}}
+$$
+As calculated in Cochran (1962). This equation is corrected from Equation 12 in Wakabayashi et al. (1985).
+
+# Tables
+```{r variable-names-tab, echo=FALSE}
 x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S" ), 
                 definition = c("Geographical area", "Population weight","Vulnerability","Catch per unit effort (catch per area trawled)","Computed distance trawled","Relative fishing power correction factor","Number of length categories","Population number","Number of individuals within a standard sampling unit"), 
                 units = c("$km^2$","$kg$","$scalar$","$kg/ha$","$km$",
