@@ -52,7 +52,7 @@ get_cpue <- function(racebase_tables = list(
     dplyr::rename(
       Lat = start_latitude,
       Lon = start_longitude,
-      Catch_KG = weight,
+      catch_kg = weight,
       Vessel = vessel.x,
       Bottom_temp = gear_temperature,
       Surface_temp = surface_temperature
@@ -62,8 +62,8 @@ get_cpue <- function(racebase_tables = list(
 
   x <- dat %>%
     mutate(
-      WGTCPUE = Catch_KG / AreaSwept_km2,
-      NUMCPUE = number_fish / AreaSwept_km2,
+      wgtcpue = catch_kg / AreaSwept_km2,
+      numcpue = number_fish / AreaSwept_km2,
       survey = survey_area
     ) %>%
     replace_na(list(species_code = speciescode)) %>%
@@ -71,8 +71,8 @@ get_cpue <- function(racebase_tables = list(
       year, survey, Vessel, haul.x, hauljoin,
       stationid,
       stratum, distance_fished,
-      species_code, Catch_KG, number_fish,
-      AreaSwept_km2, WGTCPUE, NUMCPUE
+      species_code, catch_kg, number_fish,
+      AreaSwept_km2, wgtcpue, numcpue
     ) %>%
     arrange(year)
 

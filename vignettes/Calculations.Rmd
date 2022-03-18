@@ -26,8 +26,8 @@ In this project, CPUE for each haul is calculated in the `01_cleanup_data.R` scr
 ```{r eval=FALSE}
 x <- dat %>%
     mutate(
-      WGTCPUE = Catch_KG / AreaSwept_km2,
-      NUMCPUE = number_fish / AreaSwept_km2
+      wgtcpue = catch_kg / AreaSwept_km2,
+      numcpue = number_fish / AreaSwept_km2
     )
 ```
 Where `x` and `dat` are each a table where each row is one haul. 
@@ -51,11 +51,11 @@ x %>%
     group_by(year, stratum) %>%
     dplyr::summarize(
       haul_count = length(unique(stationid)), # number of total abundance hauls
-      mean_wgt_cpue = mean(WGTCPUE),
-      var_wgt_cpue = ifelse(haul_count <= 1, NA, var(WGTCPUE) / haul_count),
-      mean_num_cpue = mean(NUMCPUE),
-      var_num_cpue = ifelse(haul_count <= 1, NA, var(NUMCPUE) / haul_count),
-      catch_count = length(which(Catch_KG > 0)) # number of hauls with nonzero catch
+      mean_wgt_cpue = mean(wgtcpue),
+      var_wgt_cpue = ifelse(haul_count <= 1, NA, var(wgtcpue) / haul_count),
+      mean_num_cpue = mean(numcpue),
+      var_num_cpue = ifelse(haul_count <= 1, NA, var(numcpue) / haul_count),
+      catch_count = length(which(catch_kg > 0)) # number of hauls with nonzero catch
     )
 ```
 
@@ -73,11 +73,11 @@ x2 <- x %>%
     group_by(year, stratum) %>%
     dplyr::summarize(
       haul_count = length(unique(stationid)), # number of total abundance hauls
-      mean_wgt_cpue = mean(WGTCPUE),
-      var_wgt_cpue = ifelse(haul_count <= 1, NA, var(WGTCPUE) / haul_count),
-      mean_num_cpue = mean(NUMCPUE),
-      var_num_cpue = ifelse(haul_count <= 1, NA, var(NUMCPUE) / haul_count),
-      catch_count = length(which(Catch_KG > 0)) # number of hauls with nonzero catch
+      mean_wgt_cpue = mean(wgtcpue),
+      var_wgt_cpue = ifelse(haul_count <= 1, NA, var(wgtcpue) / haul_count),
+      mean_num_cpue = mean(numcpue),
+      var_num_cpue = ifelse(haul_count <= 1, NA, var(numcpue) / haul_count),
+      catch_count = length(which(catch_kg > 0)) # number of hauls with nonzero catch
     ) %>%
     dplyr::ungroup() %>%
     select(
