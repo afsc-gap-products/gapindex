@@ -31,6 +31,11 @@ a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.CATCH")
 write.csv(x=a, "./data/local_racebase/catch.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.HAUL")
+a<-RODBC::sqlQuery(channel, 
+                       paste0("SELECT ",
+                              paste0(names(a)[names(a) != "START_TIME"], 
+                                     sep = ",", collapse = " "),
+                              " TO_CHAR(START_TIME,'MM/DD/YYYY HH24:MI:SS') START_TIME  FROM RACEBASE.HAUL"))
 write.csv(x=a, "./data/local_racebase/haul.csv", row.names = FALSE)
 
 a<-RODBC::sqlQuery(channel, "SELECT * FROM RACEBASE.LENGTH")
