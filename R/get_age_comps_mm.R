@@ -25,20 +25,20 @@
 #'          of t.which.bin, the argument will be changed to the character
 #'          string "<" or ">=" and then pasted in place in a Sequel command.
 #'
-#' @return a dataframe containing the following elements: 
-#'		$SURVEY = GOA or AI
-#'		$SURVEY_YEAR = a numeral representing a temporal abstraction
-#'		$SPECIES_CODE = a RACEy sort of thing, no units
-#'		$SEX = yes, no, maybe later after this headache goes away
-#'		$AGE = units of measure: years
-#'		$AGEPOP = numbers of fish of the this age
-#'	$MEAN_LENGTH = mean length of fish of this age in cm
-#'		$STANDARD_DEVIATION = I really don't know yet what this is (Munro, speaking)
-#' @export 
+#' @return a dataframe containing the following elements:
+#' 		$SURVEY = GOA or AI
+#' 		$SURVEY_YEAR = a numeral representing a temporal abstraction
+#' 		$SPECIES_CODE = a RACEy sort of thing, no units
+#' 		$SEX = yes, no, maybe later after this headache goes away
+#' 		$AGE = units of measure: years
+#' 		$AGEPOP = numbers of fish of the this age
+#' 	$MEAN_LENGTH = mean length of fish of this age in cm
+#' 		$STANDARD_DEVIATION = I really don't know yet what this is (Munro, speaking)
+#' @export
 #'
 #' @examples
-get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.species = 21720, t.cut = 270, t.which.bin = "larger"){
-  #    
+get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.species = 21720, t.cut = 270, t.which.bin = "larger") {
+  #
   #
   #-------------------------
   #
@@ -56,7 +56,7 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   #
   #  Setting up a channel to Oracle.
   #
-  if(is.null(t.username)){
+  if (is.null(t.username)) {
     cat("\n")
     cat("\n")
     cat("Type your sql username\n")
@@ -64,7 +64,7 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
     cat("\n")
     t.username <- readline()
   }
-  if(is.null(t.password)){
+  if (is.null(t.password)) {
     cat("\n")
     cat("\n")
     cat("Type your sql password\n")
@@ -72,13 +72,13 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
     cat("\n")
     t.password <- readline()
   }
-  #browser()
+  # browser()
   #
   #
   # Set up a channel to the database, called goa.db
   #
   goa.db <- RODBC::odbcConnect("AFSC", t.username, t.password, believeNRows = FALSE)
-  #browser()
+  # browser()
   #
   #
   #--------------------------------------
@@ -93,21 +93,21 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   #
   t.species <- as.character(t.species)
   t.cut <- as.character(t.cut)
-  if(t.which.bin == "smaller"){
+  if (t.which.bin == "smaller") {
     t.which.bin <- "<"
   }
-  if(t.which.bin == "larger"){
+  if (t.which.bin == "larger") {
     t.which.bin <- ">="
   }
   #  Paste the command together
   #
   t.sequel.command <- paste("select floor(cruise/100) year, cruisejoin, species_code, specimenid, length length_mm, sex, age from racebase.specimen where cruisejoin in (select cruisejoin from goa.biennial_surveys where survey = '", survey, "') and age is not null and species_code = ", t.species, " and length ", t.which.bin, " ", t.cut, sep = "")
-  #browser()
+  # browser()
   #
   #  Do the actual query to Sequel
   #
   specimen <- RODBC::sqlQuery(goa.db, t.sequel.command)
-  #browser()
+  # browser()
   names(specimen) <- casefold(names(specimen))
   #
   #
@@ -128,7 +128,7 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   #     each survey, over the entire survey area without regard to
   #     sampling stratum.
   #
-  sizecomp.total <- RODBC::sqlQuery(goa.db,paste("select * from ", survey, ".sizecomp_total where species_code = ", t.species, sep = ""))
+  sizecomp.total <- RODBC::sqlQuery(goa.db, paste("select * from ", survey, ".sizecomp_total where species_code = ", t.species, sep = ""))
   names(sizecomp.total) <- casefold(names(sizecomp.total))
   #
   #
@@ -136,7 +136,7 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   #  of the function, (as well as within the function's frame), I don't know why.
   #
   assign("sizecomp.total", sizecomp.total, pos = 1, immediate = T)
-  #browser()
+  # browser()
   #
   #
   # convert from mm to cm
@@ -150,11 +150,11 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   #
   #  Set up a sex table for . . . I'm not sure why yet. (Teresa added this piece)
   #
-  sex.table <- data.frame(sex.code = c(1,2,3,4), sex.name = c("males","females","unsexed","total"))
+  sex.table <- data.frame(sex.code = c(1, 2, 3, 4), sex.name = c("males", "females", "unsexed", "total"))
   #
   #
   sizecomp <- sizecomp.total
-  #browser()
+  # browser()
   #
   #
   #--------------------------------------
@@ -166,51 +166,50 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   #  Before looping, set up a data frame to build on at each complete loop
   #
   all.out <- data.frame(matrix(ncol = 8))
-  names(all.out) <- c("SURVEY", "SURVEY_YEAR","SPECIES_CODE", "SEX", "AGE", "AGEPOP","MEAN_LENGTH", "STANDARD_DEVIATION")
+  names(all.out) <- c("SURVEY", "SURVEY_YEAR", "SPECIES_CODE", "SEX", "AGE", "AGEPOP", "MEAN_LENGTH", "STANDARD_DEVIATION")
   #
   #
   #  Now begin the looping itself:
   #
   # Outermost loop: species by species, (but, in this case, just cod).
   #
-  for(sp in sort(unique(specimen$species_code))) {
+  for (sp in sort(unique(specimen$species_code))) {
     cat(paste("species", sp, "\n"))
-    sp.specimen <- specimen[specimen$species_code == sp,  ]
-    sp.sizecomp <- sizecomp[sizecomp$species_code == sp,  ]
+    sp.specimen <- specimen[specimen$species_code == sp, ]
+    sp.sizecomp <- sizecomp[sizecomp$species_code == sp, ]
     #
     #
     # Second loop from outside: year by year
     #
-    for(yr in sort(unique(sp.specimen$year))) {
+    for (yr in sort(unique(sp.specimen$year))) {
       cat(paste("Year", yr, "\n"))
-      yr.specimen <- sp.specimen[sp.specimen$year == yr,  ]
-      yr.sizecomp <- sp.sizecomp[sp.sizecomp$year == yr,  ]
+      yr.specimen <- sp.specimen[sp.specimen$year == yr, ]
+      yr.sizecomp <- sp.sizecomp[sp.sizecomp$year == yr, ]
       year.sexes.1 <- apply(yr.sizecomp[, c("males", "females", "unsexed", "total")], 2, sum)
       year.sexes.2 <- names(year.sexes.1[year.sexes.1 > 0])
       year.sexes.3 <- sex.table$sex.code[match(casefold(sex.table$sex.name), year.sexes.2)]
-      #browser()
+      # browser()
       #
       #
       # Third loop from outside: sex by sex
       #
-      for(sx in sort(year.sexes.3)) {
+      for (sx in sort(year.sexes.3)) {
         cat(paste("Sex", sx, "\n"))
         sex.name <- casefold(sex.table$sex.name[sx])
         sx.sizecomp <- yr.sizecomp[, c("length", sex.name)]
-        sx.sizecomp <- sx.sizecomp[sx.sizecomp[, 2] > 0,  ]
+        sx.sizecomp <- sx.sizecomp[sx.sizecomp[, 2] > 0, ]
         # If there is no sizecomp data, we are wasting our time
-        if(length(sx.sizecomp) == 0) {
+        if (length(sx.sizecomp) == 0) {
           cat(paste("No sizecomp data for sex", sx, "\n"))
           next
         }
         # Get the specimen data, if sex = 4, then use all the specimen data
-        sx.specimen <- yr.specimen[yr.specimen$sex == sx,  ]
-        if(length(sx.specimen$sex) == 0 && sx != 4) {
+        sx.specimen <- yr.specimen[yr.specimen$sex == sx, ]
+        if (length(sx.specimen$sex) == 0 && sx != 4) {
           cat(paste("No specimen data for sex", sx, "\n"))
           next
         }
-        if(sx == 4)
-        {
+        if (sx == 4) {
           sx.specimen <- yr.specimen
         }
         # Make a list of all possible lengths
@@ -219,20 +218,21 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
         age.numbers <- tapply(sx.specimen$age, list(sx.specimen$length, sx.specimen$age), length)
         age.numbers[is.na(age.numbers)] <- 0
         # Turn these into fractions
-        age.fractions <- age.numbers/apply(age.numbers, 1, sum)
+        age.fractions <- age.numbers / apply(age.numbers, 1, sum)
         # Find lengths from age data where there is no sizecomp data
         no.lengths <- unique(sort(sx.specimen$length))[is.na(match(unique(sort(sx.specimen$length)), sx.sizecomp$length))]
         # Find lengths from sizecomp data where there is no age data.
         no.ages <- sx.sizecomp$length[is.na(match(sx.sizecomp$length, unique(sx.specimen$length)))]
-        if(length(no.ages) == 0)
+        if (length(no.ages) == 0) {
           no.ages <- sx.sizecomp$length
-        no.age.sizecomp <- sx.sizecomp[match(no.ages, sx.sizecomp$length),  ]
+        }
+        no.age.sizecomp <- sx.sizecomp[match(no.ages, sx.sizecomp$length), ]
         # Nothing else we can do when there are age data with no sizecomp data, so get rid of these records
-        age.fractions <- age.fractions[is.na(match(as.numeric(dimnames(age.fractions)[[1]]), no.lengths)),  ]
+        age.fractions <- age.fractions[is.na(match(as.numeric(dimnames(age.fractions)[[1]]), no.lengths)), ]
         # Estimate numbers by age and length
         pop.age.estimate <- age.fractions * sx.sizecomp[match(as.numeric(dimnames(age.fractions)[[1]]), sx.sizecomp$length, nomatch = 0, incomparables = no.lengths), 2]
         # If we have sizecomp with no age, roll all these into an age of -9
-        if(length(no.age.sizecomp$length) > 0) {
+        if (length(no.age.sizecomp$length) > 0) {
           all.lengths <- sort(c(as.numeric(dimnames(pop.age.estimate)[[1]]), no.age.sizecomp$length))
           all.ages <- c(dimnames(pop.age.estimate)[[2]], "-9")
           new.matrix <- matrix(nrow = length(all.lengths), ncol = length(all.ages), dimnames = list(all.lengths, all.ages))
@@ -240,17 +240,17 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
           new.matrix[match(no.age.sizecomp$length, dimnames(new.matrix)[[1]]), "-9"] <- no.age.sizecomp[, 2]
           new.matrix[is.na(new.matrix)] <- 0
           pop.age.estimate <- new.matrix
-          #browser()
+          # browser()
         }
         # Now sum up the numbers at age for all lengths
         age.estimate <- apply(pop.age.estimate, 2, sum)
         # Calculate mean lengths and standard deviation for results
-        mean.lengths <- apply(pop.age.estimate * as.numeric(dimnames(pop.age.estimate)[[1]]), 2, sum)/age.estimate
-        stds <- sqrt((apply(as.numeric(dimnames(pop.age.estimate)[[1]])^2 * pop.age.estimate, 2, sum) - age.estimate * mean.lengths^2)/age.estimate)
+        mean.lengths <- apply(pop.age.estimate * as.numeric(dimnames(pop.age.estimate)[[1]]), 2, sum) / age.estimate
+        stds <- sqrt((apply(as.numeric(dimnames(pop.age.estimate)[[1]])^2 * pop.age.estimate, 2, sum) - age.estimate * mean.lengths^2) / age.estimate)
         # Get the data ready for export and send it to the Oracle table.
         out.data <- data.frame(survey, as.numeric(yr), sp, sx, as.numeric(names(age.estimate)), age.estimate, mean.lengths, stds)
         names(out.data) <- c("SURVEY", "SURVEY_YEAR", "SPECIES_CODE", "SEX", "AGE", "AGEPOP", "MEAN_LENGTH", "STANDARD_DEVIATION")
-        out.data <- out.data[out.data$AGEPOP > 0,  ]
+        out.data <- out.data[out.data$AGEPOP > 0, ]
         print(out.data)
         all.out <- rbind(all.out, out.data)
         # write.oracle.data(data = out.data, table = "agecomp_cod_ge27", user.name = user.name, password = password)
@@ -259,7 +259,7 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   }
   close(goa.db)
   all.out <- all.out[all.out$AGE != -9, ]
-  all.out <- all.out[!is.na(all.out$SURVEY),]
+  all.out <- all.out[!is.na(all.out$SURVEY), ]
   all.out
 }
 
@@ -268,28 +268,35 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
 # Compare to age comps in RACEBASE ----------------------------------------
 source("C:/Users/margaret.siple/Work/oraclecreds.R")
 
-cod <- get_age_comps(survey = "GOA",
-                     t.username = siple.oracle,
-                     t.password = siple.oracle.pass,
-                     t.species = 21720,
-                     t.cut = 270,
-                     t.which.bin = "larger")
+cod <- get_age_comps(
+  survey = "GOA",
+  t.username = siple.oracle,
+  t.password = siple.oracle.pass,
+  t.species = 21720,
+  t.cut = 270,
+  t.which.bin = "larger"
+)
 library(dplyr)
-cod_racebase <- read.csv("data/agecomp_total_racebase.csv") 
-cod_racebase2  <- cod_racebase %>% 
-  filter(SPECIES_CODE == 21720) %>% 
-  mutate(MEAN_LENGTH = MEAN_LENGTH/10, STANDARD_DEVIATION = STANDARD_DEVIATION/10) %>% # convert to cm for comparison
-  #tidyr::complete(SURVEY,SURVEY_YEAR,SEX,AGE) %>%
+cod_racebase <- read.csv("data/agecomp_total_racebase.csv")
+cod_racebase2 <- cod_racebase %>%
+  filter(SPECIES_CODE == 21720) %>%
+  mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
+  # tidyr::complete(SURVEY,SURVEY_YEAR,SEX,AGE) %>%
   select(-SPECIES_CODE)
-  
+
 
 # For some reason this code doesn't always produce age 1 estimates (maybe related to the min size). Fill with NAs so the dataframes are more comparable.
-cod2 <- cod %>% 
-  #tidyr::complete(SURVEY,SURVEY_YEAR,SEX,AGE) %>% 
+cod2 <- cod %>%
+  # tidyr::complete(SURVEY,SURVEY_YEAR,SEX,AGE) %>%
   select(-SPECIES_CODE)
 
-compare.df <- full_join(cod_racebase2,cod2,by=c("SURVEY","SURVEY_YEAR","SEX","AGE"),suffix = c(".racebase",".mmcode"))
+compare.df <- full_join(cod_racebase2, cod2, by = c("SURVEY", "SURVEY_YEAR", "SEX", "AGE"), 
+                        suffix = c(".racebase", ".mmcode")) %>%
+  select(SURVEY, SURVEY_YEAR,SEX,AGE,
+         AGEPOP.mmcode,AGEPOP.racebase,
+         MEAN_LENGTH.mmcode, MEAN_LENGTH.racebase,
+         STANDARD_DEVIATION.mmcode, STANDARD_DEVIATION.racebase)
 
-#diffdf::diffdf(cod2, cod_racebase2)
+write.csv(compare.df,file = "outputs/RACEBASE_MM_cod_comparison.csv",row.names = FALSE)
 
-
+# diffdf::diffdf(cod2, cod_racebase2)
