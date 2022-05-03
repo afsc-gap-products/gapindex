@@ -32,7 +32,7 @@
 #'		$SEX = yes, no, maybe later after this headache goes away
 #'		$AGE = units of measure: years
 #'		$AGEPOP = numbers of fish of the this age
-#'	$MEAN_LENGTH = mean length of fish of this age
+#'	$MEAN_LENGTH = mean length of fish of this age in cm
 #'		$STANDARD_DEVIATION = I really don't know yet what this is (Munro, speaking)
 #' @export 
 #'
@@ -263,4 +263,33 @@ get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NUL
   all.out
 }
 
-cod <- get_age_comps(survey = "GOA",t.username = "siplem",t.password = "$rJn6125pqB##",t.species = 21720,t.cut = 270,t.which.bin = "larger")
+
+
+# Compare to age comps in RACEBASE ----------------------------------------
+source("C:/Users/margaret.siple/Work/oraclecreds.R")
+
+cod <- get_age_comps(survey = "GOA",
+                     t.username = siple.oracle,
+                     t.password = siple.oracle.pass,
+                     t.species = 21720,
+                     t.cut = 270,
+                     t.which.bin = "larger")
+library(dplyr)
+cod_racebase <- read.csv("data/agecomp_total_racebase.csv") 
+cod_racebase2  <- cod_racebase %>% 
+  filter(SPECIES_CODE == 21720) %>% 
+  mutate(MEAN_LENGTH = MEAN_LENGTH/10, STANDARD_DEVIATION = STANDARD_DEVIATION/10) %>% # convert to cm for comparison
+  #tidyr::complete(SURVEY,SURVEY_YEAR,SEX,AGE) %>%
+  select(-SPECIES_CODE)
+  
+
+# For some reason this code doesn't always produce age 1 estimates (maybe related to the min size). Fill with NAs so the dataframes are more comparable.
+cod2 <- cod %>% 
+  #tidyr::complete(SURVEY,SURVEY_YEAR,SEX,AGE) %>% 
+  select(-SPECIES_CODE)
+
+compare.df <- full_join(cod_racebase2,cod2,by=c("SURVEY","SURVEY_YEAR","SEX","AGE"),suffix = c(".racebase",".mmcode"))
+
+#diffdf::diffdf(cod2, cod_racebase2)
+
+
