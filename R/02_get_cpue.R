@@ -72,7 +72,7 @@ get_cpue <- function(racebase_tables = list(
       stationid,
       stratum, distance_fished,
       species_code, catch_kg, number_fish,
-      AreaSwept_km2, wgtcpue, numcpue
+      AreaSwept_km2, wgtcpue, numcpue # wgtcpue is kg per km2
     ) %>%
     rename(haul = haul.x) %>%
     arrange(year)
