@@ -59,9 +59,30 @@ max(compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase)
 # Compare with CPUE from Emily table --------------------------------------
 cpue_e_0filled <- haul %>%
   dplyr::filter(year(start_time) == year_compare & region == "GOA" & abundance_haul == "Y") %>%
-  dplyr::left_join(cpue_e, by = c("hauljoin", "cruise", "stratum", "haul", "vessel" = "vessel_id"))
+  dplyr::left_join(cpue_e, by = c("hauljoin", "cruise", "stratum", "haul", "vessel" = "vessel_id")) %>%
+  select(survey_id, year, region,cruise, haul, haul_type, srvy,cpue_kgkm2, hauljoin ) %>%
+  mutate(cpue_kgkm2 = replace_na(cpue_kgkm2, 0))
 head(cpue_e_0filled)
 nrow(cpue_e_0filled)
+head(cpue_w)
 # now it has the same nrows as cpue_w and cpue_dbe
 
+compare.df.em <- cpue_w %>%
+  rename(cpue_kgkm2=wgtcpue) %>%
+  full_join(cpue_e_0filled, by = c("hauljoin","haul",""), # c("year", "hauljoin","survey"="srvy")
+            suffix = c(".racebase", ".emily")) %>%
+  select(order(colnames(.)))
+
+nrow(compare.df.em)
+head(compare.df.em)
+
+# check that the column order is right
+all(compare.df.em$distance_fished.emily == compare.df.em$distance_fished.racebase)
+
+# Look at where CPUEs are different
+all(compare.df.em$cpue_kgkm2.emily == compare.df.em$cpue_kgkm2.racebase)
+(cpuediffs <- compare.df.em$cpue_kgkm2.emily - compare.df.em$cpue_kgkm2.racebase)
+
+# For POP, the max difference is
+max(cpuediffs)
 
