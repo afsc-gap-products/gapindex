@@ -74,6 +74,7 @@ get_cpue <- function(racebase_tables = list(
       species_code, catch_kg, number_fish,
       AreaSwept_km2, wgtcpue, numcpue
     ) %>%
+    rename(haul = haul.x) %>%
     arrange(year)
 
   return(x)
@@ -85,6 +86,8 @@ get_cpue <- function(racebase_tables = list(
 
 # RACEBASE equivalent table: CPUE
 # x <- get_cpue(survey_area = "GOA", speciescode = 30060)
+
+# profvis(get_cpue(survey_area = "GOA", speciescode = 30060))
 
 
 
