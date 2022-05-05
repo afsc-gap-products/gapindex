@@ -1,0 +1,68 @@
+group,spp_name_informal,species_code,GOA,BSAI,region,NODC,RACE,NORPAC,NAME,IDLEVEL,MSVPA_PRED,MSVPA_PREY,ECOPATH_PRED,ECOPATH_PREY,GOAPOLL_PRED,GOAPOLL_PREY,BSIERP_PRED,BSIERP_PREY
+NA,sablefish,,1,1,GOA,8827020101,20510,203,Anoplopoma fimbria (sablefish),0,SABLEFISH,MISC. PREY,Sablefish,Sablefish,SABLEFISH,ROUNDFISH,NA,ROUNDFISH
+NA,arrowtooth flounder,,1,1,GOA,8857040102,10110,141,Atheresthes stomias (arrowtooth flounder),0,ARROWTOOTH FLOUNDR,MISC. PREY,Arrowtooth,Arrowtooth,ARROWTOOTH FLOUNDR,FLATS,ARROWTOOTH FLOUNDR,FLATS
+NA,atka mackerel,,1,1,GOA,8827010501,21921,204,Pleurogrammus monopterygius (Atka mackerel),0,ATKA MACKEREL,MISC. PREY,Atka,Atka,ATKA MACKEREL,ATKA MACKEREL,NA,ROUNDFISH
+deepwater flatfish complex,dover sole,,1,1,GOA,8857041201,10180,107,Microstomus pacificus (Dover sole),0,PLEURONECTIDAE,MISC. PREY,Dover Sole,Dover Sole,NA,FLATS,NA,FLATS
+deepwater flatfish complex,greeland turbot,,1,1,GOA,8857041801,10115,102,Reinhardtius hippoglossoides (Greenland turbot),0,GREENLAND TURBOT,GREENLAND TURBOT,Gr. Turbot,Gr. Turbot,GREENLAND TURBOT,FLATS,NA,FLATS
+deepwater flatfish complex,kamchatka flounder,,1,,GOA,8857040101,10112,147,Atheresthes evermanni (Kamchatka flounder),0,ARROWTOOTH FLOUNDR,MISC. PREY,Kamchat fl,Kamchat fl,ARROWTOOTH FLOUNDR,FLATS,ARROWTOOTH FLOUNDR,FLATS
+deepwater flatfish complex,deepsea sole,,1,,GOA,8857040301,10190,110,Embassichthys bathybius (deepsea sole),0,NA,MISC. PREY,Misc. Flatfish,Misc. Flatfish,NA,FLATS,NA,FLATS
+demersal shelf rockfish,yelloweye rockfish,,1,,GOA,8826010134,30470,322,Sebastes ruberrimus (yelloweye rockfish),0,NA,MISC. PREY,Sebastes,Sebastes,NA,ROCKFISH,NA,ROCKFISH
+demersal shelf rockfish,quillback rockfish,,1,,GOA,8826010120,30320,343,Sebastes maliger (quillback rockfish),0,NA,MISC. PREY,Sebastes,Sebastes,NA,ROCKFISH,NA,ROCKFISH
+demersal shelf rockfish,copper rockfish,,1,,GOA,NA,30120,NA,Sebastes caurinus (copper rockfish),NA,NA,NA,NA,NA,NA,NA,NA,NA
+demersal shelf rockfish,rosethorn rockfish,,1,,GOA,8826010118,30270,309,Sebastes helvomaculatus (rosethorn rockfish),0,NA,MISC. PREY,Sebastes,Sebastes,NA,ROCKFISH,NA,ROCKFISH
+demersal shelf rockfish,China rockfish,,1,,GOA,NA,30370,NA,Sebastes nebulosus (China rockfish),NA,NA,NA,NA,NA,NA,NA,NA,NA
+demersal shelf rockfish,canary rockfish,,1,,GOA,8826010128,30410,314,Sebastes pinniger (canary rockfish),0,NA,MISC. PREY,Canary Rock,Canary Rock,NA,ROCKFISH,NA,ROCKFISH
+demersal shelf rockfish,tiger rockfish,,1,,GOA,NA,30380,NA,Sebastes nigrocinctus (tiger rockfish),NA,NA,NA,NA,NA,NA,NA,NA,NA
+NA,dusky rockfish,,1,,GOA,8826010198,30152,NA,Sebastes variabilis (dusky rockfish),0,NA,MISC. PREY,Sebastes,Sebastes,NA,ROCKFISH,NA,ROCKFISH
+NA,flathead sole,,1,1,GOA,8857040601,10130,103,Hippoglossoides elassodon (flathead sole),0,FLATHEAD SOLE,MISC. PREY,FH Sole,FH Sole,FLATHEAD SOLE,FLATS,NA,FLATS
+forage fish,pacific herring,,1,,GOA,8747010201,21110,611,Clupea pallasi (Pacific herring),0,NA,PACIFIC HERRING,Herring,Herring,NA,PACIFIC HERRING,PACIFIC HERRING,PACIFIC HERRING
+forage fish,Osmeridae,,1,,GOA,8755030000,23000,602,Osmeridae (smelts),0,NA,MISC. PREY,Gen. Smelt,Gen. Smelt,NA,ROUNDFISH,NA,ROUNDFISH
+forage fish,surf smelt,,1,1,GOA,8755030101,23020,613,Hypomesus pretiosus (surf smelt),0,NA,MISC. PREY,Oth pel. smelt,Oth pel. smelt,NA,Oth pel. smelt,NA,OP smelt
+forage fish,capelin,,1,1,GOA,8755030201,23041,604,Mallotus villosus (capelin),0,NA,MISC. PREY,Capelin,Capelin,NA,Capelin,Capelin,Capelin
+forage fish,Trhichodontidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Stichaeidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Stichaeidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Pholidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Myctophidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Bathylagidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Gonostomatidae,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+forage fish,Euphausiacea,,1,1,GOA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Grenadiers,giant grenadier,,1,1,GOA,8794010108,21230,82,Albatrosia pectoralis (giant grenadier),0,NA,MISC. PREY,Giant Grenadier,Giant Grenadier,NA,Macrouridae,NA,Macrouridae
+Grenadiers,Pacific grenadier,,1,1,GOA,8794010101,21220,81,Coryphaenoides acrolepis (Pacific grenadier),0,NA,MISC. PREY,Pacific Grenadier,Pacific Grenadier,NA,Macrouridae,NA,Macrouridae
+Grenadiers,popeye grenadier,,1,1,GOA,8794010105,21232,1,Coryphaenoides cinereus (popeye grenadier),0,NA,MISC. PREY,Macrouridae,Macrouridae,NA,Macrouridae,NA,Macrouridae
+NA,Northern rockfish,,1,1,GOA,8826010129,30420,303,Sebastes polyspinis (northern rockfish),0,NA,MISC. PREY,Northern Rock,Northern Rock,NA,ROCKFISH,NA,ROCKFISH
+Octopus,Enteroctopus dofleini,,1,1,GOA,5708010201,78403,1,Octopus dofleini (giant Pacific octopus),0,NA,MISC. PREY,Octopus,Octopus,NA,CEPHALOPOD,NA,Octopus
+Other rockfish,unidentified rockfish,,1,1,GOA,8826010100,30040,300,Sebastes sp. (rockfish),0,NA,MISC. PREY,Gen. Sebastes,Gen. Sebastes,NA,ROCKFISH,NA,ROCKFISH
+Other rockfish,Sharpchin rockfish,,1,,GOA,8826010138,30560,304,Sebastes zacentrus (sharpchin rockfish),0,NA,MISC. PREY,Sharpchin Rock,Sharpchin Rock,NA,ROCKFISH,NA,ROCKFISH
+NA,Pacific cod,,1,1,GOA,8791030401,21720,202,Gadus macrocephalus (Pacific cod),0,PACIFIC COD,PACIFIC COD,P. Cod,P. Cod,PACIFIC COD,PACIFIC COD,PACIFIC COD,PACIFIC COD
+NA,Pacific ocean perch,30060,1,,GOA,8826010102,30060,301,Sebastes alutus (Pacific ocean perch),0,NA,MISC. PREY,POP,POP,NA,ROCKFISH,NA,ROCKFISH
+NA,walleye pollock,21740,1,1,GOA,8791030701,21740,201,Gadus chalcogrammus (walleye pollock),0,WALLEYE POLLOCK,WALLEYE POLLOCK,W. Pollock,W. Pollock,WALLEYE POLLOCK,WALLEYE POLLOCK,WALLEYE POLLOCK,WALLEYE POLLOCK
+Other flatfish,rex sole,,1,1,GOA,8857040501,10200,105,Errex zachirus (rex sole),0,PLEURONECTIDAE,MISC. PREY,Rex sole,Rex sole,NA,FLATS,NA,FLATS
+RE+BS complex,rougheye rockfish,,1,1,GOA,8826010101,30051,307,Sebastes aleutianus (rougheye rockfish),0,NA,MISC. PREY,Rougheye Rock,Rougheye Rock,NA,ROCKFISH,NA,ROCKFISH
+RE+BS complex,blackspotted rockfish,,1,1,GOA,8826010197,30052,NA,Sebastes melanostictus (black spotted rockfish),NA,NA,NA,NA,NA,NA,NA,NA,NA
+Shallow-water flatfish,Northern rock sole,,1,,GOA,8857040801,10262,1,Lepidopsetta bilineatus (southern rock sole),0,ROCK SOLE,ROCK SOLE,S Rock Sole,S Rock Sole,ROCK SOLE,FLATS,NA,FLATS
+Shallow-water flatfish,southern rock sole,,1,,GOA,8857040803,10261,1,Lepidopsetta polyxystra (northern rock sole),0,ROCK SOLE,ROCK SOLE,N Rock Sole,N Rock Sole,ROCK SOLE,FLATS,NA,FLATS
+Shallow-water flatfish,yellowfin sole,,1,1,GOA,8857040901,10210,140,Limanda aspera (yellowfin sole),0,YELLOWFIN SOLE,YELLOWFIN SOLE,YF Sole,YF Sole,YELLOWFIN SOLE,FLATS,NA,FLATS
+Shallow-water flatfish,starry flounder,,1,,GOA,8857041401,10220,142,Platichthys stellatus (Starry flounder),0,PLEURONECTIDAE,MISC. PREY,Misc. Flatfish,Misc. Flatfish,NA,FLATS,NA,FLATS
+Shallow-water flatfish,butter sole,,1,,GOA,8857040701,10270,109,Isopsetta isolepis (butter sole),0,PLEURONECTIDAE,MISC. PREY,Misc. Flatfish,Misc. Flatfish,NA,FLATS,NA,FLATS
+Shallow-water flatfish,English sole,,1,,GOA,8857041301,10170,108,Parophrys vetulus (English sole),0,PLEURONECTIDAE,MISC. PREY,Misc. Flatfish,Misc. Flatfish,NA,FLATS,NA,FLATS
+Shallow-water flatfish,Alaska plaice,,1,1,GOA,8857041501,10285,106,Pleuronectes quadrituberculatus (Alaska plaice),0,ALASKA PLAICE,MISC. PREY,AK Plaice,AK Plaice,NA,FLATS,NA,FLATS
+Shallow-water flatfish,Sand sole,,1,,GOA,8857041701,10250,115,Psettichthys melanostictus (sand sole),0,PLEURONECTIDAE,MISC. PREY,Misc. Flatfish,Misc. Flatfish,NA,FLATS,NA,FLATS
+Sharks,spiny dogfish,,1,1,GOA,8710010201,310,66,Squalus acanthias (spiny dogfish),0,NA,MISC. PREY,Dogfish,Dogfish,NA,SHARKS,NA,ROUNDFISH
+Sharks,Pacific sleeper shark,,1,1,GOA,8710010101,320,62,Somniosus pacificus (Pacific sleeper shark),0,NA,MISC. PREY,Sleeper Shark,Sleeper Shark,NA,SHARKS,NA,ROUNDFISH
+Sharks,salmon shark,,1,1,GOA,NA,232,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Sharks,unidentified sharks,,1,1,GOA,NA,150,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+NA,shortraker rockfish,,1,1,GOA,8826010107,30576,326,Sebastes borealis (shortraker rockfish),0,NA,MISC. PREY,Shortraker Rock,Shortraker Rock,NA,ROCKFISH,NA,ROCKFISH
+Thornyheads,shortspine thornyhead,,1,,GOA,8826010201,30020,350,Sebastolobus alascanus (shortspine thornyhead),0,NA,MISC. PREY,Shortsp Thorny,Shortsp Thorny,NA,ROCKFISH,NA,ROCKFISH
+Thornyheads,longspine thornyhead,,1,,GOA,8826010202,30030,352,Sebastolobus altivelis (longspine thornyhead),0,NA,MISC. PREY,Longsp Thorny,Longsp Thorny,NA,ROCKFISH,NA,ROCKFISH
+Thornyheads,unidentified thornyhead,,1,,GOA,8826010200,30010,349,Sebastolobus sp. (unidentified thornyhead),0,NA,MISC. PREY,Gen Thorny,Gen Thorny,NA,ROCKFISH,NA,ROCKFISH
+Skates,skates (family),,1,1,GOA,8713040000,400,1,Rajidae (skate),0,NA,MISC. PREY,Unid Rajidae,Unid Rajidae,NA,SKATES,NA,ROUNDFISH
+Skates,Aleutian skate,,1,1,GOA,8713040102,472,85,Bathyraja aleutica (Aleutian skate),0,NA,MISC. PREY,Aleutian Skate,Aleutian Skate,Aleutian Skate,SKATES,NA,ROUNDFISH
+Skates,big skate,,1,1,GOA,8713040103,420,94,Bathyraja binoculata (big skate),0,NA,MISC. PREY,Big Skate,Big Skate,BIG SKATE,SKATES,NA,ROUNDFISH
+Skates,Bering skate,,1,1,GOA,8713040105,435,97,Bathyraja interrupta (Bering skate),0,NA,MISC. PREY,Bering Skate,Bering Skate,Bering Skate,SKATES,NA,ROUNDFISH
+Skates,Alaska skate,,1,1,GOA,8713040107,471,88,Bathyraja parmifera (Alaska skate),0,NA,MISC. PREY,AK Skate,AK Skate,AK SKATE,SKATES,NA,ROUNDFISH
+Skates,skates (genus),,1,1,GOA,8713040800,405,159,Bathyraja sp. (skate),0,NA,MISC. PREY,Unid Bathyraja,Unid Bathyraja,NA,SKATES,NA,ROUNDFISH
+Skates,black skate,,1,1,GOA,8713040810,460,89,Bathyraja trachura (black skate),0,NA,MISC. PREY,Black Skate,Black Skate,Black Skate,SKATES,NA,ROUNDFISH
+Skates,commander skate,,1,1,GOA,8713040896,475,1,Bathyraja lindbergi (commander skate),0,NA,MISC. PREY,Commander Skate,Commander Skate,Commander Skate,SKATES,NA,ROUNDFISH
+Skates,mud skate,,1,1,GOA,8713040898,455,1,Bathyraja tarantetzi (mud skate),0,NA,MISC. PREY,Mud Skate,Mud Skate,Mud Skate,SKATES,NA,ROUNDFISH
+Skates,white blotched skate,,1,1,GOA,8713040899,480,164,Bathyraja maculata (white blotched skate),0,NA,MISC. PREY,WhtBlotch Skate,WhtBlotch Skate,WhtBlotch Skate,SKATES,NA,ROUNDFISH
