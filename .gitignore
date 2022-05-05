@@ -5,3 +5,15 @@
 README.html
 papers/
 outputs/
+
+# Datasets too big to put on github (all for local dev... I think)
+data/agecomp_total_racebase.csv
+data/biomass_stratum_2021.csv
+data/biomass_stratum.csv
+data/cpue_racebase.csv
+data/goa_strata.csv
+data/length_ADFG.csv
+data/local_race_data/
+data/local_racebase/
+data/mintowdurations.csv
+data/specimen_ADFG.csv
