@@ -183,8 +183,8 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   #
   # convert from mm to cm
   #
-  # specimen$length <- specimen$length / 10
-  # sizecomp.total$length <- sizecomp.total$length / 10
+  specimen$length <- specimen$length / 10
+  sizecomp.total$length <- sizecomp.total$length / 10
   #
   #
   #--------------------------------------
@@ -325,13 +325,39 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
 }
 
 
-# Run it! -----------------------------------------------------------------
+#Compare a_agecomp to racebase table for ATF -----------------------------------------------------
 
 # Oracle credentials
 source("C:/Users/margaret.siple/Work/oraclecreds.R")
-a_agecomp(
+atf_aa <- a_agecomp(
   survey = "GOA",
   t.username = siple.oracle,
   t.password = siple.oracle.pass,
-  t.species = 10110, t.year = 2003
+  t.species = 10110, t.year = 2003 #atf
 )
+
+atf_racebase <- read.csv("data/agecomp_total_racebase.csv")
+atf_racebase2 <- atf_racebase %>%
+  filter(SPECIES_CODE == 10110 & SURVEY_YEAR==2003) %>%
+  mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
+  mutate_at(.vars = c("AGE","SEX","SURVEY_YEAR"),as.numeric)
+
+nrow(atf_aa)
+nrow(atf_racebase2)
+atf_aa$MEAN_LENGTH == atf_racebase2$MEAN_LENGTH
+
+
+compare.df <- full_join(atf_racebase2, atf_aa, by = c("SURVEY", "SURVEY_YEAR", "SEX", "AGE"), 
+                        suffix = c(".racebase", ".mmcode")) %>%
+  select(SURVEY, SURVEY_YEAR,SEX,AGE,
+         AGEPOP.mmcode,AGEPOP.racebase,
+         MEAN_LENGTH.mmcode, MEAN_LENGTH.racebase,
+         STANDARD_DEVIATION.mmcode, STANDARD_DEVIATION.racebase)
+
+x <- diffdf::diffdf(atf_racebase2,atf_aa)
+print(x, as_string = TRUE)
+
+
+# Compare a_agecomp to racebase table for other species/yrs ---------------
+
+
