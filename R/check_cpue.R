@@ -4,23 +4,25 @@ source("R/01_cleanup_data.R")
 source("R/02_get_cpue.R")
 source("R/03_get_biomass_stratum.R")
 
-# Check for:
-# GOA POP
-# GOA walleye pollock
-year_compare <- 2005
+
+# Get tables to compare ---------------------------------------------------
+# GOA.CPUE table downloaded from RACEBASE
+cpue_wayne <- read.csv(here::here("data", "cpue_racebase.csv"))
+cpue_wayne <- cpue_wayne %>% janitor::clean_names()
+
+# Emily's cpue summarized by year and station (for GAP public data)
+# source: https://github.com/afsc-gap-products/gap_public_data/blob/main/code/run.R
+cpue_em <- read.csv("C:/Users/margaret.siple/Work/gap_public_data/output/2022-05-04/cpue_station.csv")
+
+
+# check cpue for a single species -----------------------------------------
+# Not sure how to do this, try one species/year combo first:
 region_compare <- "GOA"
 sp_compare <- 30060
 
 cpue_dbe <- get_cpue(speciescode = sp_compare, survey_area = "GOA") %>%
   filter(year == year_compare)
 
-# GOA.CPUE table downloaded from RACEBASE
-cpue_wayne <- read.csv(here::here("data", "cpue_racebase.csv"))
-cpue_wayne <- cpue_wayne %>% janitor::clean_names()
-# Emily's cpue summarized by year and station (for GAP public data)
-cpue_em <- read.csv("C:/Users/margaret.siple/Work/gap_public_data/output/2022-05-04/cpue_station.csv")
-
-# Not sure how to do this, try one species/year combo first:
 cpue_w <- cpue_wayne %>%
   filter(species_code == sp_compare & survey == "GOA" & year == year_compare)
 
@@ -69,7 +71,7 @@ head(cpue_w)
 
 compare.df.em <- cpue_w %>%
   rename(cpue_kgkm2=wgtcpue) %>%
-  full_join(cpue_e_0filled, by = c("hauljoin","haul",""), # c("year", "hauljoin","survey"="srvy")
+  full_join(cpue_e_0filled, by = c("hauljoin","haul"), # c("year", "hauljoin","survey"="srvy")
             suffix = c(".racebase", ".emily")) %>%
   select(order(colnames(.)))
 
@@ -86,3 +88,9 @@ all(compare.df.em$cpue_kgkm2.emily == compare.df.em$cpue_kgkm2.racebase)
 # For POP, the max difference is
 max(cpuediffs)
 
+
+# All years and SAFE species ----------------------------------------------
+# Set up design table for GOA
+safe_species <- read.csv(here::here("data","siple_safe_species.csv"))
+goa_safe <- safe_species %>% filter(GOA==1 & !is.na(species_code)) %>% select(species_code)
+designtable <- tibble(goa_safe,max_cpue_diff = 999)
