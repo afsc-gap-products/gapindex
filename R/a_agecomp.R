@@ -184,10 +184,9 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   # convert from mm to cm
   #
  
-  if(nrow(specimen)>0){
-    specimen$length <- specimen$length / 10}else{
-      print(paste('specimen table has 0 rows for',t.species))
-      return(NA)}
+  if(nrow(specimen)>0){specimen$length <- specimen$length / 10}
+  if(nrow(specimen)==0){print(paste('specimen table has 0 rows for',t.species))}
+  
   sizecomp.total$length <- sizecomp.total$length / 10
   #
   #
@@ -197,7 +196,8 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   #  Set up a sex table to control labeling and indexing downstream
   #    (Teresa added this part)
   #
-  sex.table <- data.frame(sex.code = c(1, 2, 3, 4), sex.name = c("males", "females", "unsexed", "total"))
+  sex.table <- data.frame(sex.code = c(1, 2, 3, 4), 
+                          sex.name = c("males", "females", "unsexed", "total"))
   #
   #
   # Get an easier-to-type name for the population_at_size dataframe:
@@ -228,6 +228,7 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   #
   # Loop for species:
   #
+  if(nrow(specimen>0)){ #allow for species not having age comps (some don't)
   for (sp in sort(unique(specimen$species_code))) {
     cat(paste("species", sp, "\n"))
     sp.specimen <- specimen[specimen$species_code == sp, ]
@@ -314,6 +315,7 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
       }
     }
   }
+    } #/if statement about nrow(specimen)
   all.out <- all.out[!is.na(all.out$SURVEY), ]
   # MCS: comment this out for now. The below script writes the table to RACEBASE... let's not do that at the moment!!
   # browser()
@@ -382,9 +384,13 @@ compare_tabs <- function(species_code, year_compare, region = "GOA") {
     mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
     mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
   
+  if(nrow(agecomp_mmartin) == 0 && nrow(agecomp_racebase) == 0){
+    print("zero rows in both age tables")
+    matchtest = 3}else{
   x <- diffdf::diffdf(agecomp_racebase,agecomp_mmartin)
   y <- print(x, as_string = TRUE)
   matchtest <- ifelse(y=="No issues were found!",1,0)
+    }
   return(matchtest)
 }
 
@@ -399,17 +405,17 @@ colnames(full_comparison) <- c('spcode','yr')
 full_comparison$does_it_match <- NA
 full_comparison$no_ages <- 0
 
-for(i in 1:nrow(full_comparison)){
-  if(!is.na(a_agecomp(survey = region,
-                t.username = siple.oracle,
-                t.password = siple.oracle.pass,
-                t.species = full_comparison$spcode[i], t.year = full_comparison$yr[i]))){
+for(i in 292:nrow(full_comparison)){
+  a <- a_agecomp(survey = region,
+                 t.username = siple.oracle,
+                 t.password = siple.oracle.pass,
+                 t.species = full_comparison$spcode[i], t.year = full_comparison$yr[i])
+  if(nrow(a)==0){
+    full_comparison$does_it_match[i] <- NA
+    full_comparison$no_ages[i] <- 1
+  }else {
   full_comparison$does_it_match[i] <- compare_tabs(
     species_code = full_comparison$spcode[i],
     year_compare = full_comparison$yr[i],region = "GOA")
-  }else{
-    full_comparison$does_it_match[i] <- NA
-    full_comparison$no_ages[i] <- 1
   }
-  
-}
+  }
