@@ -148,7 +148,6 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   t.df$females <- as.numeric(t.df$females)
   t.df$unsexed <- as.numeric(t.df$unsexed)
   t.df$total <- as.numeric(t.df$total)
-  # browser()
   #
   # ========================================================================================
   #
@@ -248,7 +247,6 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
       year.sexes.1 <- apply(yr.sizecomp[, c("males", "females", "unsexed")], 2, sum)
       year.sexes.2 <- names(year.sexes.1[year.sexes.1 > 0])
       year.sexes.3 <- sex.table$sex.code[match(casefold(sex.table$sex.name), year.sexes.2)]
-      # 		browser()
       #
       #
       # Loop for sex:
@@ -383,18 +381,24 @@ compare_tabs <- function(species_code, year_compare, region = "GOA") {
     filter(SPECIES_CODE == species_code & SURVEY_YEAR == year_compare) %>%
     mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
     mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
+
   
-  if(nrow(agecomp_mmartin) == 0 && nrow(agecomp_racebase) == 0){
-    print("zero rows in both age tables")
-    matchtest = 3}else{
-  x <- diffdf::diffdf(agecomp_racebase,agecomp_mmartin)
-  y <- print(x, as_string = TRUE)
-  matchtest <- ifelse(y=="No issues were found!",1,0)
+  if (nrow(agecomp_mmartin) == 0 | nrow(agecomp_racebase) == 0) {
+    cat("zero rows in one or both age tables")
+    matchtest <- 3
+  }else {
+      x <- diffdf::diffdf(agecomp_racebase, agecomp_mmartin)
+      y <- print(x, as_string = TRUE)[1]
+      matchtest <- ifelse(y == "No issues were found!", 1, 0)
     }
   return(matchtest)
 }
 
+#this one should always work:
 compare_tabs(species_code = 10110,year_compare = 2003,region = "GOA")
+
+#this one is for testing:
+compare_tabs(species_code = 10180,year_compare = 2017,region = "GOA")
 
 
 # Make testing dataframe
@@ -403,19 +407,32 @@ yrs_to_compare <- as.numeric(unique(racebase_allcomps$SURVEY_YEAR))
 full_comparison <- expand.grid(spps_to_compare, yrs_to_compare)
 colnames(full_comparison) <- c('spcode','yr')
 full_comparison$does_it_match <- NA
-full_comparison$no_ages <- 0
+full_comparison$sp_in_mmartin_total <- 0
+full_comparison$sp_in_racebase_total <- 0
 
-for(i in 292:nrow(full_comparison)){
+
+# Loop through years and species and compare the age comps ----------------
+
+for(i in 1:nrow(full_comparison)){
   a <- a_agecomp(survey = region,
                  t.username = siple.oracle,
                  t.password = siple.oracle.pass,
                  t.species = full_comparison$spcode[i], t.year = full_comparison$yr[i])
-  if(nrow(a)==0){
-    full_comparison$does_it_match[i] <- NA
-    full_comparison$no_ages[i] <- 1
-  }else {
-  full_comparison$does_it_match[i] <- compare_tabs(
-    species_code = full_comparison$spcode[i],
-    year_compare = full_comparison$yr[i],region = "GOA")
+  b <- racebase_allcomps %>%
+    filter(SPECIES_CODE == species_code & SURVEY_YEAR == year_compare) %>%
+    mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm
+    mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
+  if(nrow(a)>0){
+    full_comparison$sp_in_mmartin_total[i] <- 1
   }
+  if(nrow(b)>0){
+    full_comparison$sp_in_racebase_total[i] <- 1
   }
+  if(nrow(a)>0 & nrow(b)>0){
+    full_comparison$does_it_match[i] <- compare_tabs(
+      species_code = full_comparison$spcode[i],
+      year_compare = full_comparison$yr[i],region = "GOA")
+    }
+  }
+
+  
