@@ -183,7 +183,11 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   #
   # convert from mm to cm
   #
-  specimen$length <- specimen$length / 10
+ 
+  if(nrow(specimen)>0){
+    specimen$length <- specimen$length / 10}else{
+      print(paste('specimen table has 0 rows for',t.species))
+      return(NA)}
   sizecomp.total$length <- sizecomp.total$length / 10
   #
   #
@@ -320,7 +324,7 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   # sqlQuery(channel = channel, query = "create table agecomp_total as select * from agecomp_total_2")
   # sqlQuery(channel = channel, query = "drop table agecomp_total_2")
   # sqlQuery(channel = channel, query = "grant select on agecomp_total to public")
-  close(goa.db)
+  # close(goa.db)
   return(all.out)
 }
 
@@ -359,5 +363,53 @@ print(x, as_string = TRUE)
 
 
 # Compare a_agecomp to racebase table for other species/yrs ---------------
+racebase_allcomps <- read.csv("data/agecomp_total_racebase.csv")
+spps_in_racebase <- unique(racebase_allcomps$SPECIES_CODE)
+spps_in_safe <- read.csv("data/siple_safe_species.csv") %>%
+  filter(GOA == 1 & !is.na(species_code)) %>%
+  arrange(species_code)
+
+compare_tabs <- function(species_code, year_compare, region = "GOA") {
+  agecomp_mmartin <- a_agecomp(
+    survey = region,
+    t.username = siple.oracle,
+    t.password = siple.oracle.pass,
+    t.species = species_code, t.year = year_compare # atf
+  )
+
+  agecomp_racebase <- racebase_allcomps %>%
+    filter(SPECIES_CODE == species_code & SURVEY_YEAR == year_compare) %>%
+    mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
+    mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
+  
+  x <- diffdf::diffdf(agecomp_racebase,agecomp_mmartin)
+  y <- print(x, as_string = TRUE)
+  matchtest <- ifelse(y=="No issues were found!",1,0)
+  return(matchtest)
+}
+
+compare_tabs(species_code = 10110,year_compare = 2003,region = "GOA")
 
 
+# Make testing dataframe
+spps_to_compare <- as.numeric(spps_in_racebase)
+yrs_to_compare <- as.numeric(unique(racebase_allcomps$SURVEY_YEAR))
+full_comparison <- expand.grid(spps_to_compare, yrs_to_compare)
+colnames(full_comparison) <- c('spcode','yr')
+full_comparison$does_it_match <- NA
+full_comparison$no_ages <- 0
+
+for(i in 1:nrow(full_comparison)){
+  if(!is.na(a_agecomp(survey = region,
+                t.username = siple.oracle,
+                t.password = siple.oracle.pass,
+                t.species = full_comparison$spcode[i], t.year = full_comparison$yr[i]))){
+  full_comparison$does_it_match[i] <- compare_tabs(
+    species_code = full_comparison$spcode[i],
+    year_compare = full_comparison$yr[i],region = "GOA")
+  }else{
+    full_comparison$does_it_match[i] <- NA
+    full_comparison$no_ages[i] <- 1
+  }
+  
+}
