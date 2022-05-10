@@ -351,7 +351,8 @@ nrow(atf_racebase2)
 atf_aa$MEAN_LENGTH == atf_racebase2$MEAN_LENGTH
 
 
-compare.df <- full_join(atf_racebase2, atf_aa, by = c("SURVEY", "SURVEY_YEAR", "SEX", "AGE"), 
+compare.df <- full_join(atf_racebase2, atf_aa, 
+                        by = c("SURVEY", "SURVEY_YEAR", "SEX", "AGE"), 
                         suffix = c(".racebase", ".mmcode")) %>%
   select(SURVEY, SURVEY_YEAR,SEX,AGE,
          AGEPOP.mmcode,AGEPOP.racebase,
@@ -398,7 +399,7 @@ compare_tabs <- function(species_code, year_compare, region = "GOA") {
 compare_tabs(species_code = 10110,year_compare = 2003,region = "GOA")
 
 #this one is for testing:
-compare_tabs(species_code = 10180,year_compare = 2017,region = "GOA")
+compare_tabs(species_code = 10130,year_compare = 2017,region = "GOA")
 
 
 # Make testing dataframe
@@ -417,10 +418,13 @@ for(i in 1:nrow(full_comparison)){
   a <- a_agecomp(survey = region,
                  t.username = siple.oracle,
                  t.password = siple.oracle.pass,
-                 t.species = full_comparison$spcode[i], t.year = full_comparison$yr[i])
+                 t.species = full_comparison$spcode[i], 
+                 t.year = full_comparison$yr[i])
   b <- racebase_allcomps %>%
-    filter(SPECIES_CODE == species_code & SURVEY_YEAR == year_compare) %>%
-    mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm
+    filter(SPECIES_CODE == full_comparison$spcode[i] & 
+             SURVEY_YEAR == full_comparison$yr[i]) %>%
+    mutate(MEAN_LENGTH = MEAN_LENGTH / 10, 
+           STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm
     mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
   if(nrow(a)>0){
     full_comparison$sp_in_mmartin_total[i] <- 1
@@ -435,4 +439,34 @@ for(i in 1:nrow(full_comparison)){
     }
   }
 
+write.csv(full_comparison, file = "outputs/a_agecomp_GOA_AGECOMP_comparison.csv",row.names = FALSE)
+
+
+# Which species and years have tables for both but are mismatched? --------
+full_comparison %>% 
+  filter(sp_in_mmartin_total==1 & sp_in_racebase_total==1 & does_it_match==0)
+
+full_comparison %>%
+  filter(spcode == 30051)
+
+# Look at specific cases
+check_spp <- 30051
+  check_year <- 2013
   
+checkspps_mm <- a_agecomp(
+  survey = "GOA",
+  t.username = siple.oracle,
+  t.password = siple.oracle.pass,
+  t.species = check_spp, t.year = check_year
+)
+head(checkspps_mm)
+
+checkspps_racebase <- racebase_allcomps %>%
+  filter(SPECIES_CODE == check_spp & 
+           SURVEY_YEAR == check_year) %>%
+  mutate(MEAN_LENGTH = MEAN_LENGTH / 10, 
+         STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm
+  mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
+head(checkspps_racebase)
+
+diffdf::diffdf(checkspps_racebase,checkspps_mm)
