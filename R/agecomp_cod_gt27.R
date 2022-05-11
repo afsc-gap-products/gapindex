@@ -37,7 +37,7 @@
 #' @export
 #'
 #' @examples
-get_age_comps_mm <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.species = 21720, t.cut = 270, t.which.bin = "larger") {
+agecomp_cod_gt27 <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.species = 21720, t.cut = 270, t.which.bin = "larger") {
   #
   #
   #-------------------------
