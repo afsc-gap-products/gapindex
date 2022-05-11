@@ -331,8 +331,10 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
 
 #Compare a_agecomp to racebase table for ATF -----------------------------------------------------
 
-# Oracle credentials
+# Oracle credentials - t.username and t.password are character objects w your username and pw
 source("C:/Users/margaret.siple/Work/oraclecreds.R")
+
+# Test with arrowtooth flounder
 atf_aa <- a_agecomp(
   survey = "GOA",
   t.username = siple.oracle,
@@ -350,7 +352,7 @@ nrow(atf_aa)
 nrow(atf_racebase2)
 atf_aa$MEAN_LENGTH == atf_racebase2$MEAN_LENGTH
 
-
+# Two ways to compare: fully joined table....
 compare.df <- full_join(atf_racebase2, atf_aa, 
                         by = c("SURVEY", "SURVEY_YEAR", "SEX", "AGE"), 
                         suffix = c(".racebase", ".mmcode")) %>%
@@ -359,6 +361,7 @@ compare.df <- full_join(atf_racebase2, atf_aa,
          MEAN_LENGTH.mmcode, MEAN_LENGTH.racebase,
          STANDARD_DEVIATION.mmcode, STANDARD_DEVIATION.racebase)
 
+# .... or the diffdf package
 x <- diffdf::diffdf(atf_racebase2,atf_aa)
 print(x, as_string = TRUE)
 
@@ -373,14 +376,16 @@ spps_in_safe <- read.csv("data/siple_safe_species.csv") %>%
 compare_tabs <- function(species_code, year_compare, region = "GOA") {
   agecomp_mmartin <- a_agecomp(
     survey = region,
-    t.username = siple.oracle,
+    t.username = siple.oracle, # NOTE: CHANGE THESE IF YOU ARE NOT ME
     t.password = siple.oracle.pass,
-    t.species = species_code, t.year = year_compare # atf
+    t.species = species_code, 
+    t.year = year_compare 
   )
 
   agecomp_racebase <- racebase_allcomps %>%
     filter(SPECIES_CODE == species_code & SURVEY_YEAR == year_compare) %>%
-    mutate(MEAN_LENGTH = MEAN_LENGTH / 10, STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
+    mutate(MEAN_LENGTH = MEAN_LENGTH / 10, 
+           STANDARD_DEVIATION = STANDARD_DEVIATION / 10) %>% # convert to cm for comparison
     mutate_at(.vars = c("AGE", "SEX", "SURVEY_YEAR"), as.numeric)
 
   
@@ -451,7 +456,7 @@ full_comparison %>%
 
 # Look at specific cases
 check_spp <- 30051
-  check_year <- 2013
+  check_year <- 2009
   
 checkspps_mm <- a_agecomp(
   survey = "GOA",
