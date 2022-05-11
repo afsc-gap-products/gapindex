@@ -333,6 +333,7 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
 
 # Oracle credentials - t.username and t.password are character objects w your username and pw
 source("C:/Users/margaret.siple/Work/oraclecreds.R")
+library(tidyverse)
 
 # Test with arrowtooth flounder
 atf_aa <- a_agecomp(
@@ -418,7 +419,7 @@ full_comparison$sp_in_racebase_total <- 0
 
 
 # Loop through years and species and compare the age comps ----------------
-
+region = "GOA"
 for(i in 1:nrow(full_comparison)){
   a <- a_agecomp(survey = region,
                  t.username = siple.oracle,
