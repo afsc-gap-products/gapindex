@@ -227,7 +227,7 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
   #
   # Loop for species:
   #
-  if(nrow(specimen>0)){ #allow for species not having age comps (some don't)
+  if(nrow(specimen)>0){ #allow for species not having age comps (some don't)
   for (sp in sort(unique(specimen$species_code))) {
     cat(paste("species", sp, "\n"))
     sp.specimen <- specimen[specimen$species_code == sp, ]
@@ -297,7 +297,7 @@ a_agecomp <- function(survey = "GOA", t.username = NULL, t.password = NULL, t.sp
           new.matrix[dimnames(pop.age.estimate)[[1]], dimnames(pop.age.estimate)[[2]]] <- pop.age.estimate
           new.matrix[match(no.age.sizecomp$length, dimnames(new.matrix)[[1]]), "-9"] <- no.age.sizecomp[, 2]
           new.matrix[is.na(new.matrix)] <- 0
-          pop.age.estimate <- new.matrix
+          pop.age.estimate <- new.matrix #rows of pop.age.estimate = size bins. cols = ages. elements = total individual count (I THINK - MCS)
         }
         # Now sum up the numbers at age for all lengths
         age.estimate <- apply(pop.age.estimate, 2, sum)
@@ -455,8 +455,8 @@ full_comparison %>%
   filter(spcode == 30051)
 
 # Look at specific cases
-check_spp <- 30051
-  check_year <- 2009
+check_spp <- 10130
+  check_year <- 2019
   
 checkspps_mm <- a_agecomp(
   survey = "GOA",
@@ -475,3 +475,5 @@ checkspps_racebase <- racebase_allcomps %>%
 head(checkspps_racebase)
 
 diffdf::diffdf(checkspps_racebase,checkspps_mm)
+
+write.csv(checkspps_mm, file = "outputs/FHS_2019_agecomps.csv",row.names = FALSE)
