@@ -1,7 +1,7 @@
 ---
 title: "Total biomass calculations"
 author: "M Siple"
-date: "last updated 3/3/22"
+date: "last updated 5/12/22"
 output: 
   html_document
 bibliography: design-based-indices.bib
@@ -163,23 +163,77 @@ $$
 \hat{P_{T,k}} = \sum_i \hat{P_{i,k}}
 $$
 
-## Numbers in each size class
+## Size composition
 Length frequencies for each station are estimated by expanding the length-frequency subsample to the total catch (per sampling unit):
 
 $$
 \hat{S}_{i,j,k,l,m} = {s}_{i,j,k,l,m} \cdot \frac{\hat{S}_{i,j,k}}{\sum_{j=1}^{3} \sum_{l=1}^{L_i,j,k,m} \hat{S}_{i,j,k,l,m}}
 $$
 
-where $s_{i,j,k,l,m} $ is the number of individuals within the length-frequency subsample of species $k$ 
+where $s_{i,j,k,l,m}$ is the number of individuals within the length-frequency subsample of species $k$.
+
+## Age composition
+The number of individuals within each sex and size class for each stratum is:
+
+$$
+\hat{P}_{i,j,k,l,m} = \hat{P}_{i,k} \cdot \frac{\sum_{j=1}^{n_i}\hat{S}_{i,j,k,l,m}}{\sum_{j=1}^{n_j} \sum_{m=1}^{L_i,j,k,m} \hat{S}_{i,j,k,l,m}}
+$$
+where $n_i$ is the number of stations at which length-frequency samples were obtained for species $k$. By summing across sex and/or stratum, from $\hat{P}_{i,j,k,l,m}$, we calculate:
+a) Size composition by sex and combined sexes of species $k$ by stratum and for all strata
+b) The numbers of species $k$ by sex category for each stratum and combined strata.
+
 
 # Tables
 ```{r variable-names-tab, echo=FALSE}
-x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S" ), 
-                definition = c("Geographical area", "Population weight","Vulnerability","Catch per unit effort (catch per area trawled)","Computed distance trawled","Relative fishing power correction factor","Number of length categories","Population number","Number of individuals within a standard sampling unit"), 
-                units = c("$km^2$","$kg$","$scalar$","$kg/ha$","$km$",
-                          "$scalar$","$integer$","$integer$",
-                          "$number/hectare$"))
-kableExtra::kbl(x, escape = FALSE,caption = "Variable names used in these calculations") %>%
+x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S","VAR", "W","a","b","n","$n_e$","p","r","s","t","w","i","j","k","l","m","g","T"),
+                definition = c("Geographical area",
+                               "Population weight",
+                               "Vulnerability",
+                               "Catch per unit effort (catch per area trawled)",
+                               "Computed distance trawled",
+                               "Relative fishing power correction factor",
+                               "Number of length categories",
+                               "Population size",
+                               "Number of individuals within a standard sampling unit (haul)",
+                               "Variance", #10
+                               "Observed catch weight",
+                               "Coefficient of length-weight relationship",
+                               "Exponent of the length-weight relationship",
+                               "Number of stations",
+                               "Effective degrees of freedom",
+                               "Trawl path width",
+                               "Weight of all individuals in a subsample",
+                               "Number of all individuals in a subsample",
+                               "Age",
+                               "Individual weight", #20
+                               "Statistical strata",
+                               "Station",
+                               "Species",
+                               "Length class",
+                               "Sex class",
+                               "Trawl net",
+                               "Total survey area (all strata combined)"), #27
+                units = c("$km^2$",
+                          "kg",
+                          "scalar",
+                          "kg/ha",
+                          "km",
+                          "scalar",
+                          "integer",
+                          "integer",
+                          "number/ha",
+                          "unitless",
+                          "kg",
+                          "$g/cm^-3$",
+                          "unitless",
+                          "integer",
+                          "unitless",
+                          "km","kg","integer","years","kg",rep(NA,7)))
+kableExtra::kbl(x,
+                escape = FALSE,
+                caption = "Variable names used in these calculations") %>%
+  kableExtra::pack_rows("Subscripts",21,27) %>%
+  kableExtra::column_spec(c(1,3),italic = T) %>%
   kable_styling()
 ```
 
