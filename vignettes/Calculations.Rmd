@@ -3,7 +3,9 @@ title: "Total biomass calculations"
 author: "M Siple"
 date: "last updated 5/12/22"
 output: 
-  html_document
+  bookdown::html_document2:
+    theme: cerulean
+    highlight: tango
 bibliography: design-based-indices.bib
 ---
 
@@ -11,6 +13,7 @@ bibliography: design-based-indices.bib
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr) #for tables
 library(kableExtra) #for tables
+options(knitr.table.format = "latex")
 ```
 
 # Stratum level calculations
