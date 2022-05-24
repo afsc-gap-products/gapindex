@@ -1,6 +1,6 @@
 ---
 title: "Total biomass calculations"
-author: "M Siple"
+author: "M Siple - GAP Survey Team"
 date: "last updated 5/12/22"
 output: 
   bookdown::html_document2:
@@ -158,7 +158,7 @@ The number of individuals of a given species in a given stratum is estimated as:
 $$
 \hat{P_{i,k}} = \bigg(\frac{A_i}{0.01}\bigg) \cdot \frac{\sum_{j=1}^{n_i} \hat{S}_{i,j,k}} {n_{i,j,k}}
 $$
-where $\hat{S}_{i,j,k} $ is $\frac{CPUE_{i,j,k}}{w_{i,j,k}}$, an estimate of the number of individuals caught per hectare at station *j* (and $w_{i,j,k}=r_{i,j,k}/s_{i,j,k}$, an estimate of the mean weight of individuals in the subsample). 
+where $\hat{S}_{i,j,k}$ is $\frac{CPUE_{i,j,k}}{w_{i,j,k}}$, an estimate of the number of individuals caught per hectare at station *j* (and $w_{i,j,k}=r_{i,j,k}/s_{i,j,k}$, an estimate of the mean weight of individuals in the subsample). 
 
 ## Total survey numbers
 The total number of individuals in the survey area is the sum of the stratum population numbers:
@@ -173,7 +173,7 @@ $$
 \hat{S}_{i,j,k,l,m} = {s}_{i,j,k,l,m} \cdot \frac{\hat{S}_{i,j,k}}{\sum_{j=1}^{3} \sum_{l=1}^{L_i,j,k,m} \hat{S}_{i,j,k,l,m}}
 $$
 
-where $s_{i,j,k,l,m}$ is the number of individuals within the length-frequency subsample of species $k$.
+where $s_{i,j,k,l,m}$ is the number of individuals within the length-frequency subsample of species $k$. 
 
 ## Age composition
 The number of individuals within each sex and size class for each stratum is:
@@ -227,11 +227,11 @@ x <- data.frame(symbol = c("A", "B", "c", "CPUE", "D", "F","L","P","S","VAR", "W
                           "number/ha",
                           "unitless",
                           "kg",
-                          "$g/cm^-3$",
+                          "$g/cm^{-3}$",
                           "unitless",
                           "integer",
                           "unitless",
-                          "km","kg","integer","years","kg",rep(NA,7)))
+                          "km","kg","integer","years","kg",rep("--",7)))
 kableExtra::kbl(x,
                 escape = FALSE,
                 caption = "Variable names used in these calculations") %>%
