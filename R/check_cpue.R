@@ -6,19 +6,31 @@ source("R/03_get_biomass_stratum.R")
 
 
 # Get tables to compare ---------------------------------------------------
+
 # GOA.CPUE table downloaded from RACEBASE
 cpue_wayne <- read.csv(here::here("data", "cpue_racebase.csv"))
 cpue_wayne <- cpue_wayne %>% janitor::clean_names()
-
-# Emily's cpue summarized by year and station (for GAP public data)
-# source: https://github.com/afsc-gap-products/gap_public_data/blob/main/code/run.R
-cpue_em <- read.csv("C:/Users/margaret.siple/Work/gap_public_data/output/2022-05-04/cpue_station.csv")
-
+#
+# EMILY SOURCE FOR ZERO-FILLED CPUE TALE IS PAUSED AT THE MOMENT BECAUSE SHE HAS TO SEND ME THE TABLE
+# # Emily's cpue summarized by year and station (for GAP public data)
+# # source: FOSS
+# library("jsonlite")
+# # link to the API
+# api_link <- "https://origin-tst-ods-st.fisheries.noaa.gov/ods/foss/afsc_groundfish_survey/"
+# res <- httr::GET(url = api_link)
+# # base::rawToChar(res$content) # Test connection
+# data <- jsonlite::fromJSON(base::rawToChar(res$content))
+# head(data$items)
+#
+# old/deprecated
+cpue_em <- read.csv("C:/Users/margaret.siple/Work/gap_public_data/output/2022-09-15/cpue_station.csv")
+cpue_em <- cpue_em %>% janitor::clean_names()
 
 # check cpue for a single species -----------------------------------------
 # Not sure how to do this, try one species/year combo first:
 region_compare <- "GOA"
 sp_compare <- 30060
+year_compare <- 2021
 
 cpue_dbe <- get_cpue(speciescode = sp_compare, survey_area = "GOA") %>%
   filter(year == year_compare)
@@ -49,7 +61,7 @@ compare.df <- cpue_w %>%
 all(compare.df$distance_fished.dbe == compare.df$distance_fished.racebase)
 
 # Look at where CPUEs are different
-all(compare.df$wgtcpue.dbe == compare.df$distance_fished.racebase)
+all(compare.df$wgtcpue.dbe == compare.df$wgtcpue.racebase)
 compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase
 
 # For POP, the max difference is
@@ -62,7 +74,7 @@ max(compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase)
 cpue_e_0filled <- haul %>%
   dplyr::filter(year(start_time) == year_compare & region == "GOA" & abundance_haul == "Y") %>%
   dplyr::left_join(cpue_e, by = c("hauljoin", "cruise", "stratum", "haul", "vessel" = "vessel_id")) %>%
-  select(survey_id, year, region,cruise, haul, haul_type, srvy,cpue_kgkm2, hauljoin ) %>%
+  select(survey_id, year, region, cruise, haul, haul_type, srvy, cpue_kgkm2, hauljoin) %>%
   mutate(cpue_kgkm2 = replace_na(cpue_kgkm2, 0))
 head(cpue_e_0filled)
 nrow(cpue_e_0filled)
@@ -70,9 +82,11 @@ head(cpue_w)
 # now it has the same nrows as cpue_w and cpue_dbe
 
 compare.df.em <- cpue_w %>%
-  rename(cpue_kgkm2=wgtcpue) %>%
-  full_join(cpue_e_0filled, by = c("hauljoin","haul"), # c("year", "hauljoin","survey"="srvy")
-            suffix = c(".racebase", ".emily")) %>%
+  rename(cpue_kgkm2 = wgtcpue) %>%
+  full_join(cpue_e_0filled,
+    by = c("hauljoin", "haul"), # c("year", "hauljoin","survey"="srvy")
+    suffix = c(".racebase", ".emily")
+  ) %>%
   select(order(colnames(.)))
 
 nrow(compare.df.em)
@@ -91,6 +105,12 @@ max(cpuediffs)
 
 # All years and SAFE species ----------------------------------------------
 # Set up design table for GOA
-safe_species <- read.csv(here::here("data","siple_safe_species.csv"))
-goa_safe <- safe_species %>% filter(GOA==1 & !is.na(species_code)) %>% select(species_code)
-designtable <- tibble(goa_safe,max_cpue_diff = 999)
+safe_species <- read.csv(here::here("data", "siple_safe_species.csv"))
+goa_safe <- safe_species %>%
+  filter(GOA == 1 & !is.na(species_code)) %>%
+  select(species_code)
+designtable <- expand_grid(
+  species_code = goa_safe$species_code,
+  year = unique(cpue_wayne$year)
+) %>%
+  mutate(max_cpue_diff = NA)
