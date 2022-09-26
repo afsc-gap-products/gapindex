@@ -32,14 +32,14 @@ region_compare <- "GOA"
 sp_compare <- 30060
 year_compare <- 2021
 
-cpue_dbe <- get_cpue(speciescode = sp_compare, survey_area = "GOA") %>%
+cpue_dbe <- get_cpue(speciescode = sp_compare, survey_area = region_compare) %>%
   filter(year == year_compare)
 
 cpue_w <- cpue_wayne %>%
-  filter(species_code == sp_compare & survey == "GOA" & year == year_compare)
+  filter(species_code == sp_compare & survey == region_compare & year == year_compare)
 
 cpue_e <- cpue_em %>%
-  filter(species_code == sp_compare & srvy == "GOA" & year == year_compare)
+  filter(species_code == sp_compare & srvy == region_compare & year == year_compare)
 
 nrow(cpue_dbe)
 nrow(cpue_w)
@@ -106,11 +106,43 @@ max(cpuediffs)
 # All years and SAFE species ----------------------------------------------
 # Set up design table for GOA
 safe_species <- read.csv(here::here("data", "siple_safe_species.csv"))
+
 goa_safe <- safe_species %>%
   filter(GOA == 1 & !is.na(species_code)) %>%
   select(species_code)
+
 designtable <- expand_grid(
   species_code = goa_safe$species_code,
   year = unique(cpue_wayne$year)
 ) %>%
-  mutate(max_cpue_diff = NA)
+  mutate(max_cpue_diff = NA) 
+
+region_compare <- "GOA"
+
+for(i in 1:nrow(designtable)){ #
+  sp_compare <- designtable$species_code[i]
+  year_compare <- designtable$year[i]
+  
+  cpue_dbe <- get_cpue(speciescode = sp_compare, survey_area = region_compare) %>%
+    filter(year == year_compare)
+  
+  cpue_w <- cpue_wayne %>%
+    filter(species_code == sp_compare & survey == region_compare & year == year_compare)
+  
+  compare.df <- cpue_w %>%
+    full_join(cpue_dbe, by = c("year", "survey", "hauljoin"), suffix = c(".racebase", ".dbe")) %>%
+    select(order(colnames(.)))
+  
+  
+  designtable$max_cpue_diff[i] <- max(compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase)
+  print(i/nrow(designtable))
+}
+
+designtable2 <- designtable %>% 
+  arrange(-max_cpue_diff)
+
+
+# Do the same thing for the AI --------------------------------------------
+# AI.CPUE table downloaded from RACEBASE
+cpue_wayne_ai <- read.csv(here::here("data", "cpue_racebase_ai.csv"))
+cpue_wayne_ai <- cpue_wayne_ai %>% janitor::clean_names()
