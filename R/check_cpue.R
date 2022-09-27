@@ -23,8 +23,8 @@ cpue_wayne <- cpue_wayne %>% janitor::clean_names()
 # head(data$items)
 #
 # old/deprecated
-cpue_em <- read.csv("C:/Users/margaret.siple/Work/gap_public_data/output/2022-09-15/cpue_station.csv")
-cpue_em <- cpue_em %>% janitor::clean_names()
+# cpue_em <- read.csv("C:/Users/margaret.siple/Work/gap_public_data/output/2022-09-15/cpue_station.csv")
+# cpue_em <- cpue_em %>% janitor::clean_names()
 
 # check cpue for a single species -----------------------------------------
 # Not sure how to do this, try one species/year combo first:
@@ -33,22 +33,26 @@ sp_compare <- 30060
 year_compare <- 2021
 
 cpue_dbe <- get_cpue(speciescode = sp_compare, survey_area = region_compare) %>%
-  filter(year == year_compare)
+  filter(year == year_compare) %>%
+  arrange(stratum, hauljoin)
 
 cpue_w <- cpue_wayne %>%
-  filter(species_code == sp_compare & survey == region_compare & year == year_compare)
+  filter(species_code == sp_compare & survey == region_compare & year == year_compare) %>%
+  arrange(stratum, hauljoin)
 
-cpue_e <- cpue_em %>%
-  filter(species_code == sp_compare & srvy == region_compare & year == year_compare)
+diffdf::diffdf(cpue_w, cpue_dbe)
+
+#cpue_e <- cpue_em %>%
+#  filter(species_code == sp_compare & srvy == region_compare & year == year_compare)
 
 nrow(cpue_dbe)
 nrow(cpue_w)
-nrow(cpue_e) # Em's table is not zero-filled so need to add in zeroes for stations where no POP (or whatever species) were caught.
+#nrow(cpue_e) # Em's table is not zero-filled so need to add in zeroes for stations where no POP (or whatever species) were caught.
 
 # First, compare CPUE table from RACEBASE to mine:
 length(unique(cpue_w$haul))
 length(unique(cpue_dbe$haul))
-length(unique(cpue_e$haul))
+#length(unique(cpue_e$haul))
 
 colnames(cpue_w)
 colnames(cpue_dbe)
@@ -65,7 +69,7 @@ all(compare.df$wgtcpue.dbe == compare.df$wgtcpue.racebase)
 compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase
 
 # For POP, the max difference is
-max(compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase)
+max(compare.df$wgtcpue.dbe - compare.df$wgtcpue.racebase, na.rm=TRUE)
 
 # So I think it's ok.
 
