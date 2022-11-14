@@ -8,6 +8,10 @@
 #' @param vulnerability the vulnerability of the species to the survey 
 #'                      (defaults to 1).
 #' @param ci_val numeric, ci_val% confidence interval. Defaults to 95.
+#' 
+#' @return dataframe of biomass and population abundance estimates across 
+#'         strata, along with variances and CIs. 
+#' 
 #' @export
 #'
 

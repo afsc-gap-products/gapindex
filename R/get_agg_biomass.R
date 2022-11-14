@@ -5,6 +5,9 @@
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
 #'                       `get_biomass_stratum()`
 #'
+#' @return dataframe of biomass and population abundance estimates across 
+#'         subareas and across the region, along with variances (CIs to be 
+#'         added when we can figure out how to do them...) 
 #' @export
 #' 
 

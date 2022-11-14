@@ -16,6 +16,11 @@ get_agg_biomass(
 \item{region}{character string. One of c("EBS_STANDARD", "EBS_NW",
 "NBS", "GOA", "AI")}
 }
+\value{
+dataframe of biomass and population abundance estimates across
+subareas and across the region, along with variances (CIs to be
+added when we can figure out how to do them...)
+}
 \description{
 Calculate index of total biomass across aggregated strata
 }

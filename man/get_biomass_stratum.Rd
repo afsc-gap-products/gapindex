@@ -26,6 +26,10 @@ from AFSC.GAP.DBE::get_data().}
 
 \item{ci_val}{numeric, ci_val\% confidence interval. Defaults to 95.}
 }
+\value{
+dataframe of biomass and population abundance estimates across
+strata, along with variances and CIs.
+}
 \description{
 Calculate index of total biomass per stratum
 }

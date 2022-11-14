@@ -1,9 +1,13 @@
 #' Calculate CPUEs at haul level
 #' 
-#' @description This function zero-fills the catch data and converts numbers and weights
-#' to CPUE.
+#' @description This function zero-fills the catch data and converts numbers 
+#'              and weights to CPUE.
 #' 
 #' @param racebase_tables object created from AFSC.GAP.DBE::get_data()
+#' 
+#' @return dataframe of weight and numerical CPUE for the region, species, and
+#'         years pulled from AFSC.GAP.DBE::get_data()
+#' 
 #' @export
 #' 
 

@@ -28,9 +28,11 @@ this mean?) and "N" are other hauls.}
 
 \item{sql_channel}{connection created via AFSC.GAP.DBE::get_connected()}
 }
-\description{
-\itemize{
-\item{"parameter 1"}{Stuff}
-\item{"parameter 2"}{Stuff}
+\value{
+a named list containing cruise, haul, catch, and stratum information
+for the region, years, and species of interest.
 }
+\description{
+Pulls cruise, haul, catch, and stratum information for the
+region, years, and species of interest.
 }

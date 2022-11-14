@@ -1,11 +1,7 @@
 #' Pull data from RACEBASE
 #' 
-#' @description 
-#' 
-#' \itemize{
-#'  \item{"parameter 1"}{Stuff}
-#'  \item{"parameter 2"}{Stuff}
-#' }
+#' @description Pulls cruise, haul, catch, and stratum information for the 
+#'              region, years, and species of interest. 
 #' 
 #' @param year_set numeric or integer vector of years
 #' @param survey_set character string. One of c("GOA", "BS", "AI")
@@ -15,6 +11,9 @@
 #' @param abundance_haul character string. "Y" are abundance hauls (what does
 #'                        this mean?) and "N" are other hauls.
 #' @param sql_channel connection created via AFSC.GAP.DBE::get_connected()
+#' 
+#' @return a named list containing cruise, haul, catch, and stratum information 
+#'         for the region, years, and species of interest. 
 #' 
 #' @export
 #' 
