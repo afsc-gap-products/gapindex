@@ -31,7 +31,7 @@ get_biomass_stratum <- function(cpue = NULL,
   ## one station, variance is ASSUMED zero
   wgt_stats <- 
     stats::aggregate(
-      formula = WGTCPUE_KG_KM2 ~ SPECIES_CODE + STRATUM + YEAR, 
+      WGTCPUE_KG_KM2 ~ SPECIES_CODE + STRATUM + YEAR, 
       data = cpue, 
       FUN = function(x) 
         c("haul_count" = length(x),
@@ -44,7 +44,7 @@ get_biomass_stratum <- function(cpue = NULL,
   ## one station, variance is ASSUMED zero
   num_stats <- 
     stats::aggregate(
-      formula = NUMCPUE_IND_KM2 ~ SPECIES_CODE + STRATUM + YEAR, 
+      NUMCPUE_IND_KM2 ~ SPECIES_CODE + STRATUM + YEAR, 
       data = cpue, 
       FUN = function(x) 
         c("mean_num_cpue" = ifelse(test = length(x) == 1, 

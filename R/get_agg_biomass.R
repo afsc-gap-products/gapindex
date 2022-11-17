@@ -121,9 +121,9 @@ get_agg_biomass <- function(biomass_strata = NULL,
              if (nrow(subarea_biomass) == 0) return(data.frame())
              if (nrow(subarea_biomass) > 0) {
                return(cbind(data.frame(STRATUM = names(which_strata)[subarea]),
-                            stats::aggregate(formula = cbind(biomass_mt, 
-                                                             biomass_var,
-                                                             haul_count) ~
+                            stats::aggregate(cbind(biomass_mt, 
+                                                   biomass_var,
+                                                   haul_count) ~
                                                SPECIES_CODE + YEAR,
                                              data = subarea_biomass,
                                              FUN = sum)))
