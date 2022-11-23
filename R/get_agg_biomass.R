@@ -124,7 +124,7 @@ get_agg_biomass <- function(biomass_strata = NULL,
                             stats::aggregate(cbind(biomass_mt, 
                                                    biomass_var,
                                                    haul_count) ~
-                                               SPECIES_CODE + YEAR,
+                                               group + YEAR,
                                              data = subarea_biomass,
                                              FUN = sum)))
              }
