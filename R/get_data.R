@@ -20,7 +20,7 @@
 #'         for the region, years, and species of interest. 
 #' 
 #' @examples
-#' '\dontrun{
+#' \dontrun{
 #' AFSC.GAP.DBE::get_data(
 #' year_set = 1996:2021, 
 #' survey_set = "GOA", 
