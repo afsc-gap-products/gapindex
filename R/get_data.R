@@ -20,6 +20,7 @@
 #'         for the region, years, and species of interest. 
 #' 
 #' @examples
+#' '\dontrun{
 #' AFSC.GAP.DBE::get_data(
 #' year_set = 1996:2021, 
 #' survey_set = "GOA", 
@@ -28,7 +29,7 @@
 #' spp_codes = data.frame("species_code" = c(21720, 21220, 21230, 21232), 
 #'                        "group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
 #' )
-#' 
+#' }
 #' @export
 #' 
 

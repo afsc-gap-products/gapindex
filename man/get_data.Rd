@@ -7,7 +7,7 @@
 get_data(
   year_set = c(1996, 1999),
   survey_set = c("GOA", "BS", "AI")[1],
-  spp_codes = c(`Pacific cod` = 21720, `walleye pollock` = 21740),
+  spp_codes = data.frame(species_code = 21720, group = 21720),
   haul_type = 3,
   abundance_haul = c("Y"),
   sql_channel = NULL
@@ -16,9 +16,13 @@ get_data(
 \arguments{
 \item{year_set}{numeric or integer vector of years}
 
-\item{survey_set}{character string. One of c("GOA", "BS", "AI")}
+\item{survey_set}{character string. One of c("GOA", "AI", "EBS_SHELF",
+"EBS_SLOPE", "NBS_SHELF")}
 
-\item{spp_codes}{character vector of species codes. See ... for full list}
+\item{spp_codes}{two-column dataframe of species codes (column name
+species_codes) and group name (column name group).
+For single-species, the group and species codes can be the
+same (see example).}
 
 \item{haul_type}{integer. Defaults to haul type "3" for Standard bottom
 sample (preprogrammed station) used for biomass estimation}
@@ -35,4 +39,15 @@ for the region, years, and species of interest.
 \description{
 Pulls cruise, haul, catch, and stratum information for the
 region, years, and species of interest.
+}
+\examples{
+AFSC.GAP.DBE::get_data(
+year_set = 1996:2021, 
+survey_set = "GOA", 
+## This configuration of spp_codes provides single-species estimates for 
+## Pacific cod and complex-level estimates for SAFE grenadiers 
+spp_codes = data.frame("species_code" = c(21720, 21220, 21230, 21232), 
+                       "group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
+)
+
 }
