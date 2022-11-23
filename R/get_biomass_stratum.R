@@ -31,7 +31,7 @@ get_biomass_stratum <- function(cpue = NULL,
   ## one station, variance is ASSUMED zero
   wgt_stats <- 
     stats::aggregate(
-      WGTCPUE_KG_KM2 ~ SPECIES_CODE + STRATUM + YEAR, 
+      WGTCPUE_KG_KM2 ~ group + STRATUM + YEAR, 
       data = cpue, 
       FUN = function(x) 
         c("haul_count" = length(x),
@@ -44,19 +44,19 @@ get_biomass_stratum <- function(cpue = NULL,
   ## one station, variance is ASSUMED zero
   num_stats <- 
     stats::aggregate(
-      NUMCPUE_IND_KM2 ~ SPECIES_CODE + STRATUM + YEAR, 
-      data = cpue, 
+      NUMCPUE_IND_KM2 ~ group + STRATUM + YEAR, 
+      data = cpue,
+      na.action = NULL,
       FUN = function(x) 
-        c("mean_num_cpue" = ifelse(test = length(x) == 1, 
-                                   yes = 0, 
-                                   no = mean(x, na.rm = TRUE)), 
-          "var_num_cpue" = ifelse(test = length(x) < 2, 
+        c("mean_num_cpue" = mean(x, na.rm = TRUE), 
+          "var_num_cpue" = ifelse(test = length(na.omit(x)) < 2, 
                                   yes = 0, 
-                                  no = stats::var(x) / length(x)),
-          "catch_count" = sum(x > 0)))
+                                  no = stats::var(x, na.rm = TRUE) / 
+                                    length(na.omit(x))),
+          "catch_count" = sum(x > 0, na.rm = TRUE)))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
-  stratum_stats <-  cbind(wgt_stats[, c("SPECIES_CODE", "STRATUM", "YEAR")],
+  stratum_stats <-  cbind(wgt_stats[, c("group", "STRATUM", "YEAR")],
                           data.frame(wgt_stats$WGTCPUE_KG_KM2),
                           data.frame(num_stats$NUMCPUE_IND_KM2))
   
