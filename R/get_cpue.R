@@ -36,7 +36,7 @@ get_cpue <- function(racebase_tables = NULL) {
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table of all combos of HAULJOIN and SPECIES_CODE.
   all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
-                            SPECIES_CODE = species$SPECIES_CODE)
+                            group = species$group)
   
   ## Then merge the all_combos table with dat
   dat <- merge(x = all_combos, 
@@ -51,18 +51,28 @@ get_cpue <- function(racebase_tables = NULL) {
   ## Merge catch data with dat using the HAULJOIN as the key
   dat <- merge(x = dat, 
                y = catch, 
-               by = c("SPECIES_CODE", "HAULJOIN"), 
+               by = c("group", "HAULJOIN"), 
                all.x = TRUE)
+  
+  
+  ## There are some hauls where a weight is recorded, but not a count. 
+  ## These records perhaps erroneously have a zero. These "zero" counts are
+  ## not included in the numbers per area swept calculation, so we need to 
+  ## NA these values and put zero counts for hauls with zero weights
+  dat$NUMBER_FISH[dat$NUMBER_FISH == 0] <- -1
+  dat$NUMBER_FISH[is.na(dat$NUMBER_FISH)] <- 0  
+  dat$NUMBER_FISH[dat$NUMBER_FISH == -1] <- NA
+  
+  sum(is.na(dat$NUMBER_FISH))
   
   ## Any record with no weight or count data (NA) are replaced with a zero
   dat$WEIGHT[is.na(dat$WEIGHT)] <- 0
-  dat$NUMBER_FISH[is.na(dat$NUMBER_FISH)] <- 0
-  
+
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(SPECIES_CODE,
-                         CRUISEJOIN = CRUISEJOIN.x, HAULJOIN, 
-                         VESSEL = VESSEL.x, HAUL = HAUL.x,
+              data.frame(group,
+                         CRUISEJOIN = CRUISEJOIN, HAULJOIN, 
+                         VESSEL = VESSEL.x, HAUL = HAUL,
                          YEAR = as.numeric(format(START_TIME, format = "%Y")),
                          HAUL_TYPE, PERFORMANCE, DURATION, STRATUM, 
                          STATIONID, 
