@@ -6,7 +6,7 @@
 \usage{
 get_agg_biomass(
   biomass_strata = NULL,
-  region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI")[2]
+  region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI")[1]
 )
 }
 \arguments{
