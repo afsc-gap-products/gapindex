@@ -13,9 +13,13 @@
 
 get_agg_biomass <- function(biomass_strata = NULL,
                             region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
-                                       "GOA", "AI")[2]) {
+                                       "GOA", "AI")[1]) {
   
   ## Checks
+  if (!region %in% c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI"))
+    stop("argument `region` must be one of these options: 
+         EBS_STANDARD, EBS_PLUSNW, NBS, GOA, AI. " )
+  
   if (region == "GOA") {
     if (any(unique(biomass_strata$YEAR) > 2021))
       warning("The GOA total biomass across INPFC area and across depth zones
@@ -123,6 +127,7 @@ get_agg_biomass <- function(biomass_strata = NULL,
                return(cbind(data.frame(STRATUM = names(which_strata)[subarea]),
                             stats::aggregate(cbind(biomass_mt, 
                                                    biomass_var,
+                                                   pop, pop_var,
                                                    haul_count) ~
                                                group + YEAR,
                                              data = subarea_biomass,
