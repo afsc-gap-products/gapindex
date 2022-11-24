@@ -49,10 +49,10 @@ get_biomass_stratum <- function(cpue = NULL,
       na.action = NULL,
       FUN = function(x) 
         c("mean_num_cpue" = mean(x, na.rm = TRUE), 
-          "var_num_cpue" = ifelse(test = length(na.omit(x)) < 2, 
+          "var_num_cpue" = ifelse(test = length(stats::na.omit(x)) < 2, 
                                   yes = 0, 
                                   no = stats::var(x, na.rm = TRUE) / 
-                                    length(na.omit(x))),
+                                    length(stats::na.omit(x))),
           "catch_count" = sum(x > 0, na.rm = TRUE)))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
