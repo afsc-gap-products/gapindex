@@ -26,13 +26,15 @@ library(AFSC.GAP.DBE)
 sql_channel <- AFSC.GAP.DBE::get_connected()
 
 ## Pull data.  See ?AFSC.GAP.DBE::get_data first for more details
-test_data <- AFSC.GAP.DBE::get_data(year_set = c(2022),
-                               survey_set = c("AI"),
-                               spp_codes = c(21740),
-                               haul_type = 3,
-                               abundance_haul = c("Y"),
-                               sql_channel = sql_channel)
-                               
+test_data <- AFSC.GAP.DBE::get_data( 
+  year_set = 2021,
+  survey_set = "EBS_SHELF",
+  spp_codes = data.frame(group = c(21720), 
+                         species_code = c(21720)),
+  haul_type = 3,
+  abundance_haul = "Y",
+  sql_channel = sql_channel)
+
 ## Fill in zeros and calculate CPUE. See ?AFSC.GAP.DBE::get_cpue first for more details
 test_cpue <- AFSC.GAP.DBE::get_cpue(racebase_tables = test_data)
 
@@ -42,12 +44,15 @@ test_biomass_stratum <-
                                     haul = test_data$haul, 
                                     strata = test_data$strata, 
                                     vulnerability = 1)
-                                    
+
 ## Calculate aggregated biomass and population abundance across subareas and region (STRATUM 999). See ?AFSC.GAP.DBE::get_agg_biomass first for more details
 test_biomass <- 
   AFSC.GAP.DBE::get_agg_biomass(biomass_strata = test_biomass_stratum, 
-                                region = "AI")
-                                
+                                region = "EBS_STANDARD")
+test_biomass2 <- 
+  AFSC.GAP.DBE::get_agg_biomass(biomass_strata = test_biomass_stratum, 
+                                region = "EBS_PLUSNW")
+
 ## More functions to come...
 ```
 
