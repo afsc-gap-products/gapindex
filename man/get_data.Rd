@@ -22,7 +22,8 @@ get_data(
 \item{spp_codes}{two-column dataframe of species codes (column name
 species_codes) and group name (column name group).
 For single-species, the group and species codes can be the
-same (see example).}
+same. Example: data.frame("species_code" = c(21720, 21220, 21230, 21232),
+"group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))}
 
 \item{haul_type}{integer. Defaults to haul type "3" for Standard bottom
 sample (preprogrammed station) used for biomass estimation}
@@ -39,15 +40,4 @@ for the region, years, and species of interest.
 \description{
 Pulls cruise, haul, catch, and stratum information for the
 region, years, and species of interest.
-}
-\examples{
-AFSC.GAP.DBE::get_data(
-year_set = 1996:2021, 
-survey_set = "GOA", 
-## This configuration of spp_codes provides single-species estimates for 
-## Pacific cod and complex-level estimates for SAFE grenadiers 
-spp_codes = data.frame("species_code" = c(21720, 21220, 21230, 21232), 
-                       "group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
-)
-
 }

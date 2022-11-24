@@ -9,7 +9,8 @@
 #' @param spp_codes two-column dataframe of species codes (column name 
 #'                  species_codes) and group name (column name group). 
 #'                  For single-species, the group and species codes can be the
-#'                  same (see example). 
+#'                  same. Example: data.frame("species_code" = c(21720, 21220, 21230, 21232), 
+#'                  "group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
 #' @param haul_type integer. Defaults to haul type "3" for Standard bottom 
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls (what does
@@ -19,17 +20,6 @@
 #' @return a named list containing cruise, haul, catch, and stratum information 
 #'         for the region, years, and species of interest. 
 #' 
-#' @examples
-#' \dontrun{
-#' AFSC.GAP.DBE::get_data(
-#' year_set = 1996:2021, 
-#' survey_set = "GOA", 
-#' ## This configuration of spp_codes provides single-species estimates for 
-#' ## Pacific cod and complex-level estimates for SAFE grenadiers 
-#' spp_codes = data.frame("species_code" = c(21720, 21220, 21230, 21232), 
-#'                        "group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
-#' )
-#' }
 #' @export
 #' 
 
@@ -169,11 +159,12 @@ get_data <- function(year_set = c(1996, 1999),
   catch_data <- merge(x = catch_data, y = spp_codes, 
                       by.x = "SPECIES_CODE", by.y = "species_code")
   
-  catch_data <- aggregate( cbind(WEIGHT, NUMBER_FISH) ~ 
-                             CATCHJOIN + HAULJOIN + REGION + CRUISE + group,
-                           data = catch_data,
-                           na.rm=TRUE, na.action=NULL,
-                           FUN = sum)
+  catch_data <- stats::aggregate( 
+    cbind(WEIGHT, NUMBER_FISH) ~ 
+      CATCHJOIN + HAULJOIN + REGION + CRUISE + group,
+    data = catch_data,
+    na.rm = TRUE, na.action = NULL,
+    FUN = sum)
   
   #####################################################################
   ## Query Size information
