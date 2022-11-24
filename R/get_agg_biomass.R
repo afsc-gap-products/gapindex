@@ -1,6 +1,6 @@
 #' Calculate index of total biomass across aggregated strata
 #'
-#' @param region         character string. One of c("EBS_STANDARD", "EBS_NW", 
+#' @param region         character string. One of c("EBS_STANDARD", "EBS_PLUSNW", 
 #'                       "NBS", "GOA", "AI")
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
 #'                       `get_biomass_stratum()`
@@ -12,7 +12,7 @@
 #' 
 
 get_agg_biomass <- function(biomass_strata = NULL,
-                            region = c("EBS_STANDARD", "EBS_NW", "NBS",
+                            region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
                                        "GOA", "AI")[2]) {
   
   ## Checks
@@ -23,7 +23,7 @@ get_agg_biomass <- function(biomass_strata = NULL,
               across NMFS areas will only be reported.")
   }
   
-  if (region == "EBS_NW") {
+  if (region == "EBS_PLUSNW") {
     if ( any(unique(biomass_strata$YEAR) < 1987) ){
       
       stop("The (EBS + NW) output only includes years 1987-present. 
@@ -44,7 +44,7 @@ get_agg_biomass <- function(biomass_strata = NULL,
                           "1" = 10, "2" = 20, "3" = c(31, 32),
                           "4" = c(41, 42, 43), "5" = 50, "6" = c(61, 62)),
     
-    "EBS_NW" = list("999" = c(10,20, 31,32,41,42,43, 50,61,62, 82, 90),
+    "EBS_PLUSNW" = list("999" = c(10,20, 31,32,41,42,43, 50,61,62, 82, 90),
                     ## Depth Subareas
                     "100" = c(10, 20),
                     "200" = c(31,32,41,42,43, 82),
