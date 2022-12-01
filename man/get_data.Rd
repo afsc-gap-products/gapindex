@@ -6,7 +6,7 @@
 \usage{
 get_data(
   year_set = c(1996, 1999),
-  survey_set = c("GOA", "BS", "AI")[1],
+  survey_set = c("GOA", "AI", "EBS_SHELF", "EBS_SLOPE", "NBS_SHELF")[1],
   spp_codes = data.frame(species_code = 21720, group = 21720),
   haul_type = 3,
   abundance_haul = c("Y"),

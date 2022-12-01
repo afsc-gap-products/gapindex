@@ -26,7 +26,8 @@
 #' 
 
 get_data <- function(year_set = c(1996, 1999),
-                     survey_set = c("GOA", "BS", "AI")[1],
+                     survey_set = c("GOA", "AI", "EBS_SHELF", "EBS_SLOPE", 
+                                    "NBS_SHELF")[1],
                      spp_codes = data.frame("species_code" = 21720, 
                                             "group" = 21720),
                      haul_type = 3,
@@ -58,60 +59,72 @@ get_data <- function(year_set = c(1996, 1999),
   cat("Pulling cruise data...\n")
   
   ## Query cruise data and filter survey regions of interest
-  cruise_data_safe <- 
-    RODBC::sqlQuery(channel = sql_channel, 
-                    query = paste0("SELECT * FROM SAFE.SURVEY WHERE SURVEY =",
-                                   " '", survey_set, "'"))
+  region_vec <- 
+    paste0("(", paste0("'", survey_set, "'", collapse=", "), ")") 
+  year_vec <- 
+    paste0("(", paste0(year_set, collapse=", "), ")") 
+  spp_codes_vec <- paste0("(", 
+                          paste(as.character(spp_codes$species_code), 
+                                collapse=", "), 
+                          ")")
+  
   cruise_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
-                    query = "SELECT * FROM RACEBASE.CRUISE")
-  cruise_data <- subset(x = cruise_data, 
-                        subset = cruise_data$CRUISEJOIN %in% 
-                          cruise_data_safe$CRUISEJOIN)
-  
+                    query = paste0("SELECT * FROM SAFE.SURVEY WHERE SURVEY IN ",
+                                   region_vec, " AND YEAR IN ", year_vec))
+  names(cruise_data)[names(cruise_data) == "SURVEY"] <- "REGION"
   #####################################################################
   ## Query stratum data
   #####################################################################
   cat("Pulling stratum data...\n")
   
-  if (survey_set %in% c("GOA", "AI")) {
+  stratum_data <- data.frame()
+  if (any(survey_set %in% c("GOA", "AI"))) {
     ## GOA and AI strata currently live in the GOA.GOA_STRATA table
     ## so we pull that table and filter for survey_set
-    stratum_data <- RODBC::sqlQuery(channel = sql_channel, 
-                                    query = "SELECT * FROM GOA.GOA_STRATA")
-    stratum_data <- subset(x = stratum_data, 
-                           subset = stratum_data$SURVEY %in% survey_set,
-                           select = c("SURVEY", "STRATUM", 
-                                      "AREA", "DESCRIPTION"))
+    aigoa_stratum_data <- RODBC::sqlQuery(channel = sql_channel, 
+                                          query = "SELECT * FROM GOA.GOA_STRATA")
+    aigoa_stratum_data <- subset(x = aigoa_stratum_data, 
+                                 subset = aigoa_stratum_data$SURVEY %in% survey_set,
+                                 select = c("SURVEY", "STRATUM", 
+                                            "AREA", "DESCRIPTION"))
+    stratum_data <- rbind(stratum_data, aigoa_stratum_data)
   }
   
-  if (survey_set %in% c("EBS_SHELF", "EBS_SLOPE")) {
+  if (any(survey_set %in% c("EBS_SHELF", "NBS_SHELF"))) {
     ## BS strata live in the RACEBASE.STRATUM table. Stratum records are 
     ## are periodically updated when stratum areas change (e.g., dropping
     ## stations). So, we only pull the most recent record for a given stratum.
-    stratum_data <- RODBC::sqlQuery(channel = sql_channel, 
-                                    query = "SELECT * FROM RACEBASE.STRATUM")
-    stratum_data <- subset(x = stratum_data, 
-                           subset = stratum_data$REGION == "BS")
+    stratum_df <- rbind(data.frame(region = "EBS_SHELF",
+                                   stratum = c(10,20,31,32,41,42,
+                                               43,50,61,62,82,90)),
+                        data.frame(region = "NBS_SHELF",
+                                   stratum = c(70,71,81)))
+    stratum_vec <- 
+      paste0("(", 
+             paste0(subset(x = stratum_df, 
+                           subset = region %in% survey_set)$stratum, 
+                    collapse=", "), 
+             ")") 
     
-    stratum_data <- stratum_data[ifelse(test = survey_set == "EBS_SHELF",
-                                        yes = -1,
-                                        no = 1) *
-                                   grep(x = stratum_data$DESCRIPTION,
-                                        pattern = "slope",
-                                        ignore.case = TRUE), ]
+    bs_stratum_data <- 
+      RODBC::sqlQuery(channel = sql_channel, 
+                      query = paste0("SELECT * FROM RACEBASE.STRATUM WHERE ",
+                                     "STRATUM IN ", stratum_vec))
     
     ## Grab the most recent year for a given stratum
-    stratum_data <- 
+    bs_stratum_data <- 
       do.call(what = rbind,
-              args = lapply(X = split(x = stratum_data, 
-                                      f = stratum_data$STRATUM),
+              args = lapply(X = split(x = bs_stratum_data, 
+                                      f = bs_stratum_data$STRATUM),
                             FUN = function(x) x[which.max(x$YEAR), ] ))
     
-    stratum_data <- subset(x = stratum_data, 
-                           select = c("REGION", "STRATUM", 
-                                      "AREA", "DESCRIPTION"))
-    names(stratum_data)[1] <- "SURVEY"
+    bs_stratum_data <- subset(x = bs_stratum_data, 
+                              select = c("REGION", "STRATUM", 
+                                         "AREA", "DESCRIPTION"))
+    names(bs_stratum_data)[1] <- "SURVEY"
+    
+    stratum_data <- rbind(stratum_data, bs_stratum_data)
   }
   
   #####################################################################
@@ -145,11 +158,6 @@ get_data <- function(year_set = c(1996, 1999),
   
   cruisejoin_vec <-
     paste0("(", paste(unique(haul_data$CRUISEJOIN), collapse=", "), ")")
-  
-  spp_codes_vec <- paste0("(", 
-                          paste(as.character(spp_codes$species_code), 
-                                collapse=", "), 
-                          ")")
   
   catch_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
