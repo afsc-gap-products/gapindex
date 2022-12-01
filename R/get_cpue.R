@@ -3,7 +3,7 @@
 #' @description This function zero-fills the catch data and converts numbers 
 #'              and weights to CPUE.
 #' 
-#' @param racebase_tables object created from AFSC.GAP.DBE::get_data()
+#' @param racebase_tables data object created from AFSC.GAP.DBE::get_data()
 #' 
 #' @return dataframe of weight and numerical CPUE for the region, species, and
 #'         years pulled from AFSC.GAP.DBE::get_data()
@@ -31,7 +31,7 @@ get_cpue <- function(racebase_tables = NULL) {
   ## keys. Have not tested with multiple regions. 
   dat <- merge(x = haul, 
                y = cruisedat, 
-               by = c("CRUISEJOIN", "REGION") )
+               by = c("CRUISEJOIN") )
   
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table of all combos of HAULJOIN and SPECIES_CODE.

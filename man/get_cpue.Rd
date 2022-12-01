@@ -7,7 +7,7 @@
 get_cpue(racebase_tables = NULL)
 }
 \arguments{
-\item{racebase_tables}{object created from AFSC.GAP.DBE::get_data()}
+\item{racebase_tables}{data object created from AFSC.GAP.DBE::get_data()}
 }
 \value{
 dataframe of weight and numerical CPUE for the region, species, and
