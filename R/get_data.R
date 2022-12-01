@@ -16,6 +16,8 @@
 #' @param abundance_haul character string. "Y" are abundance hauls (what does
 #'                        this mean?) and "N" are other hauls.
 #' @param sql_channel connection created via AFSC.GAP.DBE::get_connected()
+#' @param pull_lengths boolean T/F. Should lengths be called? Defaults to FALSE
+#'                     for speed.
 #' 
 #' @return a named list containing cruise, haul, catch, and stratum information 
 #'         for the region, years, and species of interest. 
@@ -29,7 +31,8 @@ get_data <- function(year_set = c(1996, 1999),
                                             "group" = 21720),
                      haul_type = 3,
                      abundance_haul = c("Y"),
-                     sql_channel = NULL) {
+                     sql_channel = NULL,
+                     pull_lengths = F) {
   
   #####################################################################
   ## Check that spp_codes is a dataframe with group, species_codes
@@ -168,16 +171,19 @@ get_data <- function(year_set = c(1996, 1999),
   
   #####################################################################
   ## Query Size information
-  #####################################################################    
-  cat("Pulling size data...\n")
-  size_data <- 
-    RODBC::sqlQuery(channel = sql_channel, 
-                    query = paste0("SELECT * FROM RACEBASE.LENGTH ",
-                                   "where CRUISEJOIN in ", cruisejoin_vec,
-                                   ifelse(test = is.null(spp_codes),
-                                          yes = "",
-                                          no = " and SPECIES_CODE in "),
-                                   spp_codes_vec))
+  #####################################################################   
+  size_data = NULL
+  if (pull_lengths) {
+    cat("Pulling size data...\n")
+    size_data <- 
+      RODBC::sqlQuery(channel = sql_channel, 
+                      query = paste0("SELECT * FROM RACEBASE.LENGTH ",
+                                     "where CRUISEJOIN in ", cruisejoin_vec,
+                                     ifelse(test = is.null(spp_codes),
+                                            yes = "",
+                                            no = " and SPECIES_CODE in "),
+                                     spp_codes_vec)) 
+  }
   
   #####################################################################
   ## Query species information

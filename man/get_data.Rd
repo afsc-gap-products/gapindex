@@ -10,7 +10,8 @@ get_data(
   spp_codes = data.frame(species_code = 21720, group = 21720),
   haul_type = 3,
   abundance_haul = c("Y"),
-  sql_channel = NULL
+  sql_channel = NULL,
+  pull_lengths = F
 )
 }
 \arguments{
@@ -32,6 +33,9 @@ sample (preprogrammed station) used for biomass estimation}
 this mean?) and "N" are other hauls.}
 
 \item{sql_channel}{connection created via AFSC.GAP.DBE::get_connected()}
+
+\item{pull_lengths}{boolean T/F. Should lengths be called? Defaults to FALSE
+for speed.}
 }
 \value{
 a named list containing cruise, haul, catch, and stratum information
