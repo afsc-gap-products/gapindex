@@ -18,13 +18,14 @@ sql_channel <- AFSC.GAP.DBE::get_connected()
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Get biomass stratum from Oracle
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW")) {
+for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW", "NBS_SHELF")) {
   
   stratum_query <- paste0("select * from ", 
                           c("GOA" = "GOA.BIOMASS_STRATUM", 
                             "AI" = "AI.BIOMASS_STRATUM",
                             "EBS_SHELF" = "HAEHNR.BIOMASS_EBS_STANDARD",
-                            "EBS_PLUSNW" = "HAEHNR.BIOMASS_EBS_PLUSNW")[ireg])
+                            "EBS_PLUSNW" = "HAEHNR.BIOMASS_EBS_PLUSNW",
+                            "NBS_SHELF" = "HAEHNR.BIOMASS_NBS_AKFIN")[ireg])
   
   db_stratum <- RODBC::sqlQuery(
     channel = sql_channel, 
@@ -39,7 +40,9 @@ for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW")) {
                      "EBS_SHELF" = c("BIOMASS", "VARBIO", 
                                      "POPULATION", "VARPOP"),
                      "EBS_PLUSNW" = c("BIOMASS", "VARBIO", 
-                                      "POPULATION", "VARPOP"))[[ireg]]
+                                      "POPULATION", "VARPOP"),
+                     "NBS_SHELF" = c("STRATUM_BIOMASS", "BIOMASS_VAR", 
+                                      "STRATUM_POP", "POP_VAR"))[[ireg]]
   
   db_stratum <- db_stratum[, c("REGION", "SPECIES_CODE", "YEAR", "STRATUM",
                                bio_column)]
@@ -57,7 +60,7 @@ EBS_PLUSNW_db_stratum$REGION <- "EBS_SHELF"
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Get GOA biomass from AFSC.GAP.DBE package
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for (ireg in c("GOA", "AI", "EBS_SHELF")[]) {
+for (ireg in c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")) {
   
   species_of_interest <- 
     data.frame(species_code = sort(unique(
@@ -115,7 +118,8 @@ EBS_SHELF_biomass_stratum <- subset(EBS_SHELF_biomass_stratum,
 rpackage_stratum <- rbind(GOA_biomass_stratum, 
                           AI_biomass_stratum, 
                           EBS_SHELF_biomass_stratum,
-                          EBS_PLUSNW_biomass_stratum)
+                          EBS_PLUSNW_biomass_stratum,
+                          NBS_SHELF_biomass_stratum)
 
 oracle_stratum <- 
   rbind(GOA_db_stratum, 
@@ -124,7 +128,8 @@ oracle_stratum <-
                subset = STRATUM %in% 
                  sort(unique(EBS_SHELF_biomass_stratum$STRATUM))),
         subset(x = EBS_PLUSNW_db_stratum, 
-               subset = STRATUM %in% c(82, 90) & YEAR >= 1987))
+               subset = STRATUM %in% c(82, 90) & YEAR >= 1987),
+        NBS_SHELF_db_stratum)
 
 merged_stratum <- merge(x = rpackage_stratum,
                         y = oracle_stratum, 
@@ -217,7 +222,7 @@ record_checks <- merged_stratum[round(merged_stratum$diff_biomass) != 0, ]
 #                                    round(100 * diff_biomass / POP.y) )
 subset(record_checks, !is.na(REGION) & 
          !SPECIES_CODE %in% c(21200, 23000, 400, 23800, 66000, 
-                                           79000, 78010, 79000, 21300))
+                              79000, 78010, 79000, 21300))
 
 ## AI: 1 haul in 2022 is incorrectly included in the Oracle dataset, has a 
 ## negative performance code, ABUNDANCE_HAUL == “N”, (-21552). 1 haul in 1980 
