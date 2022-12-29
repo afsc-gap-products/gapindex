@@ -63,16 +63,14 @@ get_data <- function(year_set = c(1996, 1999),
     paste0("(", paste0("'", survey_set, "'", collapse=", "), ")") 
   year_vec <- 
     paste0("(", paste0(year_set, collapse=", "), ")") 
-  spp_codes_vec <- paste0("(", 
-                          paste(as.character(spp_codes$species_code), 
-                                collapse=", "), 
-                          ")")
+  
   
   cruise_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
                     query = paste0("SELECT * FROM SAFE.SURVEY WHERE SURVEY IN ",
                                    region_vec, " AND YEAR IN ", year_vec))
   names(cruise_data)[names(cruise_data) == "SURVEY"] <- "REGION"
+  
   #####################################################################
   ## Query stratum data
   #####################################################################
@@ -159,8 +157,17 @@ get_data <- function(year_set = c(1996, 1999),
   cruisejoin_vec <-
     paste0("(", paste(unique(haul_data$CRUISEJOIN), collapse=", "), ")")
   
-  catch_data <- 
-    RODBC::sqlQuery(channel = sql_channel, 
+  avail_spp <-
+    RODBC::sqlQuery(channel = sql_channel,
+                    query = paste0("SELECT DISTINCT SPECIES_CODE ",
+                                   "FROM RACEBASE.CATCH where CRUISEJOIN in ", 
+                                   cruisejoin_vec))$SPECIES_CODE
+  query_spp <- avail_spp[avail_spp %in% unique(spp_codes$species_code)]
+  
+  spp_codes_vec <- paste0("(", paste(sort(query_spp), collapse=", "), ")")
+  
+  catch_data <-
+    RODBC::sqlQuery(channel = sql_channel,
                     query = paste0("SELECT * FROM RACEBASE.CATCH ",
                                    "where CRUISEJOIN in ", cruisejoin_vec,
                                    ifelse(test = is.null(spp_codes),
@@ -172,7 +179,7 @@ get_data <- function(year_set = c(1996, 1999),
   
   catch_data <- stats::aggregate( 
     cbind(WEIGHT, NUMBER_FISH) ~ 
-      CATCHJOIN + HAULJOIN + REGION + CRUISE + group,
+      HAULJOIN + REGION + CRUISE + group,
     data = catch_data,
     na.rm = TRUE, na.action = NULL,
     FUN = sum)
@@ -192,6 +199,28 @@ get_data <- function(year_set = c(1996, 1999),
                                             no = " and SPECIES_CODE in "),
                                      spp_codes_vec)) 
   }
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Query Specimen information
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  region_vec <- 
+    paste0("(", paste0("'", 
+                       ifelse(test = survey_set %in% c("EBS_SHELF", 
+                                                       "NBS_SHELF"),
+                              yes = "BS", 
+                              no = survey_set), 
+                       "'", collapse=", "), ")") 
+  
+  speclist <- RODBC::sqlQuery(
+    channel = sql_channel, 
+    query = paste0("select s.species_code, s.cruisejoin, s.hauljoin, ",
+                   "s.region, s.vessel, s.cruise, s.haul, s.specimenid, ",
+                   "s.length, s.sex, s.weight, s.age  from ",
+                   "racebase.specimen s where ",
+                   "REGION in ", region_vec, " and ",
+                   "CRUISEJOIN in ", cruisejoin_vec, " and ",
+                   "SPECIES_CODE in ", spp_codes_vec))
+
   
   #####################################################################
   ## Query species information
@@ -220,6 +249,7 @@ get_data <- function(year_set = c(1996, 1999),
               catch = catch_data,
               size = size_data,
               strata = stratum_data,
-              species = species_info))
+              species = species_info,
+              specimen = speclist))
   
 }
