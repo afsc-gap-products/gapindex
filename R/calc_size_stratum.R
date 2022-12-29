@@ -44,8 +44,9 @@ calc_size_stratum <- function(racebase_tables = NULL,
                 y = s_ijk[, c("SPECIES_CODE", "HAULJOIN", "s_ijk")],
                 by = c("SPECIES_CODE", "HAULJOIN"))
   size <-  merge(x = size, 
-                 y = cpue[, c("HAULJOIN", "SPECIES_CODE", "NUMCPUE_IND_KM2")],
-                 by = c("HAULJOIN", "SPECIES_CODE"))
+                 by.x = c("HAULJOIN", "SPECIES_CODE"),
+                 y = cpue[, c("HAULJOIN", "group", "NUMCPUE_IND_KM2")],
+                 by.y = c("HAULJOIN", "group"))
   size$S_ijklm <- size$FREQUENCY / size$s_ijk * size$NUMCPUE_IND_KM2
   
   ## Equation 17: divide the estimated population size in a stratum among
@@ -70,9 +71,10 @@ calc_size_stratum <- function(racebase_tables = NULL,
                   by = c("YEAR", 'STRATUM', "SPECIES_CODE"))
   
   S_iklm <- merge(x = S_iklm,
+                  by.x = c("YEAR", 'STRATUM', "SPECIES_CODE"),
                   y = racebase_stratum_stats[c("YEAR", 'STRATUM', 
-                                               "SPECIES_CODE", "pop")],
-                  by = c("YEAR", 'STRATUM', "SPECIES_CODE"))
+                                               "group", "pop")],
+                  by.y = c("YEAR", 'STRATUM', "group"))
   
   S_iklm$NUMBER <- round(S_iklm$pop * S_iklm$S_iklm / S_iklm$S_ik)
   S_iklm <- subset(x = S_iklm, 
