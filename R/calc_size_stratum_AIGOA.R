@@ -23,7 +23,15 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   catch <- racebase_tables$catch
   catch$SPECIES_CODE <- catch$group
   
-  ## For each haul, taxon, and year, sum nCPUE (numbers per area swept)
+  
+  ## Attach year and stratum information to size table
+  size <- merge(x = size[, c("HAULJOIN", "REGION", "SPECIES_CODE", 
+                             "LENGTH", "FREQUENCY", "SEX")],
+                all.x = TRUE,
+                y = haul[, c("HAULJOIN", "YEAR", "STRATUM")],
+                by = "HAULJOIN")
+  
+  ## For each stratum, taxon, and year, sum nCPUE (numbers per area swept)
   cpue_sum <- stats::aggregate(NUMCPUE_IND_KM2 ~ group + STRATUM + YEAR,
                                data = cpue,
                                FUN = sum)
@@ -42,20 +50,25 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   
   ## Query whether the HAULJOIN in the cpue_ratio table is in the size table,
   ## i.e., are there observed lengths associated with a positive catch?
-  cpue_ratio$POS_CATCH_W_LENS <- 
-    cpue_ratio$HAULJOIN %in% sort(unique(size$HAULJOIN))
+  length_sum <- stats::aggregate( 
+    FREQUENCY ~ YEAR + STRATUM + HAULJOIN + SPECIES_CODE,
+    data = size,
+    FUN = sum)
+  names(length_sum)[5] <- "LENGTH_SUM"
+  
+  cpue_ratio <- merge(x = cpue_ratio[, c("group", "HAULJOIN", "STRATUM", "YEAR", "CPUE_RATIO")],
+                      y = length_sum[, c("SPECIES_CODE", "HAULJOIN", "LENGTH_SUM")],
+                      all.x = TRUE,
+                      by.x = c("group", "HAULJOIN"),
+                      by.y = c("SPECIES_CODE", "HAULJOIN"))
+  cpue_ratio$POS_CATCH_W_LENS <- !is.na(cpue_ratio$LENGTH_SUM)
   
   ## Calculate the number of hauls within a stratum, taxon, and year where
   ## lengths were collected.
   len_hauls <- stats::aggregate(POS_CATCH_W_LENS ~ group + STRATUM + YEAR,
                                 data = cpue_ratio,
                                 FUN = sum)
-  
-  ## Attach year and stratum information to size table
-  size <- merge(x = size[, c("HAULJOIN", "REGION", "SPECIES_CODE", "LENGTH",
-                             "FREQUENCY", "SEX")],
-                y = haul[, c("HAULJOIN", "YEAR", "STRATUM")],
-                by = "HAULJOIN")
+
   
   ## For each year, stratum, haul, and species, sum number of recorded lengths
   length_sum <- stats::aggregate( 
@@ -67,6 +80,7 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   ## Attach the length sums to each record in the size df by species and haul.
   ## Normalize the length frequencies by their respective totals.
   size <- merge(x = size,
+                all.x = TRUE,
                 y = length_sum[, c("SPECIES_CODE", "HAULJOIN", "LENGTH_SUM")],
                 by = c("SPECIES_CODE", "HAULJOIN"))
   
@@ -80,17 +94,20 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
                  by = c("group", "STRATUM", "YEAR"))
   
   ## Now we deal with hauls with a positive or non-NA reported catch but no
-  ## recorded lengths. To do so we first identifiy those hauls and create a 
-  ## df that information in size_wo_lens. 
+  ## recorded lengths. First, for each HAULJOIN in this group, grab the 
+  ## lengths 
   
-  size_wo_lens <- expand.grid(
-    HAULJOIN = cpue_ratio$HAULJOIN[cpue_ratio$POS_CATCH_W_LENS == F],
-    LENGTH = sort(unique(size$LENGTH)),
-    SEX = 1:3,
-    YEAR = sort(unique(haul$YEAR)),
-    STRATUM = sort(unique(haul$STRATUM)))
+  lengths_by_stratum <- size[, c("SPECIES_CODE", "STRATUM", "YEAR", 
+                                 "LENGTH", "SEX")]
   
+  lengths_by_stratum <- lengths_by_stratum[!duplicated(lengths_by_stratum), ]
   
+  size_wo_lens <- merge(x = subset(x = cpue_ratio, 
+                                   subset = POS_CATCH_W_LENS == F,
+                                   select = c(group, STRATUM, YEAR, HAULJOIN)), 
+                        y = lengths_by_stratum,
+                        by.x = c("STRATUM", "group", "YEAR"),
+                        by.y = c("STRATUM", "SPECIES_CODE", "YEAR"))
   
   ## We then impute the size ratio of these no-length-collected hauls with the 
   ## average size composition.  
@@ -109,12 +126,21 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   ## Attach the size ratio for each record in size_wo_lens based on 
   ## year, taxon, stratum, sex, and length
   size_wo_lens <- merge(x = size_wo_lens,
+                        by.x = c("group", "YEAR", "STRATUM", 
+                                 "SEX", "LENGTH"),
                         y = size_ratio_null,
-                        by = c("YEAR", "STRATUM", "SEX", "LENGTH"))
+                        by.y = c("SPECIES_CODE", "YEAR", "STRATUM", 
+                                 "SEX", "LENGTH"))
+  size_wo_lens$SPECIES_CODE = size_wo_lens$group
   
   ## Combine the size data (hauls with positive catch and recorded lengths)
   ## with the hauls with positive catch and no lengths that we just imputted.
-  size <- rbind(size[, names(size_wo_lens)], size_wo_lens)
+  size <- rbind(subset(x = size, 
+                       select = c(SPECIES_CODE, YEAR, STRATUM, SEX, LENGTH,
+                                  HAULJOIN, SIZE_RATIO, POS_CATCH_W_LENS)), 
+                subset(x = size_wo_lens,
+                       select = c(SPECIES_CODE, YEAR, STRATUM, SEX, LENGTH,
+                                  HAULJOIN, SIZE_RATIO, POS_CATCH_W_LENS)))
   
   ## Attach cpue ratio to the size df by year, taxon, stratum, and haul
   size <- merge(x = size[, c("YEAR", "SPECIES_CODE", "STRATUM", "SEX", "LENGTH",
@@ -161,5 +187,6 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   ## Calculate total over sexes
   size_comp$TOTAL <- rowSums(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
   
-  return(size_comp)
+  return(size_comp[with(size_comp, 
+                        order(SPECIES_CODE, YEAR, STRATUM, LENGTH)), ])
 }
