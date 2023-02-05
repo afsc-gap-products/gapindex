@@ -36,7 +36,7 @@ get_cpue <- function(racebase_tables = NULL) {
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table of all combos of HAULJOIN and SPECIES_CODE.
   all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
-                            group = sort(unique(species$group)))
+                            GROUP = sort(unique(species$GROUP)))
   
   ## Then merge the all_combos table with dat
   dat <- merge(x = all_combos, 
@@ -51,7 +51,7 @@ get_cpue <- function(racebase_tables = NULL) {
   ## Merge catch data with dat using the HAULJOIN as the key
   dat <- merge(x = dat, 
                y = catch, 
-               by = c("group", "HAULJOIN"), 
+               by = c("GROUP", "HAULJOIN"), 
                all.x = TRUE)
   
   
@@ -70,7 +70,7 @@ get_cpue <- function(racebase_tables = NULL) {
 
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(group,
+              data.frame(GROUP,
                          CRUISEJOIN = CRUISEJOIN, HAULJOIN, 
                          VESSEL = VESSEL.x, HAUL = HAUL,
                          YEAR = as.numeric(format(START_TIME, format = "%Y")),
