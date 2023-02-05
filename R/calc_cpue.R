@@ -11,7 +11,7 @@
 #' @export
 #' 
 
-get_cpue <- function(racebase_tables = NULL) {
+calc_cpue <- function(racebase_tables = NULL) {
   
   cruisedat <- racebase_tables$cruise 
   haul <- racebase_tables$haul
