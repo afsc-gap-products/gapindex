@@ -65,7 +65,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                 by = c("SPECIES_CODE", "HAULJOIN"))
   size <-  merge(x = size, 
                  by.x = c("HAULJOIN", "SPECIES_CODE"),
-                 y = cpue[, c("HAULJOIN", "GROUP", "NUMCPUE_IND_KM2")],
+                 y = cpue[, c("HAULJOIN", "GROUP", "NUMCPUE_COUNT_KM2")],
                  by.y = c("HAULJOIN", "GROUP"))
   size$S_ijklm <- size$FREQUENCY / size$s_ijk * size$NUMCPUE_COUNT_KM2
   
