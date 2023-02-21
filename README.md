@@ -29,10 +29,11 @@ sql_channel <- AFSC.GAP.DBE::get_connected()
 test_data <- AFSC.GAP.DBE::get_data( 
   year_set = 2021,
   survey_set = "EBS_SHELF",
-  spp_codes = data.frame(group = c(21720), 
-                         species_code = c(21720)),
+  spp_codes = data.frame(GROUP = c(21720), 
+                         SPECIES_CODE = c(21720)),   
   haul_type = 3,
   abundance_haul = "Y",
+  pull_lengths = TRUE,
   sql_channel = sql_channel)
 
 ## Fill in zeros and calculate CPUE. See ?AFSC.GAP.DBE::get_cpue first for more details
@@ -53,7 +54,7 @@ test_biomass2 <-
                                 region = "EBS_PLUSNW")
 
 ## Calculate size composition by stratum. See ?AFSC.GAP.DBE::calc_size_stratum_BS first for more details. Note if you are calculating size comps for the AI/GOA regions, you should be using AFSC.GAP.DBE::calc_size_stratum_AIGOA instead. 
-test_sizecomp <- AFSC.GAP.DBE::calc_size_stratum_BS(
+test_size_comp <- AFSC.GAP.DBE::calc_size_stratum_BS(
   racebase_tables = test_data,
   racebase_cpue = test_cpue,
   racebase_stratum_popn = test_biomass_stratum
