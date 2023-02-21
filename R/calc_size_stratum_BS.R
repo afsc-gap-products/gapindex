@@ -136,20 +136,20 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                    timevar = "SEX", 
                    direction = "wide")
   
-  names(P_iklm)[match(x = c("NUMBER.1", "NUMBER.2", "NUMBER.3", "NUMBER.4"), 
+  names(P_iklm)[match(x = c("NUMBER.1", "NUMBER.2", "NUMBER.3"), 
                       table = names(P_iklm))] <-
-    c("MALES", "FEMALES", "UNSEXED", "TOTAL")
+    c("MALES", "FEMALES", "UNSEXED")
   
   ## Order sexes to M, F, U, TOTAL. Set NAs to zero. 
   P_iklm <- subset(P_iklm, 
                    select = c(YEAR, STRATUM, SPECIES_CODE, LENGTH,   
-                              MALES, FEMALES, UNSEXED, TOTAL))
+                              MALES, FEMALES, UNSEXED))
   na_idx <- is.na(P_iklm[, c("MALES", "FEMALES", "UNSEXED")])
   P_iklm[, c("MALES", "FEMALES", "UNSEXED")][na_idx] <- 0
   
   ## Calculate total over sexes
   P_iklm$TOTAL <- 
-    rowSums(x = P_iklm[, c("MALES", "FEMALES", "UNSEXED", "TOTAL")],
+    rowSums(x = P_iklm[, c("MALES", "FEMALES", "UNSEXED")],
             na.rm = TRUE)
   
   return(P_iklm)
