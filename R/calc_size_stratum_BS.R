@@ -152,5 +152,9 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
     rowSums(x = P_iklm[, c("MALES", "FEMALES", "UNSEXED")],
             na.rm = TRUE)
   
+  ## Reorder rows by size
+  P_iklm <- P_iklm[order(P_iklm$YEAR, P_iklm$STRATUM, P_iklm$SPECIES_CODE,
+                         P_iklm$LENGTH), ]
+  
   return(P_iklm)
 }
