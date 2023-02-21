@@ -36,24 +36,36 @@ test_data <- AFSC.GAP.DBE::get_data(
   sql_channel = sql_channel)
 
 ## Fill in zeros and calculate CPUE. See ?AFSC.GAP.DBE::get_cpue first for more details
-test_cpue <- AFSC.GAP.DBE::get_cpue(racebase_tables = test_data)
+test_cpue <- AFSC.GAP.DBE::calc_cpue(racebase_tables = test_data)
 
-## Calculate biomass, population abundance, and CIs for each strata. See ?AFSC.GAP.DBE::get_biomass_stratum first for more details
+## Calculate biomass, population abundance, and CIs for each strata. See ?AFSC.GAP.DBE::calc_biomass_stratum first for more details
 test_biomass_stratum <- 
-  AFSC.GAP.DBE::get_biomass_stratum(cpue = test_cpue, 
-                                    haul = test_data$haul, 
-                                    strata = test_data$strata, 
-                                    vulnerability = 1)
+  AFSC.GAP.DBE::calc_biomass_stratum(racebase_tables = test_data,
+                                     cpue = test_cpue,
+                                     vulnerability = 1)
 
-## Calculate aggregated biomass and population abundance across subareas and region (STRATUM 999). See ?AFSC.GAP.DBE::get_agg_biomass first for more details
+## Calculate aggregated biomass and population abundance across subareas and region (STRATUM 999). See ?AFSC.GAP.DBE::calc_agg_biomass first for more details
 test_biomass <- 
-  AFSC.GAP.DBE::get_agg_biomass(biomass_strata = test_biomass_stratum, 
+  AFSC.GAP.DBE::calc_agg_biomass(biomass_strata = test_biomass_stratum,
                                 region = "EBS_STANDARD")
 test_biomass2 <- 
-  AFSC.GAP.DBE::get_agg_biomass(biomass_strata = test_biomass_stratum, 
+  AFSC.GAP.DBE::calc_agg_biomass(biomass_strata = test_biomass_stratum, 
                                 region = "EBS_PLUSNW")
 
-## More functions to come...
+## Calculate size composition by stratum. See ?AFSC.GAP.DBE::calc_size_stratum_BS first for more details. Note if you are calculating size comps for the AI/GOA regions, you should be using AFSC.GAP.DBE::calc_size_stratum_AIGOA instead. 
+test_sizecomp <- AFSC.GAP.DBE::calc_size_stratum_BS(
+  racebase_tables = test_data,
+  racebase_cpue = test_cpue,
+  racebase_stratum_popn = test_biomass_stratum
+)
+
+## Calculate age composition for region. See ?AFSC.GAP.DBE::calc_age_comp first for more details. Note
+test_age_comp <- 
+  AFSC.GAP.DBE::calc_age_comp(
+    racebase_tables = test_data, 
+    size_comp = test_size_comp
+  )
+
 ```
 
 ## Questions for the future of GAP index products

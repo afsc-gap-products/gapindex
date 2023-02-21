@@ -38,7 +38,8 @@ this mean?) and "N" are other hauls.}
 for speed.}
 }
 \value{
-a named list containing cruise, haul, catch, and stratum information
+a named list containing cruise, haul, catch, specimen,
+optional size (length), and stratum information
 for the region, years, and species of interest.
 }
 \description{

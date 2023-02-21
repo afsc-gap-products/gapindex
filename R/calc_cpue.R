@@ -3,10 +3,10 @@
 #' @description This function zero-fills the catch data and converts numbers 
 #'              and weights to CPUE.
 #' 
-#' @param racebase_tables data object created from AFSC.GAP.DBE::get_data()
+#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()``
 #' 
 #' @return dataframe of weight and numerical CPUE for the region, species, and
-#'         years pulled from AFSC.GAP.DBE::get_data()
+#'         years pulled from `AFSC.GAP.DBE::get_data()`
 #' 
 #' @export
 #' 
@@ -54,7 +54,6 @@ calc_cpue <- function(racebase_tables = NULL) {
                by = c("GROUP", "HAULJOIN"), 
                all.x = TRUE)
   
-  
   ## There are some hauls where a weight is recorded, but not a count. 
   ## These records perhaps erroneously have a zero. These "zero" counts are
   ## not included in the numbers per area swept calculation, so we need to 
@@ -70,26 +69,30 @@ calc_cpue <- function(racebase_tables = NULL) {
 
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(GROUP,
-                         CRUISEJOIN = CRUISEJOIN, HAULJOIN, 
-                         VESSEL = VESSEL.x, HAUL = HAUL,
-                         YEAR = as.numeric(format(START_TIME, format = "%Y")),
-                         HAUL_TYPE, PERFORMANCE, DURATION, STRATUM, 
+              data.frame(YEAR = as.numeric(format(START_TIME, format = "%Y")),
+                         CRUISEJOIN = CRUISEJOIN, HAULJOIN, VESSEL = VESSEL.x, 
+                         HAUL = HAUL, HAUL_TYPE, PERFORMANCE, DURATION, STRATUM, 
                          STATIONID, 
-                         LAT = rowMeans(cbind(START_LATITUDE,  END_LATITUDE)),
-                         LON = rowMeans(cbind(START_LONGITUDE, END_LONGITUDE)),
-                         GEAR_DEPTH, BOTTOM_DEPTH, 
-                         SURFACE_TEMPERATURE, GEAR_TEMPERATURE, 
-                         DISTANCE_FISHED, NET_WIDTH,
-                         CATCH_KG = WEIGHT,
-                         NUMBER_FISH,
+                         LAT_MID = rowMeans(cbind(START_LATITUDE,  
+                                                  END_LATITUDE)),
+                         LON_MID = rowMeans(cbind(START_LONGITUDE, 
+                                                  END_LONGITUDE)),
+                         GEAR_DEPTH_M = GEAR_DEPTH, 
+                         BOTTOM_DEPTH_M = BOTTOM_DEPTH, 
+                         SURFACE_TEMPERATURE_C = SURFACE_TEMPERATURE, 
+                         GEAR_TEMPERATURE_C = GEAR_TEMPERATURE, 
+                         DISTANCE_FISHED_KM = DISTANCE_FISHED, 
+                         NET_WIDTH_M = NET_WIDTH,
+                         GROUP,
+                         WEIGHT_KG = WEIGHT,
+                         COUNT = NUMBER_FISH,
                          AREASWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
   
   ## CPUE calculations
   dat <- 
     cbind(dat,
-          with(dat, data.frame(WGTCPUE_KG_KM2 = CATCH_KG / AREASWEPT_KM2,
-                               NUMCPUE_IND_KM2 = NUMBER_FISH / AREASWEPT_KM2)))
+          with(dat, data.frame(WGTCPUE_KG_KM2 = WEIGHT_KG / AREASWEPT_KM2,
+                               NUMCPUE_COUNT_KM2 = COUNT / AREASWEPT_KM2)))
   
   return(dat)
 }

@@ -11,12 +11,12 @@ calc_size_stratum_BS(
 )
 }
 \arguments{
-\item{racebase_tables}{data object created from AFSC.GAP.DBE::get_data()}
+\item{racebase_tables}{data object created from \code{AFSC.GAP.DBE::get_data()}.}
 
-\item{racebase_cpue}{object created from AFSC.GAP.DBE::get_cpue().}
+\item{racebase_cpue}{object created from \code{AFSC.GAP.DBE::calc_cpue()}.}
 
 \item{racebase_stratum_popn}{a dataframe of stratum abundances, result
-object from  \code{get_biomass_stratum()}.}
+object from  \code{AFSC.GAP.DBE::calc_biomass_stratum()}.}
 }
 \description{
 Uses Equations 16 and 17 in Wakabayashi et al. 1985 to calculate

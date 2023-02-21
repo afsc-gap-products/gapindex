@@ -3,7 +3,7 @@
 #' @param region         character string. One of c("EBS_STANDARD", "EBS_PLUSNW", 
 #'                       "NBS", "GOA", "AI")
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
-#'                       `get_biomass_stratum()`
+#'                       `calc_biomass_stratum()`
 #'
 #' @return dataframe of biomass and population abundance estimates across 
 #'         subareas and across the region, along with variances (CIs to be 
@@ -11,7 +11,7 @@
 #' @export
 #' 
 
-get_agg_biomass <- function(biomass_strata = NULL,
+calc_agg_biomass <- function(biomass_strata = NULL,
                             region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
                                        "GOA", "AI")[1]) {
   
@@ -21,9 +21,9 @@ get_agg_biomass <- function(biomass_strata = NULL,
          EBS_STANDARD, EBS_PLUSNW, NBS, GOA, AI. " )
   
   if (region == "GOA") {
-    if (any(unique(biomass_strata$YEAR) > 2021))
+    if (any(unique(biomass_strata$YEAR) > 2023))
       warning("The GOA total biomass across INPFC area and across depth zones
-              only includes years 1987-2021. Starting from 2023, total biomass
+              only includes years 1987-2023. Starting from 2025, total biomass
               across NMFS areas will only be reported.")
   }
   
@@ -125,11 +125,11 @@ get_agg_biomass <- function(biomass_strata = NULL,
              if (nrow(subarea_biomass) == 0) return(data.frame())
              if (nrow(subarea_biomass) > 0) {
                return(cbind(data.frame(STRATUM = names(which_strata)[subarea]),
-                            stats::aggregate(cbind(biomass_mt, 
-                                                   biomass_var,
-                                                   pop, pop_var,
-                                                   haul_count) ~
-                                               group + YEAR,
+                            stats::aggregate(cbind(BIOMASS_MT, 
+                                                   BIOMASS_VAR,
+                                                   POPULATION_COUNT, 
+                                                   POPULATION_VAR) ~
+                                               GROUP + YEAR,
                                              data = subarea_biomass,
                                              FUN = sum)))
              }

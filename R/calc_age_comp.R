@@ -12,7 +12,7 @@
 #' @export
 #' 
 
-calc_age_pop_AIGOA <- function(racebase_tables = NULL,
+calc_age_comp <- function(racebase_tables = NULL,
                                size_comp = NULL) {
   
   ## Extract data

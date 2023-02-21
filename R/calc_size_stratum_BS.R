@@ -4,10 +4,10 @@
 #'              numbers at length. To be used only for the EBS_SHELF or 
 #'              NBS_SHELF regions.
 #' 
-#' @param racebase_tables data object created from AFSC.GAP.DBE::get_data()
-#' @param racebase_cpue object created from AFSC.GAP.DBE::get_cpue().
+#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()`.
+#' @param racebase_cpue object created from `AFSC.GAP.DBE::calc_cpue()`.
 #' @param racebase_stratum_popn a dataframe of stratum abundances, result 
-#'                               object from  `get_biomass_stratum()`.
+#'                               object from  `AFSC.GAP.DBE::calc_biomass_stratum()`.
 #' 
 #' @export
 #' 
@@ -22,7 +22,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   haul <- racebase_tables$haul
   haul$YEAR <- as.numeric(format(haul$START_TIME, format = "%Y"))
   catch <- racebase_tables$catch
-  catch$SPECIES_CODE <- catch$group
+  catch$SPECIES_CODE <- catch$GROUP
   
   ## Attach year and stratum information to size df
   size <- merge(x = size[, c("HAULJOIN", "REGION", "SPECIES_CODE", "LENGTH",
@@ -65,9 +65,9 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                 by = c("SPECIES_CODE", "HAULJOIN"))
   size <-  merge(x = size, 
                  by.x = c("HAULJOIN", "SPECIES_CODE"),
-                 y = cpue[, c("HAULJOIN", "group", "NUMCPUE_IND_KM2")],
-                 by.y = c("HAULJOIN", "group"))
-  size$S_ijklm <- size$FREQUENCY / size$s_ijk * size$NUMCPUE_IND_KM2
+                 y = cpue[, c("HAULJOIN", "GROUP", "NUMCPUE_IND_KM2")],
+                 by.y = c("HAULJOIN", "GROUP"))
+  size$S_ijklm <- size$FREQUENCY / size$s_ijk * size$NUMCPUE_COUNT_KM2
   
   ##############################################
   ## Wakabayashi et al. 1985 Equation 17: 
@@ -106,8 +106,8 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   S_iklm <- merge(x = S_iklm,
                   by.x = c("YEAR", 'STRATUM', "SPECIES_CODE"),
                   y = racebase_stratum_popn[c("YEAR", 'STRATUM', 
-                                              "group", "pop")],
-                  by.y = c("YEAR", 'STRATUM', "group"),
+                                              "GROUP", "POPULATION_COUNT")],
+                  by.y = c("YEAR", 'STRATUM', "GROUP"),
                   all.y = TRUE)
   
   ## For some strata in some years, lengths were not collected so the stratum
@@ -120,12 +120,13 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   S_iklm[is.na(S_iklm$S_iklm), c("S_iklm", "S_ik")] <- 1 #to ease calculation
   
   ## Population calculation
-  S_iklm$NUMBER <- round(x = S_iklm$pop * S_iklm$S_iklm / S_iklm$S_ik)
+  S_iklm$NUMBER <- 
+    round(x = S_iklm$POPULATION_COUNT * S_iklm$S_iklm / S_iklm$S_ik)
   
   ## Remove zero-records
   S_iklm <- subset(x = S_iklm, 
                    subset = NUMBER > 0,
-                   select = -c(S_iklm, S_ik, pop))
+                   select = -c(S_iklm, S_ik, POPULATION_COUNT))
   
   ## Widen output tables so each sex is a column
   P_iklm <- 

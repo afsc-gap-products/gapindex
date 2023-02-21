@@ -19,7 +19,8 @@
 #' @param pull_lengths boolean T/F. Should lengths be called? Defaults to FALSE
 #'                     for speed.
 #' 
-#' @return a named list containing cruise, haul, catch, and stratum information 
+#' @return a named list containing cruise, haul, catch, specimen,  
+#'         optional size (length), and stratum information 
 #'         for the region, years, and species of interest. 
 #' 
 #' @export
