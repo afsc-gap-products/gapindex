@@ -104,9 +104,9 @@ calc_age_comp <- function(racebase_tables = NULL,
   ##    at length
 
   
-  age_comp$agepop <- age_comp$age_frac * age_comp$sizepop
+  age_comp$AGEPOP <- age_comp$age_frac * age_comp$sizepop
   
-  return(  aggregate(agepop ~ YEAR + SPECIES_CODE + SEX + AGE,
+  return(  aggregate(AGEPOP ~ YEAR + SPECIES_CODE + SEX + AGE,
                      data = age_comp,
                      FUN = function(x) round(x = sum(x))) )
 
