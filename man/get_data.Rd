@@ -6,10 +6,10 @@
 \usage{
 get_data(
   year_set = c(1996, 1999),
-  survey_set = c("GOA", "AI", "EBS_SHELF", "EBS_SLOPE", "NBS_SHELF")[1],
-  spp_codes = data.frame(species_code = 21720, group = 21720),
+  survey_set = c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")[1],
+  spp_codes = data.frame(SPECIES_CODE = 21720, GROUP = 21720),
   haul_type = 3,
-  abundance_haul = c("Y"),
+  abundance_haul = c("Y", "N")[1],
   sql_channel = NULL,
   pull_lengths = F
 )
@@ -21,10 +21,10 @@ get_data(
 "EBS_SLOPE", "NBS_SHELF")}
 
 \item{spp_codes}{two-column dataframe of species codes (column name
-species_codes) and group name (column name group).
-For single-species, the group and species codes can be the
-same. Example: data.frame("species_code" = c(21720, 21220, 21230, 21232),
-"group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))}
+SPECIES_CODE) and GROUP name (column name GROUP).
+For single-species, the GROUP and species codes can be the
+same. Example: data.frame("SPECIES_CODE" = c(21720, 21220, 21230, 21232),
+"GROUP" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))}
 
 \item{haul_type}{integer. Defaults to haul type "3" for Standard bottom
 sample (preprogrammed station) used for biomass estimation}
@@ -38,7 +38,8 @@ this mean?) and "N" are other hauls.}
 for speed.}
 }
 \value{
-a named list containing cruise, haul, catch, and stratum information
+a named list containing cruise, haul, catch, specimen,
+optional size (length), and stratum information
 for the region, years, and species of interest.
 }
 \description{

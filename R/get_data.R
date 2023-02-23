@@ -7,10 +7,10 @@
 #' @param survey_set character string. One of c("GOA", "AI", "EBS_SHELF", 
 #'                   "EBS_SLOPE", "NBS_SHELF")
 #' @param spp_codes two-column dataframe of species codes (column name 
-#'                  species_codes) and group name (column name group). 
-#'                  For single-species, the group and species codes can be the
-#'                  same. Example: data.frame("species_code" = c(21720, 21220, 21230, 21232), 
-#'                  "group" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
+#'                  SPECIES_CODE) and GROUP name (column name GROUP). 
+#'                  For single-species, the GROUP and species codes can be the
+#'                  same. Example: data.frame("SPECIES_CODE" = c(21720, 21220, 21230, 21232), 
+#'                  "GROUP" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
 #' @param haul_type integer. Defaults to haul type "3" for Standard bottom 
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls (what does
@@ -19,33 +19,33 @@
 #' @param pull_lengths boolean T/F. Should lengths be called? Defaults to FALSE
 #'                     for speed.
 #' 
-#' @return a named list containing cruise, haul, catch, and stratum information 
+#' @return a named list containing cruise, haul, catch, specimen,  
+#'         optional size (length), and stratum information 
 #'         for the region, years, and species of interest. 
 #' 
 #' @export
 #' 
 
 get_data <- function(year_set = c(1996, 1999),
-                     survey_set = c("GOA", "AI", "EBS_SHELF", "EBS_SLOPE", 
-                                    "NBS_SHELF")[1],
-                     spp_codes = data.frame("species_code" = 21720, 
-                                            "group" = 21720),
+                     survey_set = c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")[1],
+                     spp_codes = data.frame("SPECIES_CODE" = 21720, 
+                                            "GROUP" = 21720),
                      haul_type = 3,
-                     abundance_haul = c("Y"),
+                     abundance_haul = c("Y", "N")[1],
                      sql_channel = NULL,
                      pull_lengths = F) {
   
   #####################################################################
-  ## Check that spp_codes is a dataframe with group, species_codes
+  ## Check that spp_codes is a dataframe with GROUP, SPECIES_CODE
   #####################################################################
   if (class(spp_codes) != "data.frame") {
     stop("argument `spp_codes` must be a dataframe with column names 
-         `group` and `species_code`. See ?AFSC.GAP.DBE::get_data for 
+         `GROUP` and `SPECIES_CODE`. See ?AFSC.GAP.DBE::get_data for 
          more details and examples.") 
   } else {
-    if (!all(c("species_code", "group") %in% names(spp_codes)))
+    if (!all(c("SPECIES_CODE", "GROUP") %in% names(spp_codes)))
       stop("argument `spp_codes` must be a dataframe with column names 
-         `group` and `species_code`. See ?AFSC.GAP.DBE::get_data for 
+         `GROUP` and `SPECIES_CODE`. See ?AFSC.GAP.DBE::get_data for 
          more details and examples.")
   }
   
@@ -63,16 +63,14 @@ get_data <- function(year_set = c(1996, 1999),
     paste0("(", paste0("'", survey_set, "'", collapse=", "), ")") 
   year_vec <- 
     paste0("(", paste0(year_set, collapse=", "), ")") 
-  spp_codes_vec <- paste0("(", 
-                          paste(as.character(spp_codes$species_code), 
-                                collapse=", "), 
-                          ")")
+  
   
   cruise_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
                     query = paste0("SELECT * FROM SAFE.SURVEY WHERE SURVEY IN ",
                                    region_vec, " AND YEAR IN ", year_vec))
   names(cruise_data)[names(cruise_data) == "SURVEY"] <- "REGION"
+  
   #####################################################################
   ## Query stratum data
   #####################################################################
@@ -159,8 +157,17 @@ get_data <- function(year_set = c(1996, 1999),
   cruisejoin_vec <-
     paste0("(", paste(unique(haul_data$CRUISEJOIN), collapse=", "), ")")
   
-  catch_data <- 
-    RODBC::sqlQuery(channel = sql_channel, 
+  avail_spp <-
+    RODBC::sqlQuery(channel = sql_channel,
+                    query = paste0("SELECT DISTINCT SPECIES_CODE ",
+                                   "FROM RACEBASE.CATCH where CRUISEJOIN in ", 
+                                   cruisejoin_vec))$SPECIES_CODE
+  query_spp <- avail_spp[avail_spp %in% unique(spp_codes$SPECIES_CODE)]
+  
+  spp_codes_vec <- paste0("(", paste(sort(query_spp), collapse=", "), ")")
+  
+  catch_data <-
+    RODBC::sqlQuery(channel = sql_channel,
                     query = paste0("SELECT * FROM RACEBASE.CATCH ",
                                    "where CRUISEJOIN in ", cruisejoin_vec,
                                    ifelse(test = is.null(spp_codes),
@@ -168,11 +175,11 @@ get_data <- function(year_set = c(1996, 1999),
                                           no = " and SPECIES_CODE in "),
                                    spp_codes_vec))
   catch_data <- merge(x = catch_data, y = spp_codes, 
-                      by.x = "SPECIES_CODE", by.y = "species_code")
+                      by.x = "SPECIES_CODE", by.y = "SPECIES_CODE")
   
   catch_data <- stats::aggregate( 
     cbind(WEIGHT, NUMBER_FISH) ~ 
-      CATCHJOIN + HAULJOIN + REGION + CRUISE + group,
+      HAULJOIN + REGION + CRUISE + GROUP,
     data = catch_data,
     na.rm = TRUE, na.action = NULL,
     FUN = sum)
@@ -193,6 +200,28 @@ get_data <- function(year_set = c(1996, 1999),
                                      spp_codes_vec)) 
   }
   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Query Specimen information
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  region_vec <- 
+    paste0("(", paste0("'", 
+                       ifelse(test = survey_set %in% c("EBS_SHELF", 
+                                                       "NBS_SHELF"),
+                              yes = "BS", 
+                              no = survey_set), 
+                       "'", collapse=", "), ")") 
+  
+  speclist <- RODBC::sqlQuery(
+    channel = sql_channel, 
+    query = paste0("select s.SPECIES_CODE, s.cruisejoin, s.hauljoin, ",
+                   "s.region, s.vessel, s.cruise, s.haul, s.specimenid, ",
+                   "s.length, s.sex, s.weight, s.age  from ",
+                   "racebase.specimen s where ",
+                   "REGION in ", region_vec, " and ",
+                   "CRUISEJOIN in ", cruisejoin_vec, " and ",
+                   "SPECIES_CODE in ", spp_codes_vec))
+
+  
   #####################################################################
   ## Query species information
   #####################################################################
@@ -205,10 +234,10 @@ get_data <- function(year_set = c(1996, 1999),
                                           no = " SPECIES_CODE in "),
                                    spp_codes_vec))
   
-  ## Merge group information
+  ## Merge GROUP information
   species_info <- merge(x = species_info, 
                         y = spp_codes,
-                        by.x = "SPECIES_CODE", by.y = "species_code")
+                        by.x = "SPECIES_CODE", by.y = "SPECIES_CODE")
   
   cat("Finished.\n")
   
@@ -220,6 +249,7 @@ get_data <- function(year_set = c(1996, 1999),
               catch = catch_data,
               size = size_data,
               strata = stratum_data,
-              species = species_info))
+              species = species_info,
+              specimen = speclist))
   
 }
