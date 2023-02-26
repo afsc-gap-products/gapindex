@@ -34,10 +34,8 @@ get_data <- function(year_set = c(1996, 1999),
                      abundance_haul = c("Y", "N")[1],
                      sql_channel = NULL,
                      pull_lengths = F) {
-  
-  #####################################################################
-  ## Check that spp_codes is a dataframe with GROUP, SPECIES_CODE
-  #####################################################################
+
+  ## Error Query: Check that spp_codes is a dataframe with GROUP, SPECIES_CODE
   if (class(spp_codes) != "data.frame") {
     stop("argument `spp_codes` must be a dataframe with column names 
          `GROUP` and `SPECIES_CODE`. See ?AFSC.GAP.DBE::get_data for 
@@ -49,13 +47,31 @@ get_data <- function(year_set = c(1996, 1999),
          more details and examples.")
   }
   
-  
-  ## Set up channel if sql_channel = NULL
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Set up channel if sql_channel = NULL
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(sql_channel)) sql_channel <- get_connected()
   
-  #####################################################################
-  ## Pulling Cruise Data
-  #####################################################################
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Pull Cruise data: 
+  ##   First . 
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ## Error Query: check that only one survey area is specified. In the future, 
+  ##              this function should be able to include > 1 survey area.
+  switch(paste0(length(survey_set)), 
+         "0" = stop("You must specify a region: "), 
+         "1" = NULL,
+         stop("At this time, you can only specify one region"))
+  
+  ## Error Query: survey_set is one the correct options..
+  if (!survey_set %in% c(c("GOA", "AI", "EBS_SHELF", "NBS_SHELF"))) {
+    stop(paste0("argument survey_set = '", survey_set, "' is not an option. ",
+                "Choose from one of these options: 'GOA', 'AI', ", 
+                "'EBS_SHELF', or 'NBS_SHELF'. At this time, the 'EBS_SLOPE' ",
+                "is not an option."))
+  }
+  
   cat("Pulling cruise data...\n")
   
   ## Query cruise data and filter survey regions of interest
@@ -64,12 +80,18 @@ get_data <- function(year_set = c(1996, 1999),
   year_vec <- 
     paste0("(", paste0(year_set, collapse=", "), ")") 
   
-  
   cruise_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
                     query = paste0("SELECT * FROM SAFE.SURVEY WHERE SURVEY IN ",
                                    region_vec, " AND YEAR IN ", year_vec))
   names(cruise_data)[names(cruise_data) == "SURVEY"] <- "REGION"
+  
+  ## Error Query: stop if there is no cruise data for the year and region.
+  if(nrow(cruise_data) == 0) {
+    stop("No data exist for survey area '", survey_set, 
+         "' for the choosen set of years ", year_vec, ".")
+  }
+  
   
   #####################################################################
   ## Query stratum data
@@ -125,11 +147,11 @@ get_data <- function(year_set = c(1996, 1999),
     stratum_data <- rbind(stratum_data, bs_stratum_data)
   }
   
-  #####################################################################
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Query Haul data based on the CRUISEJOIN values in the cruise_data
   ## Filter for good tows (PERFORMANCE >= 0) and haul type (e.g., 3 is the
   ##   Standard bottom sample (preprogrammed station))
-  #####################################################################
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Now pulling haul data...\n")
   
   cruisejoin_vec <- 
@@ -149,9 +171,9 @@ get_data <- function(year_set = c(1996, 1999),
                                       format = "%Y")) %in% year_set &
              haul_data$ABUNDANCE_HAUL %in% abundance_haul)
   
-  #####################################################################
-  ## Query catch data based on cruisejoin values in haul_data and species set
-  #####################################################################
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Query catch data based on cruisejoin values in haul_data and species set
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Pulling catch data...\n")
   
   cruisejoin_vec <-
@@ -174,9 +196,19 @@ get_data <- function(year_set = c(1996, 1999),
                                           yes = "",
                                           no = " and SPECIES_CODE in "),
                                    spp_codes_vec))
-  catch_data <- merge(x = catch_data, y = spp_codes, 
-                      by.x = "SPECIES_CODE", by.y = "SPECIES_CODE")
   
+  ## Error Query: check whether there are species data
+  if (!is.data.frame(catch_data))
+    stop("There are no catch records for any of the species codes in argument
+         spp_codes for survey area '", survey_set, "' in the chosen years ",
+         year_vec)
+  
+  ## Merge GROUP information from spp_codes into the catch data for scenraios
+  ## where you are defining a species complex.
+  catch_data <- merge(x = catch_data, by.x = "SPECIES_CODE", 
+                      y = spp_codes, by.y = "SPECIES_CODE")
+  
+  ## Aggregate weights and numbers of fish by GROUP and HAULJOIN. 
   catch_data <- stats::aggregate( 
     cbind(WEIGHT, NUMBER_FISH) ~ 
       HAULJOIN + REGION + CRUISE + GROUP,
@@ -184,9 +216,9 @@ get_data <- function(year_set = c(1996, 1999),
     na.rm = TRUE, na.action = NULL,
     FUN = sum)
   
-  #####################################################################
-  ## Query Size information
-  #####################################################################   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Query Size information if pull_lengths == TRUE
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   size_data = NULL
   if (pull_lengths) {
     cat("Pulling size data...\n")
@@ -220,7 +252,11 @@ get_data <- function(year_set = c(1996, 1999),
                    "REGION in ", region_vec, " and ",
                    "CRUISEJOIN in ", cruisejoin_vec, " and ",
                    "SPECIES_CODE in ", spp_codes_vec))
-
+  
+  ## Error Query: send out a warning if there are no ages in the dataset
+  if (length(table(speclist$AGE)) == 0)
+    warning("There are no age data for the species_codes in spp_codes for 
+            survey area '", survey_set, "' in the chosen years ", year_vec)
   
   #####################################################################
   ## Query species information
@@ -241,9 +277,9 @@ get_data <- function(year_set = c(1996, 1999),
   
   cat("Finished.\n")
   
-  #####################################################################
-  ## Put cruise, haul, catch, stratu, and species data into a list and return
-  #####################################################################
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Put cruise, haul, catch, stratu, and species data into a list and return
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   return(list(cruise = cruise_data,
               haul = haul_data,
               catch = catch_data,
