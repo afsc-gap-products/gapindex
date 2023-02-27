@@ -2,7 +2,6 @@
 
 export(calc_age_comp)
 export(calc_agg_biomass)
-export(calc_agg_size_comp)
 export(calc_biomass_stratum)
 export(calc_cpue)
 export(calc_size_stratum_AIGOA)
