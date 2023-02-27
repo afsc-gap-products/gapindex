@@ -1,19 +1,18 @@
-#' Calculate index of total biomass across aggregated strata
+#' Calculate index of total biomass across aggregated subareas
 #'
-#' @param region         character string. One of c("EBS_STANDARD", "EBS_PLUSNW", 
-#'                       "NBS", "GOA", "AI")
+#' @param region         character string. One of c("EBS_STANDARD", 
+#'                       "EBS_PLUSNW", "NBS", "GOA", "AI")
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
-#'                       `calc_biomass_stratum()`
+#'                       `AFSC.GAP.DBE::calc_biomass_stratum()`
 #'
 #' @return dataframe of biomass and population abundance estimates across 
-#'         subareas and across the region, along with variances (CIs to be 
-#'         added when we can figure out how to do them...) 
+#'         subareas and across the region, along with variances.
 #' @export
 #' 
 
 calc_agg_biomass <- function(biomass_strata = NULL,
-                            region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
-                                       "GOA", "AI")[1]) {
+                             region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
+                                        "GOA", "AI")[1]) {
   
   ## Checks
   if (!region %in% c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI"))
@@ -49,14 +48,14 @@ calc_agg_biomass <- function(biomass_strata = NULL,
                           "4" = c(41, 42, 43), "5" = 50, "6" = c(61, 62)),
     
     "EBS_PLUSNW" = list("999" = c(10,20, 31,32,41,42,43, 50,61,62, 82, 90),
-                    ## Depth Subareas
-                    "100" = c(10, 20),
-                    "200" = c(31,32,41,42,43, 82),
-                    "300" = c(50,61,62, 90),
-                    ## Subareas
-                    "1" = 10, "2" = 20, "3" = c(31, 32),
-                    "4" = c(41, 42, 43), "5" = 50, "6" = c(61, 62),
-                    "8" = 82, "9" = 90),
+                        ## Depth Subareas
+                        "100" = c(10, 20),
+                        "200" = c(31,32,41,42,43, 82),
+                        "300" = c(50,61,62, 90),
+                        ## Subareas
+                        "1" = 10, "2" = 20, "3" = c(31, 32),
+                        "4" = c(41, 42, 43), "5" = 50, "6" = c(61, 62),
+                        "8" = 82, "9" = 90),
     
     "NBS" = list("999" = c(70, 71, 81)),
     
