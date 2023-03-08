@@ -92,7 +92,7 @@ calc_agg_biomass <- function(biomass_strata = NULL,
                  "Chirikof 701 - 1000 m" = 520,
                  
                  "Kodiak" = c(30:33, 35, 130:134, 230:232, 330, 430, 530),
-                 "Kodiak 0 - 100 m" = 30:33, 35, 
+                 "Kodiak 0 - 100 m" = c(30:33, 35), 
                  "Kodiak 101 - 200 m" = 130:134, 
                  "Kodiak 201 - 300 m" = 230:232, 
                  "Kodiak 301 - 500 m" = 330, 
