@@ -176,35 +176,37 @@ calc_agg_size_comp <- function(size_comps,
   
   ## For each subarea, sum across the stratum biomasses and variances to get
   ## the total biomass and variance. 
-  subarea_size_comp <-
-    c(subarea_size_comp, 
-      lapply(X = seq_along(which_strata[[itype]]),
-             lapply(X = seq_along(which_strata),
-                    FUN = function(subarea) {
-                      
-                      ## Filter strata within subarea
-                      subarea_size_comp <- subset(x = stratum_size_comp,
-                                                  subset = size_comps$STRATUM %in%
-                                                    which_strata[[itype]][[subarea]])
-                      
-                      if (nrow(subarea_size_comp) == 0) return(data.frame())
-                      if (nrow(subarea_size_comp) > 0) {
-                        return(cbind(data.frame(STRATUM = names(which_strata)[subarea]),
-                                     stats::aggregate(cbind(MALES, 
-                                                            FEMALES,
-                                                            UNSEXED, 
-                                                            TOTAL) ~
-                                                        YEAR + SPECIES_CODE + LENGTH,
-                                                      data = subarea_size_comp,
-                                                      FUN = sum)))
-                      }
-                    })))
+  subarea_size_comp <- list()
+  for (itype in names(which_strata)) {
+    subarea_size_comp <- 
+      c(subarea_size_comp, 
+        lapply(X = seq_along(which_strata[[itype]]),
+               FUN = function(subarea) {
+                        
+                        ## Filter strata within subarea
+                        subarea_size_comp <- subset(x = stratum_size_comp,
+                                                    subset = size_comps$STRATUM %in%
+                                                      which_strata[[itype]][[subarea]])
+                        
+                        if (nrow(subarea_size_comp) == 0) return(data.frame())
+                        if (nrow(subarea_size_comp) > 0) {
+                          return(cbind(data.frame(SURVEY = region,
+                                                  TYPE = itype,
+                                                  AREA_NAME = names(which_strata[[itype]])[subarea]),
+                                       stats::aggregate(cbind(MALES, 
+                                                              FEMALES,
+                                                              UNSEXED, 
+                                                              TOTAL) ~
+                                                          YEAR + SPECIES_CODE + LENGTH_MM,
+                                                        data = subarea_size_comp,
+                                                        FUN = sum)))
+                        }
+                      }))
+    
+  }
   
   ## rbind subarea sizecomps, reorder, and return
   subarea_size_comp <- do.call(what = rbind, args = subarea_size_comp)
-  subarea_size_comp <- 
-    subarea_size_comp[with(subarea_size_comp, 
-                           order(SPECIES_CODE, STRATUM, YEAR, LENGTH)), ]
   
   return(subarea_size_comp)
   
