@@ -23,15 +23,15 @@ calc_age_comp <- function(racebase_tables = NULL,
   ## Narrow size_comp so that each record refers to a sex/length combination
   size_comp <- 
     rbind(data.frame(size_comp[, c("YEAR", "STRATUM", 'SPECIES_CODE', 
-                                   "LENGTH")],
+                                   "LENGTH_MM")],
                      SEX = 1, 
                      sizepop = size_comp$MALES ),
           data.frame(size_comp[, c("YEAR", "STRATUM", 'SPECIES_CODE', 
-                                   "LENGTH")],
+                                   "LENGTH_MM")],
                      SEX = 2, 
                      sizepop = size_comp$FEMALES),
           data.frame(size_comp[, c("YEAR", "STRATUM", 'SPECIES_CODE',
-                                   "LENGTH")],
+                                   "LENGTH_MM")],
                      SEX = 3,
                      sizepop = size_comp$UNSEXED)
     )
@@ -52,22 +52,23 @@ calc_age_comp <- function(racebase_tables = NULL,
                           no = specimen$YEAR,
                           yes = as.numeric(substr(x = specimen$CRUISE, 
                                                   start = 1, stop = 4)))
+  names(specimen)[names(specimen) == "LENGTH"] <- "LENGTH_MM"
   specimen$FREQ <- 1
   
   ## s_ijklm will be the total number of collected ages of species-k, sex-m, 
   ##     and length-l for station-j in stratum-i.
   s_ijklm <- rbind(
     ## Aggregate FEMALES and MALES
-    stats::aggregate(FREQ ~ YEAR + SPECIES_CODE + SEX + LENGTH + AGE,
+    stats::aggregate(FREQ ~ YEAR + SPECIES_CODE + SEX + LENGTH_MM + AGE,
                      data = specimen,
                      FUN = sum),
     
     ## For UNSEXED, we pool MALES and FEMALES TOGETHER
-    cbind(stats::aggregate(FREQ ~ YEAR + SPECIES_CODE + LENGTH + AGE,
+    cbind(stats::aggregate(FREQ ~ YEAR + SPECIES_CODE + LENGTH_MM + AGE,
                            data = specimen,
                            FUN = sum), 
           SEX = 3)[, c("YEAR", "SPECIES_CODE", "SEX", 
-                       "LENGTH", "AGE", "FREQ")])
+                       "LENGTH_MM", "AGE", "FREQ")])
   
   ## Split the s_ijklm df by year, species, sex, and length bin 
   ##    and then calculate the proportion of distribution of ages within 
@@ -79,7 +80,7 @@ calc_age_comp <- function(racebase_tables = NULL,
             args = lapply(X = split(x = s_ijklm, 
                                     f = list(s_ijklm$YEAR, 
                                              s_ijklm$SPECIES_CODE, 
-                                             s_ijklm$LENGTH, 
+                                             s_ijklm$LENGTH_MM, 
                                              s_ijklm$SEX)),
                           FUN = function(df) {
                             df$age_frac <- df$FREQ / sum(df$FREQ)
@@ -90,7 +91,7 @@ calc_age_comp <- function(racebase_tables = NULL,
   ##    year, species, sex, and length. 
   age_comp <- merge(x = p_klm,
                     y = size_comp,
-                    by = c("YEAR", "SPECIES_CODE", "SEX", "LENGTH"),
+                    by = c("YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
                     # all.x = TRUE,
                     all.y = TRUE
   )
