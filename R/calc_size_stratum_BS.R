@@ -16,6 +16,12 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                                  racebase_cpue = NULL,
                                  racebase_stratum_popn = NULL) {
   
+  ## Error Check
+  if (is.null(racebase_tables$size)) 
+    stop("racebase_tables$size must not be NULL. Either the taxon does not 
+         have size information or rerun AFSC.GAP.DBE::get_data() with 
+         argument pull_lengths = TRUE")
+  
   ## Extract data objects
   size <- racebase_tables$size
   cpue <- racebase_cpue
@@ -136,8 +142,10 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                    timevar = "SEX", 
                    direction = "wide")
   
-  names(P_iklm)[match(x = c("NUMBER.1", "NUMBER.2", "NUMBER.3"), 
-                      table = names(P_iklm))] <-
+  ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
+  if (!"NUMBER.3" %in% names(P_iklm)) P_iklm$NUMBER.3 <- 0
+  
+  names(P_iklm)[names(P_iklm) %in% paste0("NUMBER.", 1:3)] <-
     c("MALES", "FEMALES", "UNSEXED")
   
   ## Order sexes to M, F, U, TOTAL. Set NAs to zero. 
@@ -155,6 +163,9 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   ## Reorder rows by size
   P_iklm <- P_iklm[order(P_iklm$YEAR, P_iklm$STRATUM, P_iklm$SPECIES_CODE,
                          P_iklm$LENGTH), ]
+  
+  ## Add units to LENGTH column name
+  names(P_iklm)[names(P_iklm) == "LENGTH"] <- "LENGTH_MM"
   
   return(P_iklm)
 }

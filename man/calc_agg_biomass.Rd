@@ -2,7 +2,7 @@
 % Please edit documentation in R/calc_agg_biomass.R
 \name{calc_agg_biomass}
 \alias{calc_agg_biomass}
-\title{Calculate index of total biomass across aggregated strata}
+\title{Calculate index of total biomass across aggregated subareas}
 \usage{
 calc_agg_biomass(
   biomass_strata = NULL,
@@ -11,16 +11,15 @@ calc_agg_biomass(
 }
 \arguments{
 \item{biomass_strata}{a dataframe of stratum biomass, result object from
-\code{calc_biomass_stratum()}}
+\code{AFSC.GAP.DBE::calc_biomass_stratum()}}
 
-\item{region}{character string. One of c("EBS_STANDARD", "EBS_PLUSNW",
-"NBS", "GOA", "AI")}
+\item{region}{character string. One of c("EBS_STANDARD",
+"EBS_PLUSNW", "NBS", "GOA", "AI")}
 }
 \value{
 dataframe of biomass and population abundance estimates across
-subareas and across the region, along with variances (CIs to be
-added when we can figure out how to do them...)
+subareas and across the region, along with variances.
 }
 \description{
-Calculate index of total biomass across aggregated strata
+Calculate index of total biomass across aggregated subareas
 }

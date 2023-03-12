@@ -1,33 +1,39 @@
-#' Calculate index of total biomass across aggregated subareas
+#' Calculate size composition across aggregated subareas
 #'
-#' @param region         character string. One of c("EBS_STANDARD", 
-#'                       "EBS_PLUSNW", "NBS", "GOA", "AI")
-#' @param biomass_strata a dataframe of stratum biomass, result object from 
-#'                       `AFSC.GAP.DBE::calc_biomass_stratum()`
+#' @param region      character string. One of c("EBS_STANDARD", "EBS_PLUSNW", 
+#'                       "NBS", "GOA", "AI")
+#' @param size_comps  a dataframe of stratum biomass, result object from either
+#'                       `AFSC.GAP.DBE::calc_size_stratum_AIGOA()` or 
+#'                       `AFSC.GAP.DBE::calc_size_stratum_BS()`
 #'
-#' @return dataframe of biomass and population abundance estimates across 
-#'         subareas and across the region, along with variances.
+#' @return dataframe of size composition estimates across 
+#'         subareas and across region.
 #' @export
-#' 
+#'
 
-calc_agg_biomass <- function(biomass_strata = NULL,
-                             region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
-                                        "GOA", "AI")[1]) {
+calc_agg_size_comp <- function(size_comps,
+                               region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS",
+                                          "GOA", "AI")[1]) {
   
-  ## Checks
+  ## Error checks
+  if (is.null(size_comps))
+    stop("Please supply a size composition dataframe created using 
+         `AFSC.GAP.DBE::calc_size_stratum_AIGOA()` or 
+         `AFSC.GAP.DBE::calc_size_stratum_BS()`")
+  
   if (!region %in% c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI"))
-    stop("argument `region` must be one of these options: 
+    stop("Argument `region` must be one of these options: 
          EBS_STANDARD, EBS_PLUSNW, NBS, GOA, AI. " )
   
   if (region == "GOA") {
-    if (any(unique(biomass_strata$YEAR) > 2023))
+    if (any(unique(size_comps$YEAR) > 2023))
       warning("The GOA total biomass across INPFC area and across depth zones
               only includes years 1987-2023. Starting from 2025, total biomass
               across NMFS areas will only be reported.")
   }
   
   if (region == "EBS_PLUSNW") {
-    if ( any(unique(biomass_strata$YEAR) < 1987) ){
+    if ( any(unique(size_comps$YEAR) < 1987) ){
       
       stop("The (EBS + NW) output only includes years 1987-present. 
       Years 1982-1986 are NOT included for the (EBS + NW) output because 
@@ -164,42 +170,44 @@ calc_agg_biomass <- function(biomass_strata = NULL,
     ))[[region]]
   
   ## Filter all strata within the region
-  stratum_biomass <- 
-    subset(x = biomass_strata,
-           subset = biomass_strata$STRATUM %in% which_strata$Region[[1]] )
+  stratum_size_comp <- 
+    subset(x = size_comps,
+           subset = size_comps$STRATUM %in% which_strata$Region[[1]] )
   
   ## For each subarea, sum across the stratum biomasses and variances to get
   ## the total biomass and variance. 
-  subarea_biomass <- list()
+  subarea_size_comp <- list()
   for (itype in names(which_strata)) {
-    subarea_biomass <- 
-      c(subarea_biomass, 
+    subarea_size_comp <- 
+      c(subarea_size_comp, 
         lapply(X = seq_along(which_strata[[itype]]),
                FUN = function(subarea) {
-                 
-                 ## Filter strata within subarea
-                 subarea_biomass <- subset(x = stratum_biomass,
-                                           subset = biomass_strata$STRATUM %in%
-                                             which_strata[[itype]][[subarea]])
-                 
-                 if (nrow(subarea_biomass) == 0) return(data.frame())
-                 if (nrow(subarea_biomass) > 0) {
-                   return(cbind(data.frame(SURVEY = region,
-                                           TYPE = itype,
-                                           AREA_NAME = names(which_strata[[itype]])[subarea]),
-                                stats::aggregate(cbind(BIOMASS_MT, 
-                                                       BIOMASS_VAR,
-                                                       POPULATION_COUNT, 
-                                                       POPULATION_VAR) ~
-                                                   GROUP + YEAR,
-                                                 data = subarea_biomass,
-                                                 FUN = sum)))
-                 }
-               }))
+                        
+                        ## Filter strata within subarea
+                        subarea_size_comp <- subset(x = stratum_size_comp,
+                                                    subset = size_comps$STRATUM %in%
+                                                      which_strata[[itype]][[subarea]])
+                        
+                        if (nrow(subarea_size_comp) == 0) return(data.frame())
+                        if (nrow(subarea_size_comp) > 0) {
+                          return(cbind(data.frame(SURVEY = region,
+                                                  TYPE = itype,
+                                                  AREA_NAME = names(which_strata[[itype]])[subarea]),
+                                       stats::aggregate(cbind(MALES, 
+                                                              FEMALES,
+                                                              UNSEXED, 
+                                                              TOTAL) ~
+                                                          YEAR + SPECIES_CODE + LENGTH_MM,
+                                                        data = subarea_size_comp,
+                                                        FUN = sum)))
+                        }
+                      }))
     
   }
   
-  ## rbind subarea biomasses and return
-  subarea_biomass <- do.call(what = rbind, args = subarea_biomass)
-  return(subarea_biomass)
+  ## rbind subarea sizecomps, reorder, and return
+  subarea_size_comp <- do.call(what = rbind, args = subarea_size_comp)
+  
+  return(subarea_size_comp)
+  
 }

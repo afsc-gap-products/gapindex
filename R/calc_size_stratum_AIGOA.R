@@ -15,6 +15,12 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
                                     racebase_cpue = NULL,
                                     racebase_stratum_popn = NULL) {
   
+  ## Error Check
+  if (is.null(racebase_tables$size)) 
+    stop("racebase_tables$size must not be NULL. Either the taxon does not 
+         have size information or rerun AFSC.GAP.DBE::get_data() with 
+         argument pull_lengths = TRUE")
+  
   ## Extract data objects
   size <- racebase_tables$size
   cpue <- racebase_cpue
@@ -70,14 +76,13 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   len_hauls <- stats::aggregate(POS_CATCH_W_LENS ~ GROUP + STRATUM + YEAR,
                                 data = cpue_ratio,
                                 FUN = sum)
-
   
   ## For each year, stratum, haul, and species, sum number of recorded lengths
   length_sum <- stats::aggregate( 
     FREQUENCY ~ YEAR + STRATUM + HAULJOIN + SPECIES_CODE,
     data = size,
     FUN = sum)
-  names(length_sum)[5] <- "LENGTH_SUM"
+  names(length_sum)[names(length_sum) == "FREQUENCY"] <- "LENGTH_SUM"
   
   ## Attach the length sums to each record in the size df by species and haul.
   ## Normalize the length frequencies by their respective totals.
@@ -176,8 +181,10 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
                    timevar = "SEX", 
                    direction = "wide")
   
-  names(size_comp)[match(x = c("NUMBER.1", "NUMBER.2", "NUMBER.3"), 
-                         table = names(size_comp))] <-
+  ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
+  if (!"NUMBER.3" %in% names(size_comp)) size_comp$NUMBER.3 <- 0
+  
+  names(size_comp)[names(size_comp) %in% paste0("NUMBER.", 1:3)] <-
     c("MALES", "FEMALES", "UNSEXED")
   
   ## Order sexes to M, F, U. Set NAs to zero. 
@@ -190,6 +197,9 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
   ## Calculate total over sexes
   size_comp$TOTAL <- rowSums(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
   
+  ## Add units to LENGTH column name
+  names(size_comp)[names(size_comp) == "LENGTH"] <- "LENGTH_MM"
+  
   return(size_comp[with(size_comp, 
-                        order(SPECIES_CODE, YEAR, STRATUM, LENGTH)), ])
+                        order(SPECIES_CODE, YEAR, STRATUM, LENGTH_MM)), ])
 }

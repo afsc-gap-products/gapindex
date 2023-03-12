@@ -36,7 +36,7 @@ test_data <- AFSC.GAP.DBE::get_data(
   pull_lengths = TRUE,
   sql_channel = sql_channel)
 
-## Fill in zeros and calculate CPUE. See ?AFSC.GAP.DBE::get_cpue first for more details
+## Fill in zeros and calculate CPUE. See ?AFSC.GAP.DBE::calc_cpue first for more details
 test_cpue <- AFSC.GAP.DBE::calc_cpue(racebase_tables = test_data)
 
 ## Calculate biomass, population abundance, and CIs for each strata. See ?AFSC.GAP.DBE::calc_biomass_stratum first for more details
