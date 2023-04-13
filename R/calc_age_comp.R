@@ -130,6 +130,9 @@ calc_age_comp <- function(racebase_tables = NULL,
                                       "AREA_ID")),
                 by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR"))
   
+  ## Reorder
+  age_comp <- age_comp[order(age_comp$SPECIES_CODE, age_comp$AREA_ID), ]
+  
   return(subset(x = age_comp,
                 select = c(AREA_ID, SURVEY_DEFINITION_ID,
                            SPECIES_CODE, YEAR, SEX, AGE, AGEPOP)))
