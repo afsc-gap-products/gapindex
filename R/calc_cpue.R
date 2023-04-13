@@ -15,6 +15,10 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   cruisedat <- racebase_tables$cruise 
   haul <- racebase_tables$haul
+  ## Attach year to haul
+  haul <- merge(x = haul, 
+                y = cruisedat[, c("CRUISEJOIN", "YEAR")],
+                by = "CRUISEJOIN")
   catch <- racebase_tables$catch
   species <- racebase_tables$species
   
@@ -27,16 +31,16 @@ calc_cpue <- function(racebase_tables = NULL) {
                    "haul$abundance_haul == 'Y'. "))
   }
   
-  ## Merge cruise data with haul data using the CRUISEJOIN and REGION as 
-  ## keys. Have not tested with multiple regions. 
-  dat <- merge(x = haul, 
-               y = cruisedat, 
-               by = c("CRUISEJOIN") )
+  ## Merge cruise data with haul data using the CRUISEJOIN as the key.
+  dat <- merge(x = haul,
+               y = cruisedat[, c("CRUISEJOIN", "SURVEY", 
+                                 "SURVEY_DEFINITION_ID", "DESIGN_YEAR")],
+               by = "CRUISEJOIN" )
   
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table of all combos of HAULJOIN and SPECIES_CODE.
   all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
-                            GROUP = sort(unique(species$GROUP)))
+                            SPECIES_CODE = sort(unique(species$GROUP)))
   
   ## Then merge the all_combos table with dat
   dat <- merge(x = all_combos, 
@@ -44,14 +48,11 @@ calc_cpue <- function(racebase_tables = NULL) {
                by = c("HAULJOIN"), 
                all.x = TRUE)
   
-  ## If you have more than one species, each species should now have the same
-  ## number of hauls for each year (CRUISE) of data.
-  # table(dat$CRUISE.x, dat$SPECIES_CODE)
-  
-  ## Merge catch data with dat using the HAULJOIN as the key
-  dat <- merge(x = dat, 
-               y = catch, 
-               by = c("GROUP", "HAULJOIN"), 
+  ## Merge catch data with dat using the HAULJOIN AND SPECIES_CODE as the key
+  dat <- merge(x = dat,
+               y = catch[, c("HAULJOIN", "SPECIES_CODE", 
+                             "WEIGHT", "NUMBER_FISH")], 
+               by = c("HAULJOIN", "SPECIES_CODE"), 
                all.x = TRUE)
   
   ## There are some hauls where a weight is recorded, but not a count. 
@@ -66,31 +67,22 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   ## Any record with no weight or count data (NA) are replaced with a zero
   dat$WEIGHT[is.na(dat$WEIGHT)] <- 0
-
+  
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(YEAR = as.numeric(format(START_TIME, format = "%Y")),
-                         CRUISEJOIN = CRUISEJOIN, HAULJOIN, VESSEL = VESSEL.x, 
-                         HAUL = HAUL, HAUL_TYPE, PERFORMANCE, DURATION, STRATUM, 
-                         STATIONID, 
+              data.frame(CRUISE, CRUISEJOIN, HAULJOIN, DESIGN_YEAR, 
+                         SURVEY, SURVEY_DEFINITION_ID, YEAR, STRATUM, 
                          START_LATITUDE, END_LATITUDE, 
                          START_LONGITUDE, END_LONGITUDE,
-                         GEAR_DEPTH_M = GEAR_DEPTH, 
-                         BOTTOM_DEPTH_M = BOTTOM_DEPTH, 
-                         SURFACE_TEMPERATURE_C = SURFACE_TEMPERATURE, 
-                         GEAR_TEMPERATURE_C = GEAR_TEMPERATURE, 
-                         DISTANCE_FISHED_KM = DISTANCE_FISHED, 
-                         NET_WIDTH_M = NET_WIDTH,
-                         GROUP,
+                         SPECIES_CODE,
                          WEIGHT_KG = WEIGHT,
                          COUNT = NUMBER_FISH,
                          AREASWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
   
   ## CPUE calculations
-  dat <- 
-    cbind(dat,
-          with(dat, data.frame(WGTCPUE_KG_KM2 = WEIGHT_KG / AREASWEPT_KM2,
-                               NUMCPUE_COUNT_KM2 = COUNT / AREASWEPT_KM2)))
+  dat <- cbind(dat,
+               with(dat, data.frame(CPUE_KGKM2 = WEIGHT_KG / AREASWEPT_KM2,
+                                    CPUE_NOKM2 = COUNT / AREASWEPT_KM2)))
   
   return(dat)
 }
