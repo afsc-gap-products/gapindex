@@ -51,7 +51,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ## Error Query: check that argument survey_set is one the correct options.
-  if (is.null(x = survey) | 
+  if (is.null(x = survey_set) | 
       !all(survey_set %in% c("GOA", "AI", "EBS", "NBS"))) {
     stop(paste0("arg survey_set must contain one or more of these options",
                 " (case-sensitive): 
