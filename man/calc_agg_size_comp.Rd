@@ -4,18 +4,14 @@
 \alias{calc_agg_size_comp}
 \title{Calculate size composition across aggregated subareas}
 \usage{
-calc_agg_size_comp(
-  size_comps,
-  region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI")[1]
-)
+calc_agg_size_comp(racebase_tables, size_comps)
 }
 \arguments{
+\item{racebase_tables}{data object created from `AFSC.GAP.DBE::get_data()``}
+
 \item{size_comps}{a dataframe of stratum biomass, result object from either
 \code{AFSC.GAP.DBE::calc_size_stratum_AIGOA()} or
 \code{AFSC.GAP.DBE::calc_size_stratum_BS()}}
-
-\item{region}{character string. One of c("EBS_STANDARD", "EBS_PLUSNW",
-"NBS", "GOA", "AI")}
 }
 \value{
 dataframe of size composition estimates across

@@ -4,17 +4,13 @@
 \alias{calc_agg_biomass}
 \title{Calculate index of total biomass across aggregated subareas}
 \usage{
-calc_agg_biomass(
-  biomass_strata = NULL,
-  region = c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI")[1]
-)
+calc_agg_biomass(racebase_tables, biomass_strata = NULL)
 }
 \arguments{
+\item{racebase_tables}{data object created from `AFSC.GAP.DBE::get_data()``}
+
 \item{biomass_strata}{a dataframe of stratum biomass, result object from
 \code{AFSC.GAP.DBE::calc_biomass_stratum()}}
-
-\item{region}{character string. One of c("EBS_STANDARD",
-"EBS_PLUSNW", "NBS", "GOA", "AI")}
 }
 \value{
 dataframe of biomass and population abundance estimates across

@@ -15,9 +15,12 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                  cpue = NULL,
                                  vulnerability = 1) {
   
+  cruise <- racebase_tables$cruise
+  haul <- racebase_tables$haul
+  
   ## Check inputs
   if (any(sapply(X = list(cpue, racebase_tables), FUN = is.null))) {
-    stop("Please provide inputs for data arguments: `cpue` and `racebase_tables`. 
+    stop("Please provide inputs for data args: `cpue` and `racebase_tables`. 
          See ?AFSC.GAP.DBE::calc_biomass_stratum for more details.")
   }
   
@@ -25,7 +28,8 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   ## one station, variance is ASSUMED zero
   wgt_stats <- 
     stats::aggregate(
-      WGTCPUE_KG_KM2 ~ GROUP + STRATUM + YEAR, 
+      CPUE_KGKM2 ~ SPECIES_CODE + STRATUM + YEAR + 
+        SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR, 
       data = cpue, 
       FUN = function(x) 
         c("MEAN_WGTCPUE_KG_KM2" = mean(x, na.rm = TRUE), 
@@ -37,7 +41,8 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   ## one station, variance is ASSUMED zero
   num_stats <- 
     stats::aggregate(
-      NUMCPUE_COUNT_KM2 ~ GROUP + STRATUM + YEAR, 
+      CPUE_NOKM2 ~ SPECIES_CODE + STRATUM + YEAR + 
+        SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR, 
       data = cpue,
       na.action = NULL,
       FUN = function(x) 
@@ -48,31 +53,54 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                    length(stats::na.omit(x)))))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
-  stratum_stats <-  cbind(wgt_stats[, c("GROUP", "STRATUM", "YEAR")],
-                          data.frame(wgt_stats$WGTCPUE_KG_KM2),
-                          data.frame(num_stats$NUMCPUE_COUNT_KM2))
+  stratum_stats <- cbind(
+    wgt_stats[, c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
+                  "SURVEY", "SURVEY_DEFINITION_ID")],
+    wgt_stats$CPUE_KGKM2,
+    num_stats$CPUE_NOKM2)
   
   ## Attach stratum data to stratum_stats
-  stratum_stats <- merge(x = stratum_stats, 
-                         y = racebase_tables$strata, 
-                         by = "STRATUM")
+  stratum_stats <- merge(
+    x = stratum_stats,
+    y = racebase_tables$strata[, c("SURVEY_DEFINITION_ID", "STRATUM", 
+                                   "DESIGN_YEAR", "AREA_KM2")],
+    by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR", "STRATUM"))
   
   ## Calculate design-based estimate and variance of biomass and abundance
   stratum_stats[, c("BIOMASS_MT", "BIOMASS_VAR", 
                     "POPULATION_COUNT", "POPULATION_VAR")] <-
     with(stratum_stats, 
-         data.frame(BIOMASS_MT = AREA * MEAN_WGTCPUE_KG_KM2 / vulnerability * 0.001,
-                    BIOMASS_VAR = AREA^2 * VAR_WGTCPUE * 1e-6,
-                    POPULATION_COUNT = AREA * MEAN_NUMCPUE_COUNT_KM2,
-                    POPULATION_VAR = AREA^2 * VAR_NUMCPUE))
+         data.frame(BIOMASS_MT = AREA_KM2 * MEAN_WGTCPUE_KG_KM2 / 
+                      vulnerability * 0.001,
+                    BIOMASS_VAR = AREA_KM2^2 * VAR_WGTCPUE * 1e-6,
+                    POPULATION_COUNT = AREA_KM2 * MEAN_NUMCPUE_COUNT_KM2 / 
+                      vulnerability,
+                    POPULATION_VAR = AREA_KM2^2 * VAR_NUMCPUE))
   
-  ## Reorder fields
-  stratum_stats <- subset(x = stratum_stats, 
-                          select = c(SURVEY, YEAR, STRATUM, GROUP, 
-                                     MEAN_WGTCPUE_KG_KM2, VAR_WGTCPUE, 
-                                     BIOMASS_MT, BIOMASS_VAR,
-                                     MEAN_NUMCPUE_COUNT_KM2, VAR_NUMCPUE,
-                                     POPULATION_COUNT, POPULATION_VAR))
+  ## Reorder fields, sort
+  stratum_stats <-
+    subset(x = stratum_stats,
+           select = c(SURVEY, SURVEY_DEFINITION_ID, STRATUM, SPECIES_CODE, YEAR,
+                      BIOMASS_MT, BIOMASS_VAR,
+                      POPULATION_COUNT, POPULATION_VAR))
+  stratum_stats <- stratum_stats[with(stratum_stats,
+                                      order(YEAR, SURVEY_DEFINITION_ID,
+                                            STRATUM, SPECIES_CODE)), ]
+  
+  ## Remove EBS + NW strata pre-1987 as these aren't used
+  if (any(stratum_stats$YEAR < 1987 & stratum_stats$SURVEY == "EBS")) {
+    warning("The (EBS + NW) output only includes years 1987-present.
+      Years 1982-1986 are NOT included for the (EBS + NW) output because
+      essentially no stations within strata 82 & 90 (subarea 8 & 9)
+      were sampled during those years. Biomass/Abundance estimates for 
+      these early years were removed.")
+    
+    stratum_stats <- subset(x = stratum_stats, 
+                            subset = !(SURVEY_DEFINITION_ID == 98 & 
+                                         YEAR < 1987 & 
+                                         STRATUM %in% c(82, 90)) )
+  }
   
   return(stratum_stats)
+  
 }
