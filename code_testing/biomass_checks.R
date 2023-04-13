@@ -18,7 +18,7 @@ sql_channel <- AFSC.GAP.DBE::get_connected()
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Get biomass stratum from Oracle
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW", "NBS_SHELF")) {
+for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW", "NBS_SHELF")[]) {
   
   stratum_query <- paste0("select * from ", 
                           c("GOA" = "GOA.BIOMASS_STRATUM", 
@@ -42,7 +42,7 @@ for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW", "NBS_SHELF")) {
                      "EBS_PLUSNW" = c("BIOMASS", "VARBIO", 
                                       "POPULATION", "VARPOP"),
                      "NBS_SHELF" = c("STRATUM_BIOMASS", "BIOMASS_VAR", 
-                                      "STRATUM_POP", "POP_VAR"))[[ireg]]
+                                     "STRATUM_POP", "POP_VAR"))[[ireg]]
   
   db_stratum <- db_stratum[, c("REGION", "SPECIES_CODE", "YEAR", "STRATUM",
                                bio_column)]
@@ -60,13 +60,80 @@ EBS_PLUSNW_db_stratum$REGION <- "EBS_SHELF"
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Get GOA biomass from AFSC.GAP.DBE package
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for (ireg in c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")) {
+goa_spp <- RODBC::sqlQuery(channel = sql_channel, 
+                           query = "select * from GOA.ANALYSIS_SPECIES")
+skate_eggs <- RODBC::sqlQuery(channel = sql_channel, 
+                              query = "select * from RACEBASE.SPECIES	where species_code between 400 and 499 
+			and (common_name like '%egg%' or 
+            species_name like '%egg%') ")
+
+for (ireg in c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")[]) {
   
-  species_of_interest <- 
+  if (ireg %in% c("GOA", "AI")){
+    species_of_interest <- 
+      subset(x = goa_spp, subset = BIOMASS_FLAG %in% c(ireg, "BOTH"))
+    
+    single_taxa_codes <- 
+      with(species_of_interest, 
+           SPECIES_CODE[is.na(SUMMARY_GROUP) & is.na(START_CODE)])
+    
+    single_taxa <- data.frame(group = single_taxa_codes, 
+                              species_code = single_taxa_codes)
+    
+    species_complex <- data.frame()
+    
+    full_spp_complex <- 
+      with(species_of_interest, 
+           SPECIES_CODE[is.na(SUMMARY_GROUP) & !is.na(START_CODE)])
+    
+    if (length(full_spp_complex) > 0) {
+      for (iagg in 1:length(full_spp_complex)) {
+        temp_agg <- subset(x = species_of_interest, 
+                           subset = SPECIES_CODE == full_spp_complex[iagg])
+        
+        spp_range <- temp_agg$START_CODE:temp_agg$END_CODE
+        
+        species_complex <- rbind(species_complex,
+                                 data.frame(group = temp_agg$SPECIES_CODE,
+                                            species_code = spp_range))
+      }
+    }
+
+    
+    n_aggs <- sort(unique(na.omit(species_of_interest$SUMMARY_GROUP)))
+    
+    for (iagg in n_aggs) {
+      temp_agg <- subset(x = species_of_interest, 
+                          subset = SUMMARY_GROUP == iagg)
+      temp_exclude <- subset(x = species_of_interest, 
+                             subset = NOT_TO_INCLUDE == iagg)$SPECIES_CODE
+      
+      spp_range <- temp_agg$START_CODE:temp_agg$END_CODE
+      spp_range <- spp_range[!spp_range %in% temp_exclude]
+      
+      if (iagg == 2) {
+        spp_range <- spp_range[!spp_range %in% skate_eggs$SPECIES_CODE]
+      }
+      
+      species_complex <- rbind(species_complex,
+                               data.frame(group = temp_agg$SPECIES_CODE,
+                                          species_code = spp_range))
+    }
+    
+    species_of_interest <- rbind(single_taxa, species_complex )
+    
+    species_of_interest <- 
+      species_of_interest[order(species_of_interest$species_code),]
+  }
+  
+  if (ireg %in% c("EBS_SHELF", "NBS_SHELF")) {
+    species_of_interest <-
     data.frame(species_code = sort(unique(
       get(paste0(ireg, "_db_stratum"))$SPECIES_CODE)),
       group = sort(unique(
         get(paste0(ireg, "_db_stratum"))$SPECIES_CODE)))
+  }
+
   
   racebase_data <- AFSC.GAP.DBE::get_data( 
     year_set = sort(unique(get(paste0(ireg, "_db_stratum"))$YEAR)),
@@ -111,25 +178,27 @@ for (ireg in c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")) {
 ##   Merge datasets together
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EBS_PLUSNW_biomass_stratum <- subset(EBS_SHELF_biomass_stratum,
-                                     YEAR >= 1987 & STRATUM %in% c(82, 90)) 
+                                     YEAR >= 1987 & STRATUM %in% c(82, 90))
 EBS_SHELF_biomass_stratum <- subset(EBS_SHELF_biomass_stratum,
                                     !STRATUM %in% c(82, 90))
 
 rpackage_stratum <- rbind(GOA_biomass_stratum, 
-                          AI_biomass_stratum, 
+                          AI_biomass_stratum,
                           EBS_SHELF_biomass_stratum,
                           EBS_PLUSNW_biomass_stratum,
-                          NBS_SHELF_biomass_stratum)
+                          NBS_SHELF_biomass_stratum
+)
 
 oracle_stratum <- 
   rbind(GOA_db_stratum, 
-        AI_db_stratum, 
-        subset(x = EBS_SHELF_db_stratum, 
-               subset = STRATUM %in% 
+        AI_db_stratum,
+        subset(x = EBS_SHELF_db_stratum,
+               subset = STRATUM %in%
                  sort(unique(EBS_SHELF_biomass_stratum$STRATUM))),
-        subset(x = EBS_PLUSNW_db_stratum, 
+        subset(x = EBS_PLUSNW_db_stratum,
                subset = STRATUM %in% c(82, 90) & YEAR >= 1987),
-        NBS_SHELF_db_stratum)
+        NBS_SHELF_db_stratum
+  )
 
 merged_stratum <- merge(x = rpackage_stratum,
                         y = oracle_stratum, 
@@ -140,13 +209,16 @@ merged_stratum <- merge(x = rpackage_stratum,
 ##  Take out records where we know they are different:
 ##      In the GOA and AI, oracle tables assume NA catch is zero, 
 ##      negatively biasing the numbers per area swept calculation
+##
+##  In the EBS, there are a few 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 num_fish_na <- rbind(cbind(REGION = "GOA", 
                            GOA_cpue[is.na(GOA_cpue$NUMBER_FISH), 
                                     c("YEAR", "STRATUM", "SPECIES_CODE")]),
-                     cbind(REGION = "AI", 
-                           AI_cpue[is.na(AI_cpue$NUMBER_FISH), 
-                                   c("YEAR", "STRATUM", "SPECIES_CODE")]))
+                     cbind(REGION = "AI",
+                           AI_cpue[is.na(AI_cpue$NUMBER_FISH),
+                                   c("YEAR", "STRATUM", "SPECIES_CODE")])
+)
 num_fish_na_idx <- c()
 
 for (i in 1:nrow(num_fish_na)) {
@@ -161,8 +233,19 @@ merged_stratum <- merged_stratum[-unique(num_fish_na_idx), ]
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##  Take out records where we know they are different:
-##      In the GOA and AI, oracle tables assume NA catch is zero, 
-##      negatively biasing the numbers per area swept calculation
+##      In the GOA and AI, there are some hauls that are included in the 
+##      CPUE calculations in GOA.CPUE that should not be included due to 
+##      having a negative performance code, ABUDNANCE_HAUL == "N" or no effort 
+##      was not calculated. 
+##
+## AI: 1 haul in 2022 is incorrectly included in the Oracle dataset, has a 
+## negative performance code, ABUNDANCE_HAUL == "N", (-21552). 1 haul in 1980 
+## does not have effort information, ABUNDANCE_HAUL == "N" assume CPUE of zero
+## because the weight was also zero. c(30165)
+##
+## GOA: 2 hauls in 1984 and 1 haul in 1987 don’t have effort information, 
+## ABUNDANCE_HAUL == “N”, assume CPUE of zero because the weight was also zero.
+## c(32450, 32710, 33554)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 num_fish_na <- 
   data.frame(REGION = c("AI", "AI", "GOA", "GOA", "GOA"),
@@ -170,13 +253,6 @@ num_fish_na <-
              STRATUM = c(423, 313, 20, 111, 21),
              NOTE = c("NO EFFORT", "NEG PERFORM", "NO EFFORT",
                       "NO EFFORT", "NO EFFORT"))
-
-## HAULJOIN = -5799 AND SPECIES_CODE = 420: GOA.CPUE has NUMBER_FISH = 1 
-## while RACEBASE.CATCH has NUMBER_FISH = 2
-
-## HAULJOIN = 991071: record of a positive catch of SPECIES_CODE = 150 (unid. 
-## shark) in GOA.CPUE is shown as a zero in RACEBASE.CATCH and instead as SPECIES_CODE = 222 
-## 
 
 ## Population estimates for purple-orange seastar (81742) not consistent for 
 ## 1983 STRATUM  10. 
@@ -197,14 +273,16 @@ merged_stratum <- merged_stratum[-num_fish_na_idx, ]
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 merged_stratum$diff_biomass <- merged_stratum$POP.x - merged_stratum$POP.y
 
-na_recs <- merged_stratum[is.na(merged_stratum$diff_biomass), ]
-subset(na_recs, !SPECIES_CODE %in% c(10260:10262, 30150:30152))
-merged_stratum <- merged_stratum[!is.na(merged_stratum$diff_biomass), ]
+est_diffs <- cbind(merged_stratum[, c("REGION", "YEAR", "SPECIES_CODE", "STRATUM")],
+                   with(merged_stratum, 
+                        data.frame(BIOMASS = round(BIOMASS.x - BIOMASS.y, 1),
+                                   BIOMASS_VAR = round(BIOMASS_VAR.x - BIOMASS_VAR.y),
+                                   POP = round(POP.x - POP.y),
+                                   POP_VAR = round(abs(POP_VAR.x/10000 - POP_VAR.y/10000)))))
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##   What is the breakdown of the records in the rpackage results that are 
-##   not in oracle?
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##   Remove na: these are records where there was a change in the species IDs:
+##
 ## 10261, and 10262 are N. and S. rock sole and don't exist pre 1996, 1274 recs
 ## STRATUM 80 and 92 are not in the standard area, 1128 records.
 ## 10260 are rock soles (N and S merged), are not in oracle after 1996 for 
@@ -213,22 +291,32 @@ merged_stratum <- merged_stratum[!is.na(merged_stratum$diff_biomass), ]
 ## 30151 and 30152 are dark and dusky rockfish and don't exist consistently
 ## in Oracle until 1996. 30150 is dark/dusky rockfish combined and don't exist
 ## after 1996. 
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+na_recs <- apply(X = est_diffs, 
+                 MARGIN = 1, 
+                 FUN = function(x) any(is.na(x)))
+est_diffs <- est_diffs[!na_recs, ]
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##   
+##   Remove potential database error species until resolved
+##   Remove big skate (420) from GOA until resolved
+##   Remove darkfin sculpin (21341) from 1986 AI
+##   Remove purple-orange sea star (81742) from EBS in 1983
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-record_checks <- merged_stratum[round(merged_stratum$diff_biomass) != 0, ]
-# record_checks$diff_percent <- with(record_checks, 
-#                                    round(100 * diff_biomass / POP.y) )
-subset(record_checks, !is.na(REGION) & 
-         !SPECIES_CODE %in% c(21200, 23000, 400, 23800, 66000, 
-                              79000, 78010, 79000, 21300))
+est_diffs <- subset(x = est_diffs, 
+                    subset = !(REGION == "GOA" & SPECIES_CODE == "420") )
+est_diffs <- subset(x = est_diffs, 
+                    subset = !(REGION == "AI" & SPECIES_CODE == "21341" & YEAR == 1986))
+est_diffs <- subset(x = est_diffs, 
+                    subset = !(REGION == "EBS_SHELF" & SPECIES_CODE == "81742" & YEAR == 1983))
+est_diffs <- subset(x = est_diffs,
+                    subset = !(REGION == "NBS_SHELF" & SPECIES_CODE == 10210 & YEAR == 2022 & STRATUM == 70))
 
-## AI: 1 haul in 2022 is incorrectly included in the Oracle dataset, has a 
-## negative performance code, ABUNDANCE_HAUL == “N”, (-21552). 1 haul in 1980 
-## does not have effort information, ABUNDANCE_HAUL == “N” assume CPUE of zero
-## because the weight was also zero. c(30165)
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##   Which records are different
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+record_checks <- est_diffs[apply(X = est_diffs[, c("BIOMASS", "BIOMASS_VAR", 
+                                                   "POP", "POP_VAR")], 
+                                 MARGIN = 1, 
+                                 FUN = function(x) !all(round(x) == 0)), ]
 
-## GOA: 2 hauls in 1984 and 1 haul in 1987 don’t have effort information, 
-## ABUNDANCE_HAUL == “N”, assume CPUE of zero because the weight was also zero.
-## c(32450, 32710, 33554)
