@@ -1,9 +1,9 @@
 #' Calculate size composition across aggregated subareas
 #'
-#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()``
+#' @param racebase_tables data object created from `gapindex::get_data()``
 #' @param size_comps  a dataframe of stratum biomass, result object from either
-#'                       `AFSC.GAP.DBE::calc_size_stratum_AIGOA()` or 
-#'                       `AFSC.GAP.DBE::calc_size_stratum_BS()`
+#'                       `gapindex::calc_size_stratum_AIGOA()` or 
+#'                       `gapindex::calc_size_stratum_BS()`
 #'
 #' @return dataframe of size composition estimates across 
 #'         subareas and across region.
@@ -16,8 +16,8 @@ calc_agg_size_comp <- function(racebase_tables,
   ## Error checks
   # if (is.null(size_comps))
   #   stop("Please supply a size composition dataframe created using 
-  #        `AFSC.GAP.DBE::calc_size_stratum_AIGOA()` or 
-  #        `AFSC.GAP.DBE::calc_size_stratum_BS()`")
+  #        `gapindex::calc_size_stratum_AIGOA()` or 
+  #        `gapindex::calc_size_stratum_BS()`")
   # 
   # if (!region %in% c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI"))
   #   stop("Argument `region` must be one of these options: 
@@ -45,7 +45,7 @@ calc_agg_size_comp <- function(racebase_tables,
   
   for (isurvey in 1:nrow(x = survey_designs)) { 
     
-    subareas <- subset(x = AFSC.GAP.DBE::new_stratum_table,
+    subareas <- subset(x = gapindex::new_stratum_table,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
                          TYPE != "STRATUM" &
@@ -53,7 +53,7 @@ calc_agg_size_comp <- function(racebase_tables,
     
     for (isubarea in 1:nrow(x = subareas)) {
       strata_in_subarea <- 
-        subset(x = AFSC.GAP.DBE::new_stratum_groupings,
+        subset(x = gapindex::new_stratum_groupings,
                subset = AREA_ID %in% subareas$AREA_ID[isubarea])
       
       if (nrow(x = strata_in_subarea) > 0) {

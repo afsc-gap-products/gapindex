@@ -4,10 +4,10 @@
 #'              numbers at length. To be used only for the EBS_SHELF or 
 #'              NBS_SHELF regions.
 #' 
-#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()`.
-#' @param racebase_cpue object created from `AFSC.GAP.DBE::calc_cpue()`.
+#' @param racebase_tables data object created from `gapindex::get_data()`.
+#' @param racebase_cpue object created from `gapindex::calc_cpue()`.
 #' @param racebase_stratum_popn a dataframe of stratum abundances, result 
-#'                               object from  `AFSC.GAP.DBE::calc_biomass_stratum()`.
+#'                               object from  `gapindex::calc_biomass_stratum()`.
 #' 
 #' @export
 #' 
@@ -19,7 +19,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   ## Error Check
   if (is.null(x = racebase_tables$size)) 
     stop("racebase_tables$size must not be NULL. Either the taxon does not 
-         have size information or rerun AFSC.GAP.DBE::get_data() with 
+         have size information or rerun gapindex::get_data() with 
          argument pull_lengths = TRUE")
   
   ## Warning message if there are EBS data contained in racebase_tables
@@ -27,7 +27,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
       "GOA" %in% racebase_tables$cruise$SURVEY)
     warning("AI and/or GOA data are included in the input data. This function
        only applies the size composition to the EBS/NBS. 
-       Use AFSC.GAP.DBE::calc_size_stratum_AIGOA() to calculate the size 
+       Use gapindex::calc_size_stratum_AIGOA() to calculate the size 
        composition to the AI/GOA.")
   
   ## Subset only AI/GOA data from the cruise data. If there are no AI/GOA
@@ -38,7 +38,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   if (nrow(x = cruise) == 0){
     stop("EBS or NBS cruises are not in argument racebase_tables$cruise.
          This function only applies the size composition to the EBS/NBS. 
-         Use AFSC.GAP.DBE::calc_size_stratum_AIGOA() to calculate the size 
+         Use gapindex::calc_size_stratum_AIGOA() to calculate the size 
          composition to the AI/GOA.")
   }
   

@@ -14,7 +14,7 @@
 #'                        4) dataype: Oracle data type
 #'                        5) colname_desc: Full description of field
 #' @param channel Establish your oracle connection using a function 
-#'                like AFSC.GAP.DBE::get_connected() 
+#'                like gapindex::get_connected() 
 #' @param schema character string. The name of the schema to save table. 
 #'               "GAP_PRODUCTS" is the schema where production tables will live.   
 #' @param update_table boolean. Default = TRUE. Save or drop and save the 
@@ -55,7 +55,7 @@ upload_oracle <- function(x = NULL,
   if (!is.data.frame(x = metadata_column)){
     stop(
       "Argument `metadata_column` must be a data.frame.
-       See AFSC.GAP.DBE::oracle_upload() for how to format `metadata_column`.")
+       See gapindex::oracle_upload() for how to format `metadata_column`.")
   } else {
     if (!all(c("colname", "colname_long", "units", "datatype", "colname_desc")
              %in% names(metadata_column))) 
@@ -69,7 +69,7 @@ upload_oracle <- function(x = NULL,
   }
   
   ## Check that there is a connection
-  if (is.null(channel)) channel <- AFSC.GAP.DBE::get_connected()
+  if (is.null(channel)) channel <- gapindex::get_connected()
   
   cat(paste0("Oracle Data Table: ", schema, ".", table_name, 
              "\nNumber of Rows: ", nrow(x = x), 

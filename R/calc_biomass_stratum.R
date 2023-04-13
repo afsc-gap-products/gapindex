@@ -1,7 +1,7 @@
 #' Calculate index of total biomass per stratum
 #'
-#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()`
-#' @param cpue object created from `AFSC.GAP.DBE::calc_cpue()`.
+#' @param racebase_tables data object created from `gapindex::get_data()`
+#' @param cpue object created from `gapindex::calc_cpue()`.
 #' @param vulnerability the vulnerability of the species to the survey 
 #'                      (defaults to 1).
 #' 
@@ -21,7 +21,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   ## Check inputs
   if (any(sapply(X = list(cpue, racebase_tables), FUN = is.null))) {
     stop("Please provide inputs for data args: `cpue` and `racebase_tables`. 
-         See ?AFSC.GAP.DBE::calc_biomass_stratum for more details.")
+         See ?gapindex::calc_biomass_stratum for more details.")
   }
   
   ## Calculate mean and variance of stratum biomass. For strata with only

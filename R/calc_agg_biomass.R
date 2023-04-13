@@ -1,8 +1,8 @@
 #' Calculate index of total biomass across aggregated subareas
 #'
-#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()``
+#' @param racebase_tables data object created from `gapindex::get_data()``
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
-#'                       `AFSC.GAP.DBE::calc_biomass_stratum()`
+#'                       `gapindex::calc_biomass_stratum()`
 #'
 #' @return dataframe of biomass and population abundance estimates across 
 #'         subareas and across the region, along with variances.
@@ -18,12 +18,12 @@ calc_agg_biomass <- function(racebase_tables,
   
   ## Add DESIGN_YEAR to biomass_strata
   biomass_strata <- merge(x = biomass_strata,
-                          y = AFSC.GAP.DBE::design_table,
+                          y = gapindex::design_table,
                           by = c("SURVEY_DEFINITION_ID", "YEAR"))
   
   for (isurvey in 1:nrow(x = survey_designs)) {
     
-    subareas <- subset(x = AFSC.GAP.DBE::new_stratum_table,
+    subareas <- subset(x = gapindex::new_stratum_table,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
                          TYPE != "STRATUM" &
@@ -31,7 +31,7 @@ calc_agg_biomass <- function(racebase_tables,
     
     for (isubarea in 1:nrow(x = subareas)) {
       strata_in_subarea <- 
-        subset(x = AFSC.GAP.DBE::new_stratum_groupings,
+        subset(x = gapindex::new_stratum_groupings,
                subset = AREA_ID %in% subareas$AREA_ID[isubarea])
       
       if (nrow(x = strata_in_subarea) > 0) {

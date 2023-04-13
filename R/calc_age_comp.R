@@ -3,7 +3,7 @@
 #' @description To be used for the GOA/AI regions. Estimates are only for the 
 #'                  entire region, not by stratum. 
 #' 
-#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()`
+#' @param racebase_tables data object created from `gapindex::get_data()`
 #' @param size_comp a dataframe of stratum abundances, result 
 #'                               object from either `calc_size_stratum_AIGOA()`
 #'                               or `calc_size_stratum_BS()` depending on the
@@ -51,7 +51,7 @@ calc_age_comp <- function(racebase_tables = NULL,
   
   ## In AIGOA, specimen from hauls where ABUNDANCE_HAUL == "N" are included in 
   ## the age composition calculation. These will not be included in the standard
-  ## call to AFSC.GAP.DBE::get_data(). After the merge call above, the years for
+  ## call to gapindex::get_data(). After the merge call above, the years for
   ## these non-abundance hauls will be NA. Here, we fill in those year values.
   specimen$YEAR <- ifelse(test = is.na(specimen$YEAR), 
                           no = specimen$YEAR,
@@ -119,12 +119,12 @@ calc_age_comp <- function(racebase_tables = NULL,
   
   ## Merge Area Descriptions
   age_comp <- merge(x = age_comp, 
-                    y = AFSC.GAP.DBE::design_table,
+                    y = gapindex::design_table,
                     by = c("SURVEY", "YEAR"))
   
   ## Attach region-specific AREA_IDs
   age_comp <- merge(x = age_comp,
-                y = subset(x = AFSC.GAP.DBE::new_stratum_table,
+                y = subset(x = gapindex::new_stratum_table,
                            subset = TYPE == "REGION",
                            select = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR", 
                                       "AREA_ID")),

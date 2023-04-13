@@ -21,7 +21,7 @@
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls (what does
 #'                        this mean?) and "N" are other hauls.
-#' @param sql_channel connection created via AFSC.GAP.DBE::get_connected()
+#' @param sql_channel connection created via gapindex::get_connected()
 #' @param pull_lengths boolean T/F. Should lengths be called? Defaults to FALSE
 #'                     for speed.
 #' 
@@ -44,7 +44,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if sql_channel = NULL
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (is.null(sql_channel)) sql_channel <- get_connected()
+  if (is.null(sql_channel)) sql_channel <- gapindex::get_connected()
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   2) Pull cruise data
@@ -62,11 +62,11 @@ get_data <- function(year_set = c(1996, 1999),
   cat("Pulling cruise data...\n")
   
   ## Query cruise data and filter survey and years of interest
-  year_vec <- AFSC.GAP.DBE::stitch_entries(stitch_what = year_set)
+  year_vec <- gapindex::stitch_entries(stitch_what = year_set)
   
   survey_def_ids <- 
     c("AI" = 52, "GOA" = 47, "EBS" = 98, "NBS" = 143)[survey_set]
-  survey_def_ids_vec <- AFSC.GAP.DBE::stitch_entries(survey_def_ids)
+  survey_def_ids_vec <- gapindex::stitch_entries(survey_def_ids)
   
   cruise_data <- 
     RODBC::sqlQuery(
@@ -86,7 +86,7 @@ get_data <- function(year_set = c(1996, 1999),
                        by = c("REGION", "CRUISE"))
   
   ## Attach DESIGN_YEAR and SURVEY to the cruise data
-  cruise_data <- merge(x = cruise_data, y = AFSC.GAP.DBE::design_table,
+  cruise_data <- merge(x = cruise_data, y = gapindex::design_table,
                        by = c("YEAR", "SURVEY_DEFINITION_ID"))
   
   ## Error Query: stop if there is no cruise data for the year and region.
@@ -107,7 +107,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Pulling stratum data...\n")
   
-  stratum_data <- subset(x = AFSC.GAP.DBE::new_stratum_table,
+  stratum_data <- subset(x = gapindex::new_stratum_table,
                          subset = TYPE == "STRATUM",
                          select = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR",
                                     "AREA_ID", "DESCRIPTION", "AREA_KM2"))
@@ -130,8 +130,8 @@ get_data <- function(year_set = c(1996, 1999),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Now pulling haul data...\n")
   
-  cruisejoin_vec <- AFSC.GAP.DBE::stitch_entries(cruise_data$CRUISEJOIN)
-  haultype_vec <- AFSC.GAP.DBE::stitch_entries(haul_type)
+  cruisejoin_vec <- gapindex::stitch_entries(cruise_data$CRUISEJOIN)
+  haultype_vec <- gapindex::stitch_entries(haul_type)
   
   haul_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
@@ -158,16 +158,16 @@ get_data <- function(year_set = c(1996, 1999),
   if (is.data.frame(x = spp_codes)) {
     if (!all(c("SPECIES_CODE", "GROUP") %in% names(x = spp_codes)))
       stop("If argument `spp_codes` is a dataframe, it must contain column names
-         `GROUP` and `SPECIES_CODE`. See ?AFSC.GAP.DBE::get_data for
+         `GROUP` and `SPECIES_CODE`. See ?gapindex::get_data for
          more details and examples.")
     
     query_spp <- avail_spp[avail_spp %in% unique(x = spp_codes$SPECIES_CODE)]
-    spp_codes_vec <- AFSC.GAP.DBE::stitch_entries(stitch_what = query_spp)
+    spp_codes_vec <- gapindex::stitch_entries(stitch_what = query_spp)
   }
   
   ## 2) a vector with SPECIES_CODES
   if (is.numeric(x = spp_codes)) {
-    spp_codes_vec <- AFSC.GAP.DBE::stitch_entries(stitch_what = spp_codes)
+    spp_codes_vec <- gapindex::stitch_entries(stitch_what = spp_codes)
     spp_codes <- data.frame(SPECIES_CODE = spp_codes, GROUP = spp_codes)
   }
   

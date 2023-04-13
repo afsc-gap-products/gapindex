@@ -3,10 +3,10 @@
 #' @description This function zero-fills the catch data and converts numbers 
 #'              and weights to CPUE.
 #' 
-#' @param racebase_tables data object created from `AFSC.GAP.DBE::get_data()``
+#' @param racebase_tables data object created from `gapindex::get_data()``
 #' 
 #' @return dataframe of weight and numerical CPUE for the region, species, and
-#'         years pulled from `AFSC.GAP.DBE::get_data()`
+#'         years pulled from `gapindex::get_data()`
 #' 
 #' @export
 #' 
