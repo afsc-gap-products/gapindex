@@ -7,9 +7,9 @@
 calc_biomass_stratum(racebase_tables = NULL, cpue = NULL, vulnerability = 1)
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{AFSC.GAP.DBE::get_data()}}
+\item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 
-\item{cpue}{object created from \code{AFSC.GAP.DBE::calc_cpue()}.}
+\item{cpue}{object created from \code{gapindex::calc_cpue()}.}
 
 \item{vulnerability}{the vulnerability of the species to the survey
 (defaults to 1).}

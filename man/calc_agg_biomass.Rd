@@ -7,10 +7,10 @@
 calc_agg_biomass(racebase_tables, biomass_strata = NULL)
 }
 \arguments{
-\item{racebase_tables}{data object created from `AFSC.GAP.DBE::get_data()``}
+\item{racebase_tables}{data object created from `gapindex::get_data()``}
 
 \item{biomass_strata}{a dataframe of stratum biomass, result object from
-\code{AFSC.GAP.DBE::calc_biomass_stratum()}}
+\code{gapindex::calc_biomass_stratum()}}
 }
 \value{
 dataframe of biomass and population abundance estimates across

@@ -33,7 +33,7 @@ purposes.
 \item{table_metadata}{Description of what the table is}
 
 \item{channel}{Establish your oracle connection using a function
-like AFSC.GAP.DBE::get_connected()}
+like gapindex::get_connected()}
 
 \item{schema}{character string. The name of the schema to save table.
 "GAP_PRODUCTS" is the schema where production tables will live.}

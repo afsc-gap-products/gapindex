@@ -7,11 +7,11 @@
 calc_agg_size_comp(racebase_tables, size_comps)
 }
 \arguments{
-\item{racebase_tables}{data object created from `AFSC.GAP.DBE::get_data()``}
+\item{racebase_tables}{data object created from `gapindex::get_data()``}
 
 \item{size_comps}{a dataframe of stratum biomass, result object from either
-\code{AFSC.GAP.DBE::calc_size_stratum_AIGOA()} or
-\code{AFSC.GAP.DBE::calc_size_stratum_BS()}}
+\code{gapindex::calc_size_stratum_AIGOA()} or
+\code{gapindex::calc_size_stratum_BS()}}
 }
 \value{
 dataframe of size composition estimates across

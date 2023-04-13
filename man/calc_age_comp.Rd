@@ -7,7 +7,7 @@
 calc_age_comp(racebase_tables = NULL, size_comp = NULL)
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{AFSC.GAP.DBE::get_data()}}
+\item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 
 \item{size_comp}{a dataframe of stratum abundances, result
 object from either \code{calc_size_stratum_AIGOA()}

@@ -1,5 +1,5 @@
-Package: AFSC.GAP.DBE
-Title: Biomass and Population Abundance Index Calculations
+Package: gapindex
+Title: Standard AFSC GAP Product Calculations
 Version: 0.0.0.9000
 Authors@R: 
     person("Zack", "Oyafuso", , "zack.oyafuso@noaa.gov", role = c("aut", "cre"))
