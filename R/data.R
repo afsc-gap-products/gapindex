@@ -2,9 +2,9 @@
 #'
 #' Consolidates stratum information from all regions (AI, GOA, EBS, NBS so far)
 #'
-#' @format ## `new_stratum_table`
+#' @format ## `area_table`
 #' 
-"new_stratum_table"
+"area_table"
 
 #' New design table
 #'
@@ -20,7 +20,7 @@
 #'
 #' DF of which strata are contained in each subarea
 #'
-#' @format ## `new_stratum_groupings`
+#' @format ## `stratum_groupings`
 #' 
-"new_stratum_groupings"
+"stratum_groupings"
 
