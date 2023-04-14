@@ -32,10 +32,10 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
         SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR, 
       data = cpue, 
       FUN = function(x) 
-        c("MEAN_WGTCPUE_KG_KM2" = mean(x, na.rm = TRUE), 
-          "VAR_WGTCPUE" = ifelse(test = length(x) < 2, 
-                                 yes = 0, 
-                                 no = stats::var(x) / length(x))))
+        c("CPUE_KGKM2_MEAN" = mean(x, na.rm = TRUE), 
+          "CPUE_KGKM2_VAR" = ifelse(test = length(x) < 2, 
+                                    yes = 0, 
+                                    no = stats::var(x) / length(x))))
   
   ## Calculate mean and variance of stratum abundance. For strata with only
   ## one station, variance is ASSUMED zero
@@ -46,11 +46,11 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
       data = cpue,
       na.action = NULL,
       FUN = function(x) 
-        c("MEAN_NUMCPUE_COUNT_KM2" = mean(x, na.rm = TRUE), 
-          "VAR_NUMCPUE" = ifelse(test = length(stats::na.omit(x)) < 2, 
-                                 yes = 0, 
-                                 no = stats::var(x, na.rm = TRUE) / 
-                                   length(stats::na.omit(x)))))
+        c("CPUE_NOKM2_MEAN" = mean(x, na.rm = TRUE), 
+          "CPUE_NOKM2_VAR" = ifelse(test = length(stats::na.omit(x)) < 2, 
+                                    yes = 0, 
+                                    no = stats::var(x, na.rm = TRUE) / 
+                                      length(stats::na.omit(x)))))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
@@ -70,19 +70,21 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   stratum_stats[, c("BIOMASS_MT", "BIOMASS_VAR", 
                     "POPULATION_COUNT", "POPULATION_VAR")] <-
     with(stratum_stats, 
-         data.frame(BIOMASS_MT = AREA_KM2 * MEAN_WGTCPUE_KG_KM2 / 
+         data.frame(BIOMASS_MT = AREA_KM2 * CPUE_KGKM2_MEAN / 
                       vulnerability * 0.001,
-                    BIOMASS_VAR = AREA_KM2^2 * VAR_WGTCPUE * 1e-6,
-                    POPULATION_COUNT = AREA_KM2 * MEAN_NUMCPUE_COUNT_KM2 / 
+                    BIOMASS_VAR = AREA_KM2^2 * CPUE_KGKM2_VAR * 1e-6,
+                    POPULATION_COUNT = AREA_KM2 * CPUE_NOKM2_MEAN / 
                       vulnerability,
-                    POPULATION_VAR = AREA_KM2^2 * VAR_NUMCPUE))
+                    POPULATION_VAR = AREA_KM2^2 * CPUE_NOKM2_VAR))
   
   ## Reorder fields, sort
-  stratum_stats <-
-    subset(x = stratum_stats,
-           select = c(SURVEY, SURVEY_DEFINITION_ID, STRATUM, SPECIES_CODE, YEAR,
-                      BIOMASS_MT, BIOMASS_VAR,
-                      POPULATION_COUNT, POPULATION_VAR))
+  stratum_stats <- subset(x = stratum_stats,
+                          select = c(SURVEY, SURVEY_DEFINITION_ID, 
+                                     STRATUM, SPECIES_CODE, YEAR,
+                                     CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
+                                     CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
+                                     BIOMASS_MT, BIOMASS_VAR, 
+                                     POPULATION_COUNT, POPULATION_VAR))
   stratum_stats <- stratum_stats[with(stratum_stats,
                                       order(YEAR, SURVEY_DEFINITION_ID,
                                             STRATUM, SPECIES_CODE)), ]

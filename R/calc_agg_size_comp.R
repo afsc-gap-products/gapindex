@@ -45,7 +45,7 @@ calc_agg_size_comp <- function(racebase_tables,
   
   for (isurvey in 1:nrow(x = survey_designs)) { 
     
-    subareas <- subset(x = gapindex::new_stratum_table,
+    subareas <- subset(x = gapindex::area_table,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
                          TYPE != "STRATUM" &
@@ -53,7 +53,7 @@ calc_agg_size_comp <- function(racebase_tables,
     
     for (isubarea in 1:nrow(x = subareas)) {
       strata_in_subarea <- 
-        subset(x = gapindex::new_stratum_groupings,
+        subset(x = gapindex::stratum_groupings,
                subset = AREA_ID %in% subareas$AREA_ID[isubarea])
       
       if (nrow(x = strata_in_subarea) > 0) {

@@ -124,7 +124,7 @@ calc_age_comp <- function(racebase_tables = NULL,
   
   ## Attach region-specific AREA_IDs
   age_comp <- merge(x = age_comp,
-                y = subset(x = gapindex::new_stratum_table,
+                y = subset(x = gapindex::area_table,
                            subset = TYPE == "REGION",
                            select = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR", 
                                       "AREA_ID")),
