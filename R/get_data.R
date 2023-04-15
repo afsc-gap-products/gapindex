@@ -82,6 +82,9 @@ get_data <- function(year_set = c(1996, 1999),
                        y = gapindex::design_table,
                        by = c("YEAR", "SURVEY_DEFINITION_ID"))
   
+  ## Remove any records with NA in teh CRUISEJOIN
+  cruise_data <- subset(x = cruise_data, subset = !is.na(CRUISEJOIN))
+  
   ## Error Query: stop if there is no cruise data for the year and region.
   if (nrow(x = cruise_data) == 0) {
     stop("No data exist for survey area '", survey_set, 
