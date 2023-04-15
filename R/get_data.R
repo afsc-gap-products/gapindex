@@ -166,8 +166,8 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## 2) a vector with SPECIES_CODES for single taxa. 
   if (is.numeric(x = spp_codes)) {
-    spp_codes <- data.frame(SPECIES_CODE = spp_codes, GROUP = spp_codes)
     spp_codes_vec <- gapindex::stitch_entries(stitch_what = spp_codes)
+    spp_codes <- data.frame(SPECIES_CODE = spp_codes, GROUP = spp_codes)
   }
   
   ## 3) NULL: usually for production purposes, in which all taxa with a 
