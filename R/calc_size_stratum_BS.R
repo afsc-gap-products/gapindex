@@ -55,6 +55,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                  subset = CRUISEJOIN %in% cruise$CRUISEJOIN)
   size <- subset(x = racebase_tables$size, 
                  subset = HAULJOIN %in% haul$HAULJOIN)
+  
   # size <- merge(x = size,
   #               y = cpue[, c("HAULJOIN", "SURVEY")],
   #               by = "HAULJOIN")
@@ -67,6 +68,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   
   ## Attach YEAR, SURVEY,  and STRATUM information from dataframe `haul to 
   ## dataframe `size` using HAULJOIN as the key.
+  
   size <- merge(x = size[, c("HAULJOIN",  "SPECIES_CODE", "LENGTH",
                              "FREQUENCY", "SEX")], 
                 y = haul[, c("HAULJOIN", "SURVEY", "YEAR", "STRATUM")],
@@ -74,7 +76,6 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   
   racebase_stratum_popn <- subset(x = racebase_stratum_popn, 
                                   SURVEY %in% c("EBS", "NBS"))
-  # racebase_stratum_popn$SPECIES_CODE <- racebase_stratum_popn$GROUP
   
   ##############################################
   ## Wakabayashi et al. 1985 Equation 16: 
@@ -186,7 +187,10 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   if (!"NUMBER.3" %in% names(P_iklm)) P_iklm$NUMBER.3 <- 0
   
   names(P_iklm)[names(P_iklm) %in% paste0("NUMBER.", 1:3)] <-
-    c("MALES", "FEMALES", "UNSEXED")
+    c("NUMBER.1" =  "MALES", 
+      "NUMBER.2" =  "FEMALES", 
+      "NUMBER.3" =  "UNSEXED")[names(P_iklm)[names(P_iklm) %in% 
+                                               paste0("NUMBER.", 1:3)]]
   
   ## Order sexes to M, F, U, TOTAL. Set NAs to zero. 
   P_iklm <- subset(P_iklm, 
