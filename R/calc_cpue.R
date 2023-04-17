@@ -13,17 +13,19 @@
 
 calc_cpue <- function(racebase_tables = NULL) {
   
+  ## Extract objects from racebase_tables
   cruisedat <- racebase_tables$cruise 
   haul <- racebase_tables$haul
   ## Attach year to haul
   haul <- merge(x = haul, 
                 y = cruisedat[, c("CRUISEJOIN", "YEAR")],
                 by = "CRUISEJOIN")
+  
   catch <- racebase_tables$catch
   species <- racebase_tables$species
   
   ## For abundance index calculations, the haul df should only have records 
-  ## where haul$ABUNDANCE_HAUL==Y. This check is just a warning to the user.
+  ## where haul$ABUNDANCE_HAUL == "Y". This check is just a warning to the user.
   if (any(haul$ABUNDANCE_HAUL == "N")) {
     warning(paste0("`haul` dataframe in argument `racebase_tables`` contains ",
                    "records where haul$abundance_haul == 'N'. Standard ",
@@ -31,24 +33,27 @@ calc_cpue <- function(racebase_tables = NULL) {
                    "haul$abundance_haul == 'Y'. "))
   }
   
-  ## Merge cruise data with haul data using the CRUISEJOIN as the key.
+  ## Merge "SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR" columns from 
+  ## `cruisedat` to `haul` using "CRUISEJOIN" as the key.
   dat <- merge(x = haul,
                y = cruisedat[, c("CRUISEJOIN", "SURVEY", 
                                  "SURVEY_DEFINITION_ID", "DESIGN_YEAR")],
-               by = "CRUISEJOIN" )
+               by = "CRUISEJOIN")
   
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
-  ## first create a table of all combos of HAULJOIN and SPECIES_CODE.
+  ## first create a table called `all_combos` of "HAULJOIN" and "SPECIES_CODE"
   all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
                             SPECIES_CODE = sort(unique(species$GROUP)))
   
-  ## Then merge the all_combos table with dat
+  ## Then merge the haul data in `dat` to `all_combos` using "HAULJOIN"
+  ## as the key.
   dat <- merge(x = all_combos, 
                y = dat, 
-               by = c("HAULJOIN"), 
+               by = "HAULJOIN", 
                all.x = TRUE)
   
-  ## Merge catch data with dat using the HAULJOIN AND SPECIES_CODE as the key
+  ## Merge `catch` with `dat` using the "HAULJOIN" AND "SPECIES_CODE" 
+  ## as a composite key
   dat <- merge(x = dat,
                y = catch[, c("HAULJOIN", "SPECIES_CODE", 
                              "WEIGHT", "NUMBER_FISH")], 
