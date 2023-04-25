@@ -10,7 +10,7 @@
 #' @export
 #'
 
-calc_agg_size_comp <- function(racebase_tables, 
+calc_sizecomp_subareas <- function(racebase_tables, 
                                size_comps) {
   
   ## Error checks

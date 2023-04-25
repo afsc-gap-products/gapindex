@@ -12,9 +12,9 @@
 #' @export
 #' 
 
-calc_size_stratum_BS <- function(racebase_tables = NULL,
-                                 racebase_cpue = NULL,
-                                 racebase_stratum_popn = NULL) {
+calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
+                                     racebase_cpue = NULL,
+                                     racebase_stratum_popn = NULL) {
   
   ## Error Check
   if (is.null(x = racebase_tables$size)) 
@@ -55,17 +55,7 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                  subset = CRUISEJOIN %in% cruise$CRUISEJOIN)
   size <- subset(x = racebase_tables$size, 
                  subset = HAULJOIN %in% haul$HAULJOIN)
-  
-  # size <- merge(x = size,
-  #               y = cpue[, c("HAULJOIN", "SURVEY")],
-  #               by = "HAULJOIN")
-  
-  # catch <- subset(x = racebase_tables$catch,
-  #                 subset = HAULJOIN %in% haul$HAULJOIN)
-  # catch$SPECIES_CODE <- catch$GROUP
-  # catch <- merge(x = catch,
-  #               y = cruise[, c("CRUISEJOIN", "SURVEY")])
-  
+
   ## Attach YEAR, SURVEY,  and STRATUM information from dataframe `haul to 
   ## dataframe `size` using HAULJOIN as the key.
   
@@ -80,21 +70,20 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   ##############################################
   ## Wakabayashi et al. 1985 Equation 16: 
   ##############################################
-  ## At each station with length-frequency records, the number of samples
+  ## At each station with length-frequency records, the number of individuals
   ##     within each sex/length class was estimated by expanding the 
   ##     length-frequency subsample to the total catch (per area swept). 
-  ##     This is S_ijklm, the estimated number of individuals of sex-m and 
-  ##     length-l of species-k in station-j in stratum-i.
+  ##     This is S_ijklm, the estimated number of individuals of species-k 
+  ##     with sex-m and length-l caught at station-j within stratum-i.
   ##
   ## s_ijklm is the FREQUENCY column of the size df, the number of records
   ##     of sex-m and length-l of species-k recorded at station-j in stratum-i
-  ## s_ijk is the frequency of recorded indidivuals in  summed over 
-  ##        sex, and length class, the number of individuals of species-k 
-  ##        recorded at station-j in stratum-i summed over length and sex 
-  ##        classes
+  ## s_ijk is the frequency of recorded individuals summed over sex and length
+  ##        class, i.e., the number of individuals of species-k recorded 
+  ##        at station-j in stratum-i summed over all length and sex classes
   ## S_ijk is the estimated numbers per area swept from the cpue df
   ##     of species-k at station-j in stratum-i. The notation S_ijk is not 
-  ##     used below, instead NUMCPUE_IND_KM2 is used. 
+  ##     used below, instead CPUE_NOKM2 is used. 
   ##
   ## s_ijk and NUMCPUE_IND_KM2 are merged into the size df by joining 
   ##     via the HAULJOIN value and species code so that calculations can
@@ -122,10 +111,9 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
   ## 
   ## S_ijklm is summed over hauls-j, creating S_iklm and this is divided
   ##    by S_ik, which is S_ijklm summed over hauls-j, sex-m, and length-l.
-  ## S_iklm / S_ik is the proportion of the stratum population, P_ik (noted
-  ##    as racebase_stratum_popn$pop below) that is attributed to sex-m
-  ##    and length-l for species-k in stratum-i. When multiplied by P_ik, 
-  ##    we get P_iklm.
+  ## S_iklm / S_ik is the proportion of the stratum population attributed 
+  ##    to sex-m and length-l for species-k in stratum-i. When multiplied by 
+  ##    P_ik, we get P_iklm.
   ##
   ## P_ik (racebase_stratum_popn$pop) and S_ik are merged into the S_iklm
   ##    df via the year, stratum, and species_code values. Wakabayashi et al.
@@ -174,50 +162,67 @@ calc_size_stratum_BS <- function(racebase_tables = NULL,
                    subset = NUMBER > 0,
                    select = -c(S_iklm, S_ik, POPULATION_COUNT))
   
-  ## Widen output tables so each sex is a column
-  P_iklm <- 
-    stats::reshape(data = S_iklm, 
-                   v.names = "NUMBER", 
-                   idvar = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE", 
-                             "LENGTH"),
-                   timevar = "SEX", 
-                   direction = "wide")
-  
-  ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
-  if (!"NUMBER.3" %in% names(P_iklm)) P_iklm$NUMBER.3 <- 0
-  
-  names(P_iklm)[names(P_iklm) %in% paste0("NUMBER.", 1:3)] <-
-    c("NUMBER.1" =  "MALES", 
-      "NUMBER.2" =  "FEMALES", 
-      "NUMBER.3" =  "UNSEXED")[names(P_iklm)[names(P_iklm) %in% 
-                                               paste0("NUMBER.", 1:3)]]
-  
-  ## Order sexes to M, F, U, TOTAL. Set NAs to zero. 
-  P_iklm <- subset(P_iklm, 
-                   select = c(SURVEY, YEAR, STRATUM, SPECIES_CODE, LENGTH,   
-                              MALES, FEMALES, UNSEXED))
-  na_idx <- is.na(P_iklm[, c("MALES", "FEMALES", "UNSEXED")])
-  P_iklm[, c("MALES", "FEMALES", "UNSEXED")][na_idx] <- 0
-  
-  ## Calculate total over sexes
-  P_iklm$TOTAL <- 
-    rowSums(x = P_iklm[, c("MALES", "FEMALES", "UNSEXED")],
-            na.rm = TRUE)
-  
-  ## Reorder rows by size
-  P_iklm <- P_iklm[order(P_iklm$SURVEY, P_iklm$YEAR, P_iklm$STRATUM, 
-                         P_iklm$SPECIES_CODE, P_iklm$LENGTH), ]
-  
-  ## Add units to LENGTH column name
-  names(P_iklm)[names(P_iklm) == "LENGTH"] <- "LENGTH_MM"
-  
+  ## Rename "NUMBER" column back to "POPULATION_COUNT"
+  names(S_iklm)[names(S_iklm) == "NUMBER"] <- "POPULATION_COUNT"
+
+  # ## Add units to LENGTH column name
+  names(S_iklm)[names(S_iklm) == "LENGTH"] <- "LENGTH_MM"
+
   ## Add SURVEY_DEFINITION_ID to output
-  P_iklm <- merge(x = P_iklm, y = racebase_tables$survey, by = "SURVEY")
+  S_iklm <- merge(x = S_iklm, 
+                  y = racebase_tables$survey, 
+                  by = "SURVEY")
+
+
+  return(subset(x = S_iklm,
+                select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
+                           SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT) ))
   
-  ## Rearrnge columns
-  P_iklm <- P_iklm[, c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", 
-                       "STRATUM", "SPECIES_CODE", "LENGTH_MM", 
-                       "MALES", "FEMALES", "UNSEXED", "TOTAL")] 
+  ## Widen output tables so each sex is a column
+  # P_iklm <- 
+  #   stats::reshape(data = S_iklm, 
+  #                  v.names = "NUMBER", 
+  #                  idvar = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE", 
+  #                            "LENGTH"),
+  #                  timevar = "SEX", 
+  #                  direction = "wide")
   
-  return(P_iklm)
+  # ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
+  # if (!"NUMBER.3" %in% names(P_iklm)) P_iklm$NUMBER.3 <- 0
+  # 
+  # names(P_iklm)[names(P_iklm) %in% paste0("NUMBER.", 1:3)] <-
+  #   c("NUMBER.1" =  "MALES", 
+  #     "NUMBER.2" =  "FEMALES", 
+  #     "NUMBER.3" =  "UNSEXED")[names(P_iklm)[names(P_iklm) %in% 
+  #                                              paste0("NUMBER.", 1:3)]]
+  # 
+  # ## Order sexes to M, F, U, TOTAL. Set NAs to zero. 
+  # P_iklm <- subset(P_iklm, 
+  #                  select = c(SURVEY, YEAR, STRATUM, SPECIES_CODE, LENGTH,   
+  #                             MALES, FEMALES, UNSEXED))
+  # na_idx <- is.na(P_iklm[, c("MALES", "FEMALES", "UNSEXED")])
+  # P_iklm[, c("MALES", "FEMALES", "UNSEXED")][na_idx] <- 0
+  # 
+  # ## Calculate total over sexes
+  # P_iklm$TOTAL <- 
+  #   rowSums(x = P_iklm[, c("MALES", "FEMALES", "UNSEXED")],
+  #           na.rm = TRUE)
+  # 
+  # ## Reorder rows by size
+  # P_iklm <- P_iklm[order(P_iklm$SURVEY, P_iklm$YEAR, P_iklm$STRATUM, 
+  #                        P_iklm$SPECIES_CODE, P_iklm$LENGTH), ]
+  # 
+  # ## Add units to LENGTH column name
+  # names(P_iklm)[names(P_iklm) == "LENGTH"] <- "LENGTH_MM"
+  # 
+  ## Add SURVEY_DEFINITION_ID to output
+  # P_iklm <- merge(x = P_iklm, y = racebase_tables$survey, by = "SURVEY")
+  # 
+  # ## Rearrnge columns
+  # P_iklm <- P_iklm[, c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR",
+  #                      "STRATUM", "SPECIES_CODE", "LENGTH_MM", "SEX"#,
+  #                      # "MALES", "FEMALES", "UNSEXED", "TOTAL"
+  #                      )]
+  
+  # return(P_iklm)
 }

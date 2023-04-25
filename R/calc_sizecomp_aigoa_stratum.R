@@ -11,9 +11,9 @@
 #' @export
 #' 
 
-calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
-                                    racebase_cpue = NULL,
-                                    racebase_stratum_popn = NULL) {
+calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
+                                        racebase_cpue = NULL,
+                                        racebase_stratum_popn = NULL) {
   
   ## Error Check
   if (is.null(racebase_tables$size)) 
@@ -205,44 +205,49 @@ calc_size_stratum_AIGOA <- function(racebase_tables = NULL,
                                 data = size,
                                 FUN = function(x) round(x = sum(x)))
   
-  ## Widen the size_comp df so that each sex is a column.
-  size_comp <- stats::reshape(data = size_comp, 
-                              v.names = "NUMBER", 
-                              idvar = c("SURVEY", "YEAR", 'STRATUM', 
-                                        "SPECIES_CODE", "LENGTH"),
-                              timevar = "SEX", 
-                              direction = "wide")
-  
-  ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
-  if (!"NUMBER.3" %in% names(size_comp)) size_comp$NUMBER.3 <- 0
-  
-  names(size_comp)[names(size_comp) %in% paste0("NUMBER.", 1:3)] <-
-    c("NUMBER.1" = "MALES", 
-      "NUMBER.2" =  "FEMALES", 
-      "NUMBER.3" = "UNSEXED")[names(size_comp)[names(size_comp) %in% paste0("NUMBER.", 1:3)]]
-  
-  ## Order sexes to M, F, U. Set NAs to zero. 
-  size_comp <- subset(size_comp, 
-                      select = c(SURVEY, YEAR, STRATUM, SPECIES_CODE, LENGTH,   
-                                 MALES, FEMALES, UNSEXED))
-  na_idx <- is.na(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
-  size_comp[, c("MALES", "FEMALES", "UNSEXED")][na_idx] <- 0
-  
-  ## Calculate total over sexes
-  size_comp$TOTAL <- rowSums(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
-  
+  # ## Widen the size_comp df so that each sex is a column.
+  # size_comp <- stats::reshape(data = size_comp, 
+  #                             v.names = "NUMBER", 
+  #                             idvar = c("SURVEY", "YEAR", 'STRATUM', 
+  #                                       "SPECIES_CODE", "LENGTH"),
+  #                             timevar = "SEX", 
+  #                             direction = "wide")
+  # 
+  # ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
+  # if (!"NUMBER.3" %in% names(size_comp)) size_comp$NUMBER.3 <- 0
+  # 
+  # names(size_comp)[names(size_comp) %in% paste0("NUMBER.", 1:3)] <-
+  #   c("NUMBER.1" = "MALES", 
+  #     "NUMBER.2" =  "FEMALES", 
+  #     "NUMBER.3" = "UNSEXED")[names(size_comp)[names(size_comp) %in% 
+  #                                                paste0("NUMBER.", 1:3)]]
+  # 
+  # ## Order sexes to M, F, U. Set NAs to zero. 
+  # size_comp <- subset(size_comp, 
+  #                     select = c(SURVEY, YEAR, STRATUM, SPECIES_CODE, LENGTH,   
+  #                                MALES, FEMALES, UNSEXED))
+  # na_idx <- is.na(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
+  # size_comp[, c("MALES", "FEMALES", "UNSEXED")][na_idx] <- 0
+  # 
+  # ## Calculate total over sexes
+  # size_comp$TOTAL <- rowSums(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
+  # 
   ## Add units to LENGTH column name
   names(size_comp)[names(size_comp) == "LENGTH"] <- "LENGTH_MM"
+  ## Change column name "NUMBER" to "POPULATION_COUNT"
+  names(size_comp)[names(size_comp) == "NUMBER"] <- "POPULATION_COUNT"
   
-  ## Add SURVEY_DEFINITION_ID to output
+  # ## Add SURVEY_DEFINITION_ID to output
   size_comp <- merge(x = size_comp, y = racebase_tables$survey, by = "SURVEY")
-  
+
   ## Rearrnge columns
-  size_comp <- size_comp[, c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", 
-                             "STRATUM", "SPECIES_CODE", "LENGTH_MM", 
-                             "MALES", "FEMALES", "UNSEXED", "TOTAL")] 
-  
-  return(size_comp[with(size_comp, 
-                        order(SPECIES_CODE, YEAR, SURVEY, 
+  size_comp <- size_comp[, c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR",
+                             "STRATUM", "SPECIES_CODE", "LENGTH_MM", "SEX",
+                             "POPULATION_COUNT"#,
+                             # "MALES", "FEMALES", "UNSEXED", "TOTAL"
+                             )]
+
+  return(size_comp[with(size_comp,
+                        order(SPECIES_CODE, YEAR, SURVEY,
                               STRATUM, LENGTH_MM)), ])
 }
