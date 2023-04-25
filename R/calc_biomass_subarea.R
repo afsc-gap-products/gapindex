@@ -9,8 +9,17 @@
 #' @export
 #' 
 
-calc_agg_biomass <- function(racebase_tables,
-                             biomass_strata = NULL) {
+calc_biomass_subarea <- function(racebase_tables = NULL,
+                                 biomass_strata = NULL) {
+  
+  ## Argument checks
+  if (is.null(x = racebase_tables))
+    stop("Must provide argument `racebase_tables` a named list from 
+         gapindex::get_data().")
+  
+  if (is.null(x = biomass_strata))
+    stop("Must provide argument `biomass_strata` dataframe from
+         gapindex::calc_biomass_stratum().")
   
   ## Which survey designs to pull from
   subarea_biomass <- data.frame()
@@ -80,7 +89,7 @@ calc_agg_biomass <- function(racebase_tables,
         subarea_summed_biomass$CPUE_KGKM2_VAR <- 
           subarea_summed_biomass$BIOMASS_VAR / 
           subarea_summed_biomass$TOT_AREA^2 * 1e6
-         
+        
         subarea_summed_biomass$CPUE_NOKM2_VAR <- 
           subarea_summed_biomass$POPULATION_VAR / 
           subarea_summed_biomass$TOT_AREA^2 
@@ -107,26 +116,6 @@ calc_agg_biomass <- function(racebase_tables,
               only includes years 1987-2023. Starting from 2023, total biomass
               across NMFS areas will only be reported.")
   }
-  
-  ## Remove EBS + NW strata pre-1987 as these aren't used. Test that I don't need this bit of code. 
-  # if (any(subarea_biomass$YEAR < 1987 & 
-  #         subarea_biomass$SURVEY_DEFINITION_ID == 98)) {
-  #   warning("The (EBS + NW) output only includes years 1987-present.
-  #     Years 1982-1986 are NOT included for the (EBS + NW) output because
-  #     essentially no stations within strata 82 & 90 (subarea 8 & 9)
-  #     were sampled during those years. Biomass/Abundance estimates for 
-  #     these early years were removed.")
-  #   
-  #   EBS_PLUSNW_subareas <- grep(x = subarea_biomass$DESCRIPTION, 
-  #                               pattern = "EBS Standard Plus NW Region", 
-  #                               value = TRUE)
-  #   
-  #   subarea_biomass <- 
-  #     subset(x = subarea_biomass, 
-  #            subset = !(SURVEY == "EBS" & 
-  #                         YEAR < 1987 & 
-  #                         DESCRIPTION %in% EBS_PLUSNW_subareas))
-  # }
   
   return(subarea_biomass)
 }
