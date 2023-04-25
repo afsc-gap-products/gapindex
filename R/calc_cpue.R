@@ -13,6 +13,10 @@
 
 calc_cpue <- function(racebase_tables = NULL) {
   
+  if (is.null(x = racebase_tables))
+    stop("Must provide argument `racebase_tables` a named list from 
+         gapindex::get_data().")
+  
   ## Extract objects from racebase_tables
   cruisedat <- racebase_tables$cruise 
   haul <- racebase_tables$haul
@@ -82,12 +86,12 @@ calc_cpue <- function(racebase_tables = NULL) {
                          SPECIES_CODE,
                          WEIGHT_KG = WEIGHT,
                          COUNT = NUMBER_FISH,
-                         AREASWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
+                         AREA_SWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
   
   ## CPUE calculations
   dat <- cbind(dat,
-               with(dat, data.frame(CPUE_KGKM2 = WEIGHT_KG / AREASWEPT_KM2,
-                                    CPUE_NOKM2 = COUNT / AREASWEPT_KM2)))
+               with(dat, data.frame(CPUE_KGKM2 = WEIGHT_KG / AREA_SWEPT_KM2,
+                                    CPUE_NOKM2 = COUNT / AREA_SWEPT_KM2)))
   
   return(dat)
 }
