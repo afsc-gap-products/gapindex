@@ -10,8 +10,12 @@
 #' @export
 #'
 
+racebase_tables = production_data
+size_comps = rbind(sizecomp_bs_stratum,
+                   sizecomp_aigoa_stratum)
+
 calc_sizecomp_subareas <- function(racebase_tables, 
-                               size_comps) {
+                                   size_comps) {
   
   ## Error checks
   # if (is.null(size_comps))
@@ -65,8 +69,8 @@ calc_sizecomp_subareas <- function(racebase_tables,
                    STRATUM %in% strata_in_subarea$STRATUM)
         
         subarea_summed_sizecomp <- 
-          stats::aggregate(cbind(MALES, FEMALES, UNSEXED, TOTAL) ~
-                             YEAR + SPECIES_CODE + LENGTH_MM,
+          stats::aggregate(POPULATION_COUNT ~ 
+                             YEAR + SPECIES_CODE + SEX + LENGTH_MM,
                            data = subarea_size_comp,
                            FUN = sum)
         
@@ -75,8 +79,9 @@ calc_sizecomp_subareas <- function(racebase_tables,
             subarea_size_comp_df,
             cbind(data.frame(AREA_ID = subareas$AREA_ID[isubarea],
                              SURVEY_DEFINITION_ID = subareas$SURVEY[isubarea]),
-                  subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", "LENGTH_MM", 
-                                              "MALES", "FEMALES", "UNSEXED")]))
+                  subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", 
+                                              "SEX", "LENGTH_MM", 
+                                              "POPULATION_COUNT")]))
       }
     }
   }
@@ -85,6 +90,7 @@ calc_sizecomp_subareas <- function(racebase_tables,
                                     subarea_size_comp_df$AREA_ID,
                                     subarea_size_comp_df$SPECIES_CODE,
                                     subarea_size_comp_df$YEAR,
+                                    subarea_size_comp_df$SEX,
                                     subarea_size_comp_df$LENGTH_MM), ])
 }
 
