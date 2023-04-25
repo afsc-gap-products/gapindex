@@ -11,7 +11,7 @@ upload_oracle(
   table_metadata = NULL,
   channel = NULL,
   schema = NULL,
-  update_table = TRUE,
+  append_table = NULL,
   update_metadata = TRUE,
   share_with_all_users = TRUE
 )
@@ -38,14 +38,14 @@ like gapindex::get_connected()}
 \item{schema}{character string. The name of the schema to save table.
 "GAP_PRODUCTS" is the schema where production tables will live.}
 
-\item{update_table}{boolean. Default = TRUE. Save or drop and save the
-table in Oracle.}
-
-\item{update_metadata}{boolean. Default = TRUE. Add table and column
-metadata to the tables.}
+\item{append_table}{boolean. If TRUE, appends to an existing table, otherwise a
+new table is created.}
 
 \item{share_with_all_users}{boolean. Default = TRUE. Give all users in
 oracle view permissions.}
+
+\item{update_table}{boolean. Default = TRUE. Save or drop and save the
+table in Oracle.}
 }
 \value{
 

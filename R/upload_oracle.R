@@ -19,8 +19,8 @@
 #'               "GAP_PRODUCTS" is the schema where production tables will live.   
 #' @param update_table boolean. Default = TRUE. Save or drop and save the 
 #'                     table in Oracle. 
-#' @param update_metadata boolean. Default = TRUE. Add table and column 
-#'                        metadata to the tables. 
+#' @param append_table boolean. If TRUE, appends to an existing table, otherwise a 
+#'               new table is created.
 #' @param share_with_all_users boolean. Default = TRUE. Give all users in 
 #'                             oracle view permissions. 
 #'
@@ -34,7 +34,7 @@ upload_oracle <- function(x = NULL,
                           table_metadata = NULL,
                           channel = NULL, 
                           schema = NULL, 
-                          update_table = TRUE, 
+                          append_table = NULL,
                           update_metadata = TRUE,
                           share_with_all_users = TRUE) {
   
@@ -77,40 +77,41 @@ upload_oracle <- function(x = NULL,
              sum(!is.na(x = metadata_column$colname)), "\n\n"))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   Update Table
+  ##   Initiate table if it is new
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  if (update_table) {
-    start_time <- Sys.time()
-    cat(paste0("Updating Table ", table_name, " ... "))
-    ## If table is currently in the schema, drop the table before re-uploading
+  start_time <- Sys.time()
+  if (!append_table) {
+    cat(paste0("Creating or overwriting new table: ", schema, ".", table_name, "\n"))
+    
+    ## If table is currently in the schema, drop (delete) the table
     existing_tables <- 
       unlist(RODBC::sqlQuery(channel = channel, 
                              query = "SELECT table_name FROM user_tables;")) 
     if (table_name %in% existing_tables) 
       RODBC::sqlDrop(channel = channel, sqtable = table_name)
-    
-    ## Format metadata as a named vector to be inputted as argument 
-    ## `varTypes` in RODBC::sqlSave()
-    metadata_column <- subset(x = metadata_column,
-                              subset = !is.na(colname))
-    
-    vartype_vec <- stats::setNames(object = metadata_column$datatype,
-                                   nm = metadata_column$colname)
-    
-    ## Assign the dataframe `x` to the table_name
-    assign(x = table_name, value = x)
-    
-    ## Add the table to the schema
-    eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
-                             table_name, ", varTypes = vartype_vec, ",
-                             "rownames = FALSE)")))
-    
-    end_time <- Sys.time()
-    cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
-              units(end_time - start_time), "\n"))
   }
-
+  
+  cat(paste0("Updating Table ", schema, ".", table_name, " ... "))
+  
+  ## Format metadata as a named vector to be inputted as argument 
+  ## `varTypes` in RODBC::sqlSave()
+  metadata_column <- subset(x = metadata_column,
+                            subset = !is.na(colname))
+  
+  vartype_vec <- stats::setNames(object = metadata_column$datatype,
+                                 nm = metadata_column$colname)
+  
+  ## Assign the dataframe `x` to the table_name
+  assign(x = table_name, value = x)
+  
+  ## Add the table to the schema
+  eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
+                           table_name, ", varTypes = vartype_vec, ",
+                           "rownames = FALSE, append = ", append_table, ")")))
+  
+  end_time <- Sys.time()
+  cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
+            units(end_time - start_time), "\n"))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Update Metadata
@@ -153,7 +154,7 @@ upload_oracle <- function(x = NULL,
   ##   Grant select access to all users
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (share_with_all_users) {
-    start_time <- Sys.time()
+
     cat("Granting select access to all users ... ")
     all_schemas <- RODBC::sqlQuery(channel = channel,
                                    query = paste0('SELECT * FROM all_users;'))
@@ -164,9 +165,6 @@ upload_oracle <- function(x = NULL,
                                      ' to ', iname, ';'))
     }
     
-    end_time <- Sys.time()
-    cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
-              units(end_time - start_time), "\n"))
   }
-cat("Finished\n")
+  cat("Finished\n")
 }
