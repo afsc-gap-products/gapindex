@@ -35,18 +35,18 @@ of survey_set and year_set}
 \item{haul_type}{integer. Defaults to haul type "3" for Standard bottom
 sample (preprogrammed station) used for biomass estimation}
 
-\item{abundance_haul}{character string. "Y" are abundance hauls (what does
-this mean?) and "N" are other hauls.}
+\item{abundance_haul}{character string. "Y" are abundance hauls and "N" are
+other hauls.}
 
 \item{sql_channel}{connection created via gapindex::get_connected()}
 
-\item{pull_lengths}{boolean T/F. Should lengths be called? Defaults to FALSE
-for speed.}
+\item{pull_lengths}{boolean T/F. Should lengths and specimen data be pulled?
+Defaults to FALSE for speed.}
 }
 \value{
-a named list containing cruise, haul, catch, specimen,
-optional size (length), and stratum information
-for the region, years, and species of interest.
+a named list containing survey, cruise, haul, catch, specimen (if
+pull_lengths == TRUE), length (if pull_lengths == TRUE), species,
+stratum information for the survey, years, and species of interest.
 }
 \description{
 Pulls cruise, haul, catch, and stratum information for the

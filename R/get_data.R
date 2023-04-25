@@ -19,18 +19,18 @@
 #'                     of survey_set and year_set
 #' @param haul_type integer. Defaults to haul type "3" for Standard bottom 
 #'                  sample (preprogrammed station) used for biomass estimation
-#' @param abundance_haul character string. "Y" are abundance hauls (what does
-#'                        this mean?) and "N" are other hauls.
+#' @param abundance_haul character string. "Y" are abundance hauls and "N" are 
+#'                       other hauls.
 #' @param sql_channel connection created via gapindex::get_connected()
-#' @param pull_lengths boolean T/F. Should lengths be called? Defaults to FALSE
-#'                     for speed.
+#' @param pull_lengths boolean T/F. Should lengths and specimen data be pulled? 
+#'                     Defaults to FALSE for speed.
 #' 
-#' @return a named list containing cruise, haul, catch, specimen,  
-#'         optional size (length), and stratum information 
-#'         for the region, years, and species of interest. 
+#' @return a named list containing survey, cruise, haul, catch, specimen (if
+#'         pull_lengths == TRUE), length (if pull_lengths == TRUE), species, 
+#'         stratum information for the survey, years, and species of interest. 
 #' 
 #' @export
-#' 
+#'  
 
 get_data <- function(year_set = c(1996, 1999),
                      survey_set = NULL,
