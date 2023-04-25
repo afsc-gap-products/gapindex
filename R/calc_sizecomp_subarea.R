@@ -10,10 +10,6 @@
 #' @export
 #'
 
-racebase_tables = production_data
-size_comps = rbind(sizecomp_bs_stratum,
-                   sizecomp_aigoa_stratum)
-
 calc_sizecomp_subareas <- function(racebase_tables, 
                                    size_comps) {
   
