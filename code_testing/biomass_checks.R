@@ -12,24 +12,25 @@ rm(list = ls())
 ##   Import Library
 ##   Connect to Oracle
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-library(AFSC.GAP.DBE)
-sql_channel <- AFSC.GAP.DBE::get_connected()
+library(gapindex)
+sql_channel <- gapindex::get_connected()
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Get biomass stratum from Oracle
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for (ireg in c("GOA", "AI", "EBS_SHELF", "EBS_PLUSNW", "NBS_SHELF")[]) {
+for (ireg in c("GOA", "AI", "EBS", "NBS")[]) {
   
   stratum_query <- paste0("select * from ", 
                           c("GOA" = "GOA.BIOMASS_STRATUM", 
                             "AI" = "AI.BIOMASS_STRATUM",
                             "EBS_SHELF" = "HAEHNR.BIOMASS_EBS_STANDARD",
                             "EBS_PLUSNW" = "HAEHNR.BIOMASS_EBS_PLUSNW",
-                            "NBS_SHELF" = "HAEHNR.BIOMASS_NBS_AKFIN")[ireg])
+                            "NBS_SHELF" = "HAEHNR.BIOMASS_NBS_AKFIN")[ireg],
+                          " WHERE YEAR = ", iyear, 
+                          " AND SPECIES_CODE = ", ispp)
   
-  db_stratum <- RODBC::sqlQuery(
-    channel = sql_channel, 
-    query = stratum_query)
+  db_stratum <- RODBC::sqlQuery(channel = sql_channel, 
+                                query = stratum_query)
   
   db_stratum$REGION <- ireg
   
@@ -98,13 +99,13 @@ for (ireg in c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")[]) {
                                             species_code = spp_range))
       }
     }
-
+    
     
     n_aggs <- sort(unique(na.omit(species_of_interest$SUMMARY_GROUP)))
     
     for (iagg in n_aggs) {
       temp_agg <- subset(x = species_of_interest, 
-                          subset = SUMMARY_GROUP == iagg)
+                         subset = SUMMARY_GROUP == iagg)
       temp_exclude <- subset(x = species_of_interest, 
                              subset = NOT_TO_INCLUDE == iagg)$SPECIES_CODE
       
@@ -128,12 +129,12 @@ for (ireg in c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")[]) {
   
   if (ireg %in% c("EBS_SHELF", "NBS_SHELF")) {
     species_of_interest <-
-    data.frame(species_code = sort(unique(
-      get(paste0(ireg, "_db_stratum"))$SPECIES_CODE)),
-      group = sort(unique(
-        get(paste0(ireg, "_db_stratum"))$SPECIES_CODE)))
+      data.frame(species_code = sort(unique(
+        get(paste0(ireg, "_db_stratum"))$SPECIES_CODE)),
+        group = sort(unique(
+          get(paste0(ireg, "_db_stratum"))$SPECIES_CODE)))
   }
-
+  
   
   racebase_data <- AFSC.GAP.DBE::get_data( 
     year_set = sort(unique(get(paste0(ireg, "_db_stratum"))$YEAR)),
