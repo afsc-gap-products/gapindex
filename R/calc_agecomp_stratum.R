@@ -61,21 +61,21 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Narrow `size_comp` so each record refers to a sex/length combo
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  size_comp <- rbind(data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
-                                              'SPECIES_CODE', "LENGTH_MM")],
-                                SEX = 1, 
-                                sizepop = size_comp$MALES),
-                     data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
-                                              'SPECIES_CODE', "LENGTH_MM")],
-                                SEX = 2, 
-                                sizepop = size_comp$FEMALES),
-                     data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
-                                              'SPECIES_CODE', "LENGTH_MM")],
-                                SEX = 3,
-                                sizepop = size_comp$UNSEXED)
-  )
+  # size_comp <- rbind(data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
+  #                                             'SPECIES_CODE', "LENGTH_MM")],
+  #                               SEX = 1, 
+  #                               sizepop = size_comp$MALES),
+  #                    data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
+  #                                             'SPECIES_CODE', "LENGTH_MM")],
+  #                               SEX = 2, 
+  #                               sizepop = size_comp$FEMALES),
+  #                    data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
+  #                                             'SPECIES_CODE', "LENGTH_MM")],
+  #                               SEX = 3,
+  #                               sizepop = size_comp$UNSEXED)
+  # )
   ## Remove zero records
-  size_comp <- subset(x = size_comp, subset = sizepop > 0)
+  # size_comp <- subset(x = size_comp, subset = sizepop > 0)
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Aggregate specimen information: s_yklm will be the total number 
@@ -138,7 +138,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   
   ## Calculate numbers at age as the product of the age_frac and the numbers 
   ## at length
-  age_comp$AGEPOP <- age_comp$age_frac * age_comp$sizepop
+  age_comp$AGEPOP <- age_comp$age_frac * age_comp$POPULATION_COUNT
   
   count_length_age <- age_comp
   
