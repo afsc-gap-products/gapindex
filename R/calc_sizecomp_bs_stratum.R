@@ -173,7 +173,9 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
                   y = racebase_tables$survey, 
                   by = "SURVEY")
 
-
+  ## For those -9 Length records with SEX = 4, change value of SEX to 3
+  S_iklm$SEX[S_iklm$SEX == 4] <- 3
+  
   return(subset(x = S_iklm,
                 select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
                            SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT) ))
