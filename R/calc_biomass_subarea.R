@@ -64,7 +64,8 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                                  POPULATION_VAR) ~
                              SPECIES_CODE + YEAR,
                            data = subarea_biomass_by_stratrum,
-                           FUN = sum)
+                           FUN = sum,
+                           na.rm = TRUE)
         
         subarea_mean_cpue <- 
           do.call(what = rbind, 

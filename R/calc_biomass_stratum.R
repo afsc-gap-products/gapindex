@@ -48,9 +48,11 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
       FUN = function(x) 
         c("CPUE_NOKM2_MEAN" = mean(x, na.rm = TRUE), 
           "CPUE_NOKM2_VAR" = ifelse(test = length(stats::na.omit(x)) < 2, 
-                                    yes = 0, 
+                                    yes = NA, 
                                     no = stats::var(x, na.rm = TRUE) / 
-                                      length(stats::na.omit(x)))))
+                                      length(stats::na.omit(x))) 
+          
+          ))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
@@ -79,7 +81,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   
   ## Reorder fields, sort
   stratum_stats <- subset(x = stratum_stats,
-                          select = c(SURVEY, SURVEY_DEFINITION_ID, 
+                          select = c(SURVEY_DEFINITION_ID, 
                                      STRATUM, SPECIES_CODE, YEAR,
                                      CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
                                      CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
