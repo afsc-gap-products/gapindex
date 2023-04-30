@@ -248,6 +248,6 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
                              )]
 
   return(size_comp[with(size_comp,
-                        order(SPECIES_CODE, YEAR, SURVEY,
+                        order(SPECIES_CODE, YEAR, SURVEY_DEFINITION_ID,
                               STRATUM, LENGTH_MM)), ])
 }
