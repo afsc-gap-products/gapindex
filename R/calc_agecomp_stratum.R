@@ -47,12 +47,12 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                           no = specimen$YEAR,
                           yes = as.numeric(substr(x = specimen$CRUISE, 
                                                   start = 1, stop = 4)))
+
   
   ## TEST -- delete ---
   ## Remove specimen with no STRATUM data IN 2018, THESE ARE NBS HAULS?
-  # specimen <- specimen[!(specimen$YEAR %in% c(1987, 1991, 2000, 2002, 2004, 2018:2019) &
-  #                         is.na(specimen$STRATUM) ), ]
-  
+  specimen <- subset(x = specimen, 
+                     subset = !is.na(STRATUM))
   
   ## Renamve "LENGTH" column add a "FREQ" column of 1s
   names(specimen)[names(specimen) == "LENGTH"] <- "LENGTH_MM"
