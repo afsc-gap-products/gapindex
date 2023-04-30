@@ -82,6 +82,11 @@ calc_sizecomp_subareas <- function(racebase_tables,
     }
   }
   
+  subarea_size_comp_df <- 
+    subset(x = subarea_size_comp_df,
+           select = c(SURVEY_DEFINITION_ID, YEAR, AREA_ID,
+                      SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT))
+  
   return(subarea_size_comp_df[order(subarea_size_comp_df$SURVEY_DEFINITION_ID,
                                     subarea_size_comp_df$AREA_ID,
                                     subarea_size_comp_df$SPECIES_CODE,

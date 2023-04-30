@@ -241,7 +241,7 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
   size_comp <- merge(x = size_comp, y = racebase_tables$survey, by = "SURVEY")
 
   ## Rearrnge columns
-  size_comp <- size_comp[, c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR",
+  size_comp <- size_comp[, c("SURVEY_DEFINITION_ID", "YEAR",
                              "STRATUM", "SPECIES_CODE", "LENGTH_MM", "SEX",
                              "POPULATION_COUNT"#,
                              # "MALES", "FEMALES", "UNSEXED", "TOTAL"
