@@ -177,7 +177,7 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
   S_iklm$SEX[S_iklm$SEX == 4] <- 3
   
   return(subset(x = S_iklm,
-                select = c(SURVEY_DEFINITION_ID, YEAR, STRATUM,
+                select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
                            SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT) ))
   
   ## Widen output tables so each sex is a column

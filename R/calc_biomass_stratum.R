@@ -81,7 +81,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   
   ## Reorder fields, sort
   stratum_stats <- subset(x = stratum_stats,
-                          select = c(SURVEY_DEFINITION_ID, 
+                          select = c(SURVEY_DEFINITION_ID, SURVEY,
                                      STRATUM, SPECIES_CODE, YEAR,
                                      CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
                                      CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
