@@ -74,7 +74,7 @@ upload_oracle <- function(x = NULL,
   cat(paste0("Oracle Data Table: ", schema, ".", table_name, 
              "\nNumber of Rows: ", nrow(x = x), 
              "\nNumber of Fields with Metadata: ", 
-             sum(!is.na(x = metadata_column$colname)), "\n\n"))
+             sum(!is.na(x = metadata_column$colname)), "\n"))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Initiate table if it is new
@@ -166,5 +166,5 @@ upload_oracle <- function(x = NULL,
     }
     
   }
-  cat("Finished\n")
+  cat("Finished\n\n")
 }
