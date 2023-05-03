@@ -47,7 +47,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                           no = specimen$YEAR,
                           yes = as.numeric(substr(x = specimen$CRUISE, 
                                                   start = 1, stop = 4)))
-
+  
   
   ## TEST -- delete ---
   ## Remove specimen with no STRATUM data IN 2018, THESE ARE NBS HAULS?
@@ -148,96 +148,149 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   ## "AGEPOP" as the weight. Calculations are done separately for lengths with
   ## associated ages and lengths without associated ages (AGE = -9)
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  split_df <- split(x = subset(x = age_comp, 
-                               subset = AGE > 0),
-                    f = with(subset(x = age_comp, 
-                                    subset = AGE > 0), 
-                             list(SURVEY, YEAR, SPECIES_CODE, 
-                                  STRATUM, SEX, AGE)))
   
-  mean_length_at_age <- 
-    do.call(
-      what = rbind,
-      args = lapply(
-        X = split_df,
-        ## Within each sublist of split_df, calculate the 
-        ## weighted mean and std.dev of length
-        FUN = function(df) {
-          
-          ## temporary output df
-          output_df <- data.frame()
-          
-          if (nrow(x = df) > 0) {
-            ## record the combo of "SURVEY", "YEAR", 
-            ## "SPECIES_CODE", "SEX", and "AGE" of the sublist.   
-            output_df[1, c("SURVEY", "YEAR", "SPECIES_CODE", 
-                           "STRATUM", "SEX", "AGE")] <- 
-              unique(subset(x = df, 
-                            select = c(SURVEY, YEAR, SPECIES_CODE, 
-                                       STRATUM, SEX, AGE)))
-            
-            ## weighted mean length
-            mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                         w = df$AGEPOP)
-            
-            ## weighted std.dev length
-            sd_length <- sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
-                                    (df$LENGTH_MM - mean_length)^2))
-            
-            ## append `mean_length` and `sd_length` to `output_df` 
-            output_df[, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
-              round(x = c(mean_length, sd_length), 
-                    digits = 2)
-          } 
-          
-          return(output_df)
-          
-        }))
-  rownames(mean_length_at_age) <- NULL
+  mean_length_at_age <- unique(x = subset(x = age_comp, 
+                                          subset = AGE > 0,
+                                          select = c(SURVEY, YEAR, 
+                                                     SPECIES_CODE, 
+                                                     STRATUM, SEX, AGE)))
   
-  ## Calculate mean and sd of length @ age for age -9 category
-  split_df <- split(x = subset(x = age_comp, subset = AGE == -9),
-                    f = with(subset(x = age_comp, subset = AGE == -9), 
-                             list(SURVEY, YEAR, SPECIES_CODE, 
-                                  STRATUM, SEX)))
+  for (irow in 1:nrow(x = mean_length_at_age)) {
+    mean_length_at_age[irow, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
+      with(subset(x = age_comp,
+                  subset = SURVEY == mean_length_at_age$SURVEY[irow] & 
+                    YEAR == mean_length_at_age$YEAR[irow] & 
+                    SPECIES_CODE == mean_length_at_age$SPECIES_CODE[irow] &  
+                    STRATUM == mean_length_at_age$STRATUM[irow] & 
+                    SEX == mean_length_at_age$SEX[irow] & 
+                    AGE == mean_length_at_age$AGE[irow] ), 
+           {
+             mean_length <- weighted.mean(x = LENGTH_MM, 
+                                          w = AGEPOP)
+             
+             ## weighted std.dev length
+             sd_length <- sqrt(sum(AGEPOP/sum(AGEPOP) * (LENGTH_MM - mean_length)^2))
+             c(mean_length, sd_length)
+           }
+      )
+  }
   
-  mean_length_at_age_neg9 <- 
-    do.call(
-      what = rbind,
-      args = lapply(X = split_df,
-                    FUN = function(df) {
-                      
-                      ## temporary output df
-                      output_df <- data.frame()
-                      
-                      if (nrow(x = df) > 0) {
-                        
-                        ## record the combo of "SURVEY", "YEAR", 
-                        ## "SPECIES_CODE", "SEX", and "AGE" of the split df. 
-                        output_df[1, c("SURVEY", "YEAR", "SPECIES_CODE", 
-                                       "STRATUM", "SEX")] <- 
-                          unique(subset(x = df, 
-                                        select = c(SURVEY, YEAR, SPECIES_CODE, 
-                                                   STRATUM, SEX)))
-                        output_df$AGE <- -9
-                        
-                        ## weighted mean length
-                        mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$AGEPOP)
-                        
-                        ## weighted std.dev length
-                        sd_length <- sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
-                                                (df$LENGTH_MM - mean_length)^2))
-                        
-                        ## append `mean_length` and `sd_length` to `output_df` 
-                        output_df[1, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
-                          round(x = c(mean_length, sd_length), digits = 2)
-                        
-                      }
-                      return(output_df)
-                    })
-    )
-  rownames(mean_length_at_age_neg9) <- NULL
+  # split_df <- split(x = subset(x = age_comp, 
+  #                              subset = AGE > 0),
+  #                   f = with(subset(x = age_comp, 
+  #                                   subset = AGE > 0), 
+  #                            list(SURVEY, YEAR, SPECIES_CODE, 
+  #                                 STRATUM, SEX, AGE)))
+  # 
+  # mean_length_at_age <- 
+  #   do.call(
+  #     what = rbind,
+  #     args = lapply(
+  #       X = split_df,
+  #       ## Within each sublist of split_df, calculate the 
+  #       ## weighted mean and std.dev of length
+  #       FUN = function(df) {
+  #         
+  #         ## temporary output df
+  #         output_df <- data.frame()
+  #         
+  #         if (nrow(x = df) > 0) {
+  #           ## record the combo of "SURVEY", "YEAR", 
+  #           ## "SPECIES_CODE", "SEX", and "AGE" of the sublist.   
+  #           output_df[1, c("SURVEY", "YEAR", "SPECIES_CODE", 
+  #                          "STRATUM", "SEX", "AGE")] <- 
+  #             unique(subset(x = df, 
+  #                           select = c(SURVEY, YEAR, SPECIES_CODE, 
+  #                                      STRATUM, SEX, AGE)))
+  #           
+  #           ## weighted mean length
+  #           mean_length <- weighted.mean(x = df$LENGTH_MM, 
+  #                                        w = df$AGEPOP)
+  #           
+  #           ## weighted std.dev length
+  #           sd_length <- sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
+  #                                   (df$LENGTH_MM - mean_length)^2))
+  #           
+  #           ## append `mean_length` and `sd_length` to `output_df` 
+  #           output_df[, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
+  #             round(x = c(mean_length, sd_length), 
+  #                   digits = 2)
+  #         } 
+  #         
+  #         return(output_df)
+  #         
+  #       }))
+  # rownames(mean_length_at_age) <- NULL
+  
+  mean_length_at_age_neg9 <- unique(x = subset(x = age_comp, 
+                                          subset = AGE == -9,
+                                          select = c(SURVEY, YEAR, 
+                                                     SPECIES_CODE, 
+                                                     STRATUM, SEX, AGE)))
+  
+  for (irow in 1:nrow(x = mean_length_at_age_neg9)) {
+    mean_length_at_age_neg9[irow, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
+      with(subset(x = age_comp,
+                  subset = SURVEY == mean_length_at_age_neg9$SURVEY[irow] & 
+                    YEAR == mean_length_at_age_neg9$YEAR[irow] & 
+                    SPECIES_CODE == mean_length_at_age_neg9$SPECIES_CODE[irow] &  
+                    STRATUM == mean_length_at_age_neg9$STRATUM[irow] & 
+                    SEX == mean_length_at_age_neg9$SEX[irow] & 
+                    AGE == mean_length_at_age_neg9$AGE[irow] ), 
+           {
+             mean_length <- weighted.mean(x = LENGTH_MM, 
+                                          w = AGEPOP)
+             
+             ## weighted std.dev length
+             sd_length <- sqrt(sum(AGEPOP/sum(AGEPOP) * (LENGTH_MM - mean_length)^2))
+             c(mean_length, sd_length)
+           }
+      )
+  }
+  
+  # ## Calculate mean and sd of length @ age for age -9 category
+  # split_df <- split(x = subset(x = age_comp, subset = AGE == -9),
+  #                   f = with(subset(x = age_comp, subset = AGE == -9), 
+  #                            list(SURVEY, YEAR, SPECIES_CODE, 
+  #                                 STRATUM, SEX)))
+  # 
+  # mean_length_at_age_neg9 <- 
+  #   do.call(
+  #     what = rbind,
+  #     args = lapply(X = split_df,
+  #                   FUN = function(df) {
+  #                     
+  #                     ## temporary output df
+  #                     output_df <- data.frame()
+  #                     
+  #                     if (nrow(x = df) > 0) {
+  #                       
+  #                       ## record the combo of "SURVEY", "YEAR", 
+  #                       ## "SPECIES_CODE", "SEX", and "AGE" of the split df. 
+  #                       output_df[1, c("SURVEY", "YEAR", "SPECIES_CODE", 
+  #                                      "STRATUM", "SEX")] <- 
+  #                         unique(subset(x = df, 
+  #                                       select = c(SURVEY, YEAR, SPECIES_CODE, 
+  #                                                  STRATUM, SEX)))
+  #                       output_df$AGE <- -9
+  #                       
+  #                       ## weighted mean length
+  #                       mean_length <- weighted.mean(x = df$LENGTH_MM, 
+  #                                                    w = df$AGEPOP)
+  #                       
+  #                       ## weighted std.dev length
+  #                       sd_length <- sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
+  #                                               (df$LENGTH_MM - mean_length)^2))
+  #                       
+  #                       ## append `mean_length` and `sd_length` to `output_df` 
+  #                       output_df[1, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
+  #                         round(x = c(mean_length, sd_length), digits = 2)
+  #                       
+  #                     }
+  #                     return(output_df)
+  #                   })
+  #   )
+  # rownames(mean_length_at_age_neg9) <- NULL
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Total numbers by "SURVEY", "YEAR", "STRATUM", "SPECIES_CODE", 
