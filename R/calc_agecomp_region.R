@@ -62,7 +62,7 @@ calc_agecomp_region <- function(racebase_tables,
                  subset = SURVEY_DEFINITION_ID == 
                    subareas$SURVEY_DEFINITION_ID[iregion] &
                    STRATUM %in% strata_in_iregion)
-    
+        
         ## Total numbers by "SURVEY", "YEAR", "SPECIES_CODE", "SEX", and "AGE",
         ## aggregating over strata
         age_comp_iregion <-
@@ -74,17 +74,14 @@ calc_agecomp_region <- function(racebase_tables,
         ##  Calculate the weighted mean and sd of length at age using column 
         ## "AGEPOP" as the weight. Calculations are done separately for lengths with
         ## associated ages and lengths without associated ages (AGE = -9)
-        split_df <- 
-          split(x = subset(x = count_length_age,
-                           subset = STRATUM %in% strata_in_iregion),
-                f = with(subset(x = count_length_age,
-                                subset = STRATUM %in% strata_in_iregion), 
-                         list(SURVEY, YEAR, SPECIES_CODE, SEX, AGE)))
-        
         mean_length_at_age <- 
           do.call(what = rbind,
                   args = lapply(
-                    X = split_df,
+                    X = split(x = subset(x = count_length_age,
+                                         subset = STRATUM %in% strata_in_iregion),
+                              f = with(subset(x = count_length_age,
+                                              subset = STRATUM %in% strata_in_iregion), 
+                                       list(SURVEY, YEAR, SPECIES_CODE, SEX, AGE))),
                     ## Within each sublist of split_df, calculate the 
                     ## weighted mean and std.dev of length
                     FUN = function(df) {
@@ -123,19 +120,17 @@ calc_agecomp_region <- function(racebase_tables,
         rownames(mean_length_at_age) <- NULL
         
         ## Calculate mean and sd of length @ age for age -9 category
-        split_df <- 
-          split(x = subset(x = count_length_age, 
-                           subset = STRATUM %in% strata_in_iregion & 
-                             AGE == -9),
-                f = with(subset(x = count_length_age, 
-                                subset = STRATUM %in% strata_in_iregion & 
-                                  AGE == -9), 
-                         list(SURVEY, YEAR, SPECIES_CODE, SEX)))
-        
+
         mean_length_at_age_neg9 <- 
           do.call(what = rbind,
                   args = lapply(
-                    X = split_df,
+                    X = split(x = subset(x = count_length_age, 
+                                         subset = STRATUM %in% strata_in_iregion & 
+                                           AGE == -9),
+                              f = with(subset(x = count_length_age, 
+                                              subset = STRATUM %in% strata_in_iregion & 
+                                                AGE == -9), 
+                                       list(SURVEY, YEAR, SPECIES_CODE, SEX))),
                     FUN = function(df) {
                       
                       ## temporary output df
