@@ -66,13 +66,13 @@ calc_agecomp_region <- function(racebase_tables,
         ## Total numbers by "SURVEY", "YEAR", "SPECIES_CODE", "SEX", and "AGE",
         ## aggregating over strata
         age_comp_iregion <-
-          stats::aggregate(AGEPOP ~ SURVEY + YEAR + SPECIES_CODE + SEX + AGE,
+          stats::aggregate(POPULATION_COUNT ~ SURVEY + YEAR + SPECIES_CODE + SEX + AGE,
                            data = age_comp_iregion_by_strata,
                            FUN = sum)
         
         ##  Calculate mean and sd length at age:
         ##  Calculate the weighted mean and sd of length at age using column 
-        ## "AGEPOP" as the weight. Calculations are done separately for lengths with
+        ## "POPULATION_COUNT" as the weight. Calculations are done separately for lengths with
         ## associated ages and lengths without associated ages (AGE = -9)
         mean_length_at_age <- 
           do.call(what = rbind,
@@ -101,11 +101,11 @@ calc_agecomp_region <- function(racebase_tables,
                         
                         ## weighted mean length
                         mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$AGEPOP)
+                                                     w = df$POPULATION_COUNT)
                         
                         ## weighted std.dev length
                         sd_length <- 
-                          sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
+                          sqrt(sum(df$POPULATION_COUNT/sum(df$POPULATION_COUNT) * 
                                      (df$LENGTH_MM - mean_length)^2))
                         
                         ## append `mean_length` and `sd_length` to `output_df` 
@@ -149,11 +149,11 @@ calc_agecomp_region <- function(racebase_tables,
                         
                         ## weighted mean length
                         mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$AGEPOP)
+                                                     w = df$POPULATION_COUNT)
                         
                         ## weighted std.dev length
                         sd_length <- 
-                          sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
+                          sqrt(sum(df$POPULATION_COUNT/sum(df$POPULATION_COUNT) * 
                                      (df$LENGTH_MM - mean_length)^2))
                         
                         ## append `mean_length` and `sd_length` to `output_df` 
@@ -182,7 +182,7 @@ calc_agecomp_region <- function(racebase_tables,
                            SURVEY_DEFINITION_ID = subareas$SURVEY[iregion],
                            AREA_ID = subareas$AREA_ID[iregion]),
                 age_comp_iregion[, c("YEAR", "SPECIES_CODE",  "SEX", 
-                                     "AGE", "AGEPOP", 
+                                     "AGE", "POPULATION_COUNT", 
                                      "LENGTH_MM_MEAN", "LENGTH_MM_SD")])
         
         ## Append `age_comp_iregion` to `region_age_comp_df`

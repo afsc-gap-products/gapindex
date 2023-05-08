@@ -330,6 +330,9 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                                           "SURVEY_DEFINITION_ID")]),
                     by = c("SURVEY", "YEAR"))
   
+  ## Rename AGEPOP column as POPULATION_COUNT
+  names(age_comp)[names(age_comp) == "AGEPOP"] <- "POPULATION_COUNT" 
+  
   ## Sort age_comp
   age_comp <- age_comp[with(age_comp, order(SURVEY, STRATUM, YEAR,
                                             SEX, AGE)), ]
@@ -337,7 +340,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   return(list(age_comp = subset(x = age_comp,
                                 select = c(SURVEY, SURVEY_DEFINITION_ID, 
                                            STRATUM, YEAR, SPECIES_CODE, 
-                                           SEX, AGE, AGEPOP, 
+                                           SEX, AGE, POPULATION_COUNT, 
                                            LENGTH_MM_MEAN, LENGTH_MM_SD)),
               length_at_age = count_length_age))
 }
