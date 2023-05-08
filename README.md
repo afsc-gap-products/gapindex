@@ -1,6 +1,6 @@
 # gapindex R Package 
 
-Code to generate design-based indices of biomass, abundance, size composition, and age composition from survey data. The code takes haul and catch tables from RACEBASE to estimate biomass for (currently) the GOA, AI, EBS Shelf, and NBS regions. @MargaretSiple-NOAA created a [vignette](https://github.com/zoyafuso-NOAA/design-based-indices/tree/master/old_scripts/vignettes) on the biomass calculations using equations (from [Wakabayashi et al. 1985](https://drive.google.com/file/d/1m5c1N4WYysM1pscrpcgWOGZSZIK8vIHr/view?usp=sharing). We should make this into a wiki and have different pages for the different calculations (biomass, age compositions, etc.) along with other relevant information. 
+Code to generate design-based indices of biomass, abundance, size composition, and age composition from survey data. The code takes haul and catch tables from RACEBASE to estimate biomass for (currently) the GOA, AI, EBS Shelf, and NBS Shelf regions. @MargaretSiple-NOAA created a [vignette](https://github.com/zoyafuso-NOAA/design-based-indices/tree/master/old_scripts/vignettes) on the biomass calculations using equations (from [Wakabayashi et al. 1985](https://drive.google.com/file/d/1m5c1N4WYysM1pscrpcgWOGZSZIK8vIHr/view?usp=sharing). We should make this into a wiki and have different pages for the different calculations (biomass, age compositions, etc.) along with other relevant information. 
 
 ## Authors
 
@@ -18,7 +18,7 @@ Make sure you have installed R packages devtools, RODBC, and getPass and are con
 
 ```
 library(devtools)
-devtools::install_github("afsc-gap-products/gapindex@development")
+devtools::install_github("afsc-gap-products/gapindex")
 
 library(gapindex)
 
@@ -27,39 +27,49 @@ sql_channel <- gapindex::get_connected()
 
 ## Pull data.  See ?gapindex::get_data first for more details
 cod_data <- gapindex::get_data(year_set = 2021,
-                               survey_set = "EBS",
-                               spp_codes = data.frame(GROUP = 21720, 
-                                                      SPECIES_CODE = 21720),   
+                               survey_set = "EBS", #Eastern Bering Sea
+                               spp_codes = 21720, #Pacific cod
                                haul_type = 3,
                                abundance_haul = "Y",
                                pull_lengths = TRUE,
                                sql_channel = sql_channel)
 
-## Fill in zeros and calculate CPUE. See ?gapindex::calc_cpue first for more details
+## Calculate and zero-fill catch-per-unit-effort (CPUE) by haul. See ?gapindex::calc_cpue first for more details
 cpue <- gapindex::calc_cpue(racebase_tables = cod_data)
 
-## Calculate biomass, population abundance, and CIs for each strata. See ?gapindex::calc_biomass_stratum first for more details
+## Calculate biomass, population abundance, and mean CPUE by stratum. See ?gapindex::calc_biomass_stratum first for more details
 biomass_stratum <- 
   gapindex::calc_biomass_stratum(racebase_tables = cod_data,
                                  cpue = cpue,
                                  vulnerability = 1)
 
-## Calculate aggregated biomass and population abundance across subareas and region (STRATUM 999). See ?gapindex::calc_agg_biomass first for more details
+## Aggregated biomass and population abundance by subarea and region. See ?gapindex::calc_biomass_subarea first for more details
 biomass_subareas <- 
-  gapindex::calc_agg_biomass(racebase_tables = cod_data,
-                             biomass_strata = biomass_stratum)
+  gapindex::calc_biomass_subarea(racebase_tables = cod_data,
+                                 biomass_strata = biomass_stratum)
 
+## Calculate size composition by stratum. See ?gapindex::calc_sizecomp_bs_stratum first for more details. Note if you are calculating size comps for the Aleutian Islands of Gulf of Alaska regions, you should be using gapindex::calc_sizecomp_aigoa_stratum instead. gapindex::calc_sizecomp_bs_stratum is used for calculating size composition for the Eastern and Northern Bering Sea regions. 
 
-## Calculate size composition by stratum. See ?gapindex::calc_size_stratum_BS first for more details. Note if you are calculating size comps for the AI/GOA regions, you should be using gapindex::calc_size_stratum_AIGOA instead. 
-size_comp <- gapindex::calc_size_stratum_BS(
+sizecomp_stratum <- gapindex::calc_sizecomp_bs_stratum(
   racebase_tables = cod_data,
   racebase_cpue = cpue,
   racebase_stratum_popn = biomass_stratum)
+  
+## Aggregate size composition by region. See ?gapindex::calc_sizecomp_subarea first for more details. 
+size_comp_subarea <- gapindex::calc_sizecomp_subarea(
+  racebase_tables = cod_data, 
+  size_comps = sizecomp_stratum
+)
 
-## Calculate age composition for region. See ?gapindex::calc_age_comp first for more details. Note
-age_comp <- gapindex::calc_age_comp(racebase_tables = cod_data, 
-                                    size_comp = size_comp)
+## Calculate age composition by stratum. See ?gapindex::calc_agecomp_stratum first for more details. 
+agecomp_stratum <- gapindex::calc_agecomp_stratum(
+  racebase_tables = cod_data,
+  size_comp = sizecomp_stratum)
 
+## Aggregate age composition by region. See ?gapindex::calc_agecomp_region first for more details. 
+age_comp_region <- 
+  gapindex::calc_agecomp_region(racebase_tables = cod_data,
+                                age_comps_stratum = agecomp_stratum)
 ```
 
 ## Legal disclaimer
