@@ -16,9 +16,9 @@
 #' @param channel Establish your oracle connection using a function 
 #'                like gapindex::get_connected() 
 #' @param schema character string. The name of the schema to save table. 
-#'               "GAP_PRODUCTS" is the schema where production tables will live.   
-#' @param update_table boolean. Default = TRUE. Save or drop and save the 
-#'                     table in Oracle. 
+#'               "GAP_PRODUCTS" is the schema where production tables will live.
+#' @param update_metadata boolean. Default = TRUE. Temporary argument as we 
+#'                        continute to test the tables. 
 #' @param append_table boolean. If TRUE, appends to an existing table, otherwise a 
 #'               new table is created.
 #' @param share_with_all_users boolean. Default = TRUE. Give all users in 
@@ -84,11 +84,11 @@ upload_oracle <- function(x = NULL,
     cat(paste0("Creating or overwriting new table: ", schema, ".", table_name, "\n"))
     
     ## If table is currently in the schema, drop (delete) the table
-    existing_tables <- 
-      unlist(RODBC::sqlQuery(channel = channel, 
-                             query = "SELECT table_name FROM user_tables;")) 
-    if (table_name %in% existing_tables) 
-      RODBC::sqlDrop(channel = channel, sqtable = table_name)
+    existing_tables <-
+      unlist(RODBC::sqlQuery(channel = channel,
+                             query = "SELECT table_name FROM user_tables;"))
+    if (table_name %in% existing_tables)
+      RODBC::sqlDrop(channel = channel, sqtable = table_name, errors = FALSE)
   }
   
   cat(paste0("Updating Table ", schema, ".", table_name, " ... "))
@@ -105,9 +105,19 @@ upload_oracle <- function(x = NULL,
   assign(x = table_name, value = x)
   
   ## Add the table to the schema
-  eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
-                           table_name, ", varTypes = vartype_vec, ",
-                           "rownames = FALSE, append = ", append_table, ")")))
+  # eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
+  #                          table_name, ", varTypes = vartype_vec, tablename = '",
+  #                          table_name, "', ",
+  #                          "rownames = FALSE, append = ", append_table, ")")))
+  
+  sql_save_args <- list(channel = channel, 
+                        dat = x, 
+                        varTypes = vartype_vec, 
+                        tablename = paste0(schema, ".", table_name), 
+                        rownames = FALSE, 
+                        append = FALSE)
+  
+  do.call(what = sqlSave, args = sql_save_args)
   
   end_time <- Sys.time()
   cat(paste("Time Elapsed:", round(end_time - start_time, 2), 

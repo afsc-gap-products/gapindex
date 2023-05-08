@@ -41,11 +41,11 @@ like gapindex::get_connected()}
 \item{append_table}{boolean. If TRUE, appends to an existing table, otherwise a
 new table is created.}
 
+\item{update_metadata}{boolean. Default = TRUE. Temporary argument as we
+continute to test the tables.}
+
 \item{share_with_all_users}{boolean. Default = TRUE. Give all users in
 oracle view permissions.}
-
-\item{update_table}{boolean. Default = TRUE. Save or drop and save the
-table in Oracle.}
 }
 \value{
 
