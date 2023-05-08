@@ -33,9 +33,13 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
       data = cpue, 
       FUN = function(x) 
         c("CPUE_KGKM2_MEAN" = mean(x, na.rm = TRUE), 
-          "CPUE_KGKM2_VAR" = ifelse(test = length(x) < 2, 
-                                    yes = 0, 
-                                    no = stats::var(x) / length(x))))
+          "CPUE_KGKM2_VAR" = ifelse(test = length(stats::na.omit(x)) < 2, 
+                                    yes = NA, 
+                                    no = stats::var(x, na.rm = TRUE) / 
+                                      length(stats::na.omit(x))),
+          "HAUL_COUNT" = length(x = x),
+          "CATCH_COUNT" = length(x = stats::na.omit(x[x > 0]))
+        ))
   
   ## Calculate mean and variance of stratum abundance. For strata with only
   ## one station, variance is ASSUMED zero
@@ -52,7 +56,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                     no = stats::var(x, na.rm = TRUE) / 
                                       length(stats::na.omit(x))) 
           
-          ))
+        ))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
@@ -83,6 +87,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   stratum_stats <- subset(x = stratum_stats,
                           select = c(SURVEY_DEFINITION_ID, SURVEY,
                                      STRATUM, SPECIES_CODE, YEAR,
+                                     HAUL_COUNT, CATCH_COUNT,
                                      CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
                                      CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
                                      BIOMASS_MT, BIOMASS_VAR, 
