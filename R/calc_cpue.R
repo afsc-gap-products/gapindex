@@ -13,20 +13,22 @@
 
 calc_cpue <- function(racebase_tables = NULL) {
   
+  ## Input check
   if (is.null(x = racebase_tables))
     stop("Must provide argument `racebase_tables` a named list from 
          gapindex::get_data().")
   
-  ## Extract objects from racebase_tables
+  ## Extract objects from `racebase_tables`
   cruisedat <- racebase_tables$cruise 
   haul <- racebase_tables$haul
-  ## Attach year to haul
+  catch <- racebase_tables$catch
+  species <- racebase_tables$species
+  
+  ## Attach "YEAR" column to `haul` from `cruisedat` using "CRUISEJOIN" as the 
+  ## key.
   haul <- merge(x = haul, 
                 y = cruisedat[, c("CRUISEJOIN", "YEAR")],
                 by = "CRUISEJOIN")
-  
-  catch <- racebase_tables$catch
-  species <- racebase_tables$species
   
   ## For abundance index calculations, the haul df should only have records 
   ## where haul$ABUNDANCE_HAUL == "Y". This check is just a warning to the user.
