@@ -2,8 +2,8 @@
 #'
 #' @param racebase_tables data object created from `gapindex::get_data()``
 #' @param size_comps  a dataframe of stratum biomass, result object from either
-#'                       `gapindex::calc_size_stratum_AIGOA()` or 
-#'                       `gapindex::calc_size_stratum_BS()`
+#'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
+#'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
 #' @return dataframe of size composition estimates across 
 #'         subareas and across region.
