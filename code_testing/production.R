@@ -19,126 +19,203 @@ library(googledrive)
 
 sql_channel <- gapindex::get_connected()
 
-## Create temporary folder to put downloaded VAST files. The temp/ folder
-## is in the gitignore file. 
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##   Specify the range of years to calculate indices
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+range_of_years <- 2010:2022
+regions <- c("AI", "GOA", "EBS", "NBS")
+species_range <- c(30060, 21720, 21740)
+
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Create temporary folder to put downloaded metadata files. Double-check 
+## that the temp/ folder is in the gitignore file. 
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (!dir.exists(paths = "temp")) dir.create(path = "temp")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##   Calculate biomass/abundance
+##   Authorize R to pull content from google drive
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time <- Sys.time()
-production_data <- 
-  gapindex::get_data(
-    year_set = c(2018:2022),
-    survey_set = c("AI", "GOA",
-                   "EBS", "NBS"),
-    spp_codes = NULL,
-    pull_lengths = TRUE, 
-    haul_type = 3, abundance_haul = "Y",
-    sql_channel = sql_channel)
-end_time <- Sys.time()
-end_time - start_time 
 
-start_time <- Sys.time()
-production_cpue <- 
-  gapindex::calc_cpue(racebase_tables = production_data)
-end_time <- Sys.time()
-end_time - start_time 
-
-production_cpue_write <- 
-  subset(x = production_cpue, 
-         select = c(HAULJOIN, SPECIES_CODE, WEIGHT_KG, COUNT, AREA_SWEPT_KM2,
-                    CPUE_KGKM2, CPUE_NOKM2) )
-
-start_time <- Sys.time()
-production_biomass_stratum <- 
-  gapindex::calc_biomass_stratum(racebase_tables = production_data,
-                                 cpue = production_cpue)
-end_time <- Sys.time()
-end_time - start_time 
-
-start_time <- Sys.time()
-production_agg_biomass <- 
-  gapindex::calc_biomass_subarea(racebase_tables = production_data, 
-                                 biomass_strata = production_biomass_stratum)
-end_time <- Sys.time()
-end_time - start_time 
-
-
-sizecomp_bs_stratum <- 
-  calc_sizecomp_bs_stratum(racebase_tables = production_data, 
-                           racebase_cpue = production_cpue, 
-                           racebase_stratum_popn = production_biomass_stratum)
-sizecomp_aigoa_stratum <- 
-  calc_sizecomp_aigoa_stratum(racebase_tables = production_data, 
-                              racebase_cpue = production_cpue, 
-                              racebase_stratum_popn = production_biomass_stratum)
-
-start_time <- Sys.time()
-production_agecomp <- 
-  calc_agecomp_stratum(racebase_tables = production_data,
-                       size_comp = rbind(sizecomp_bs_stratum,
-                                         sizecomp_aigoa_stratum))
-end_time <- Sys.time()
-end_time - start_time
-
-production_cpue <- production_cpue_write
-
-names(x = production_biomass_stratum)[
-  names(x = production_biomass_stratum) == "STRATUM"
-  ] <- "AREA_ID"
-
-production_biomass <- rbind(production_biomass_stratum[, names(production_agg_biomass)],
-                            production_agg_biomass)
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##   Create metadata
+##   Import metadata
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 metadata_id <- googledrive::as_id(x = "https://docs.google.com/spreadsheets/d/1wgAJPPWif1CC01iT2S6ZtoYlhOM0RSGFXS9LUggdLLA/edit#gid=1204955465")
-googledrive::drive_download(file = metadata_id, path = "temp/metadata.xlsx" )
+googledrive::drive_download(file = metadata_id, 
+                            path = "temp/metadata.xlsx", 
+                            overwrite = TRUE )
 main_metadata_columns <- readxl::read_xlsx("temp/metadata.xlsx" , 
                                            sheet = "METADATA_COLUMN",
                                            skip = 1)
 main_metadata_tables_info <- readxl::read_xlsx("temp/metadata.xlsx" , 
                                                sheet = "METADATA_TABLE",
                                                skip = 1)
-repo_name <- "www.github.com/afsc-gap-products/gapindex"
-today_date <- Sys.Date()
 
-for (idata in c("production_cpue", "production_biomass", 
-                "production_sizecomp", "production_agecomp")[1]) {
-  match_idx <- match(x = names(get(idata)), 
-                     table = toupper(x = main_metadata_columns$METADATA_COLNAME))
-  
-  metadata_columns <- 
-    with(main_metadata_columns,
-         data.frame( colname = toupper(METADATA_COLNAME[match_idx]), 
-                     colname_long = METADATA_COLNAME_LONG[match_idx], 
-                     units = METADATA_UNITS[match_idx], 
-                     datatype = METADATA_DATATYPE[match_idx], 
-                     colname_desc = METADATA_COLNAME_DESC[match_idx]))
-  
-  table_metadata <- "This is a test table."
-  
-  idx <- data.frame(from = seq(from = 1, 
-                               to = nrow(x = get(x = idata)), 
-                               by = 10000),
-                    to = c(seq(from = 1, 
-                             to = nrow(x = get(x = idata)), 
-                             by = 10000)[-1] - 1, nrow(x = get(x = idata))))
-  append_table <- FALSE
-  
-  for (irow in 457:nrow(x = idx) ) {
-    upload_oracle(channel = sql_channel,
-                  # x = get(idata)[idx$from[irow]:idx$to[irow], ],
-                  x = get(idata)[4567817:nrow(x = get(idata)), ],
-                  schema = "GAP_PRODUCTS",
-                  table_name = toupper(idata),
-                  table_metadata = table_metadata,
-                  metadata_column = metadata_columns,
-                  append_table = append_table, 
-                  update_metadata = TRUE)
-    append_table <- TRUE
-  }
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##   Loop over regions
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-}
+for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
+  
+  ## Pull data for all years and species from Oracle
+  start_time <- Sys.time()
+  production_data <- gapindex::get_data(year_set = range_of_years,
+                                        survey_set = regions[iregion],
+                                        spp_codes = NULL,
+                                        pull_lengths = TRUE, 
+                                        haul_type = 3, 
+                                        abundance_haul = "Y",
+                                        sql_channel = sql_channel)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Calculate and zero-fill CPUE
+  cat("\nCalculating and zero-filling CPUE\n")
+  start_time <- Sys.time()
+  production_cpue <-
+    gapindex::calc_cpue(racebase_tables = production_data)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Calculate biomass/abundance with associated variance, mean/variance CPUE
+  ## across strata
+  cat("\nCalculating biomass/abundance across strata\n")
+  start_time <- Sys.time()
+  production_biomass_stratum <-
+    gapindex::calc_biomass_stratum(racebase_tables = production_data,
+                                   cpue = production_cpue)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Aggregate `production_biomass_stratum` to subareas and regions
+  cat("\nAggregate biomass/abundance to subareas and regions\n")
+  start_time <- Sys.time()
+  production_biomass_subarea <-
+    gapindex::calc_biomass_subarea(racebase_tables = production_data,
+                                   biomass_strata = production_biomass_stratum)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Calculate size composition by stratum. Since the two regions have
+  ## different functions, sizecomp_fn toggles which function to use
+  ## and then it is called in the do.call function.
+  cat("\nCalculate size composition across strata\n")
+  sizecomp_fn <- ifelse(test = regions[iregion] %in% c("GOA", "AI"),
+                        yes = "calc_sizecomp_aigoa_stratum",
+                        no = "calc_sizecomp_bs_stratum")
+  sizecomp_args <- list(racebase_tables = production_data,
+                        racebase_cpue = production_cpue,
+                        racebase_stratum_popn = production_biomass_stratum)
+  
+  start_time <- Sys.time()
+  production_sizecomp_stratum <- 
+    do.call(what = sizecomp_fn, args = sizecomp_args)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Aggregate `production_sizecomp_stratum` to subareas and regions
+  cat("\nAggregate size composition to subareas and regions\n")
+  start_time <- Sys.time()
+  production_sizecomp_subarea <- gapindex::calc_sizecomp_subareas(
+    racebase_tables = production_data,
+    size_comps = production_sizecomp_stratum)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Calculate age composition and mean/sd length at age
+  cat("\nCalculate age composition across strata\n")
+  start_time <- Sys.time()
+  production_agecomp_stratum <-
+    gapindex::calc_agecomp_stratum(racebase_tables = production_data,
+                                   size_comp = production_sizecomp_stratum)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Aggregate `production_agecomp_stratum` to subareas and regions
+  cat("\nAggregate age composition to regions\n")
+  start_time <- Sys.time()
+  production_agecomp <- gapindex::calc_agecomp_region(
+    racebase_tables = production_data,
+    age_comps_stratum = production_agecomp_stratum)
+  end_time <- Sys.time()
+  print(end_time - start_time)
+  
+  ## Prep tables for Oracle
+  cat("\nPrepping Tables for Oracle Uploading\n")
+  
+  ## Remove extra columns from `production_cpue`
+  production_cpue <- subset(x = production_cpue,
+                            select = c(HAULJOIN, SPECIES_CODE,
+                                       WEIGHT_KG, COUNT, AREA_SWEPT_KM2,
+                                       CPUE_KGKM2, CPUE_NOKM2) )
+  
+  ## Change "STRATUM" field name to "AREA_ID"
+  names(x = production_biomass_stratum)[
+    names(x = production_biomass_stratum) == "STRATUM"
+  ] <- "AREA_ID"
+  
+  names(x = production_sizecomp_stratum)[
+    names(x = production_sizecomp_stratum) == "STRATUM"
+  ] <- "AREA_ID"
+  
+  ## Combine stratum, subarea, and region estimates for the biomass and 
+  ## size composition tables
+  production_biomass <- 
+    rbind(production_biomass_stratum[, names(production_biomass_subarea)],
+          production_biomass_subarea)
+  
+  production_sizecomp <- 
+    rbind(production_sizecomp_subarea,
+          production_sizecomp_stratum[, names(production_sizecomp_subarea)])
+  
+  ## Upload to Oracle
+  cat("\nUploading to Oracle\n")
+  for (idata in c("production_cpue", 
+                  "production_biomass", 
+                  "production_sizecomp", 
+                  "production_agecomp")[2]) { ## Loop over table -- start
+    
+    if (iregion == 1) append_table = FALSE
+    
+    match_idx <- 
+      match(x = names(get(idata)), 
+            table = toupper(x = main_metadata_columns$METADATA_COLNAME))
+    
+    metadata_columns <- 
+      with(main_metadata_columns,
+           data.frame( colname = toupper(METADATA_COLNAME[match_idx]), 
+                       colname_long = METADATA_COLNAME_LONG[match_idx], 
+                       units = METADATA_UNITS[match_idx], 
+                       datatype = METADATA_DATATYPE[match_idx], 
+                       colname_desc = METADATA_COLNAME_DESC[match_idx]))
+    
+    table_metadata <- "This is a test table."
+    
+    ## Large tables are split and uploaded in smaller chunks of 100000 
+    ## records so that you can keep track of progress on SQL_Developer
+    idx <- data.frame(from = seq(from = 1, 
+                                 to = nrow(x = get(x = idata)), 
+                                 by = 100000),
+                      to = c(seq(from = 1, 
+                                 to = nrow(x = get(x = idata)), 
+                                 by = 100000)[-1] - 1, 
+                             nrow(x = get(x = idata))))
+    
+    for (irow in 1:nrow(x = idx) ) { ## loop over chunk -- start
+      gapindex::upload_oracle(
+        channel = sql_channel,
+        x = get(idata)[idx$from[irow]:idx$to[irow], ],
+        schema = "OYAFUSOZ",
+        table_name = toupper(x = gsub(x = idata, 
+                                      pattern = "production_", 
+                                      replacement = "")),
+        table_metadata = table_metadata,
+        metadata_column = metadata_columns,
+        append_table = append_table, 
+        update_metadata = TRUE)
+      append_table <- TRUE
+    }  ## loop over chunk -- end
+    
+  } ## Loop over table -- end
+  
+}  ## Loop over regions -- end
