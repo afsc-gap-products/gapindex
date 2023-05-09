@@ -61,7 +61,8 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
           stats::aggregate(cbind(BIOMASS_MT, 
                                  BIOMASS_VAR,
                                  POPULATION_COUNT, 
-                                 POPULATION_VAR) ~
+                                 POPULATION_VAR,
+                                 COUNT_HAUL, COUNT_CATCH, COUNT_NUMBER) ~
                              SPECIES_CODE + YEAR,
                            data = subarea_biomass_by_stratrum,
                            FUN = sum,
@@ -102,10 +103,11 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                                  AREA_ID = subareas$AREA_ID[isubarea]),
                       subset(x = subarea_summed_biomass,
                              select = c(SPECIES_CODE, YEAR, 
+                                        COUNT_HAUL, COUNT_CATCH, COUNT_NUMBER,
                                         CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR,
                                         CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
                                         BIOMASS_MT, BIOMASS_VAR, 
-                                        POPULATION_COUNT, POPULATION_VAR))))
+                                        POPULATION_COUNT, POPULATION_VAR) )))
       }
     }
   }
