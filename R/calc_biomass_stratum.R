@@ -55,7 +55,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                     yes = NA, 
                                     no = stats::var(x, na.rm = TRUE) / 
                                       length(stats::na.omit(x))),
-          "COUNT_NUMBER" = length(stats::na.omit(x))
+          "COUNT_NUMBER" =  length(x = stats::na.omit(x[x > 0]))
         ))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
