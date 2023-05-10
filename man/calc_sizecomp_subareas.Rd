@@ -10,8 +10,8 @@ calc_sizecomp_subareas(racebase_tables, size_comps)
 \item{racebase_tables}{data object created from `gapindex::get_data()``}
 
 \item{size_comps}{a dataframe of stratum biomass, result object from either
-\code{gapindex::calc_size_stratum_AIGOA()} or
-\code{gapindex::calc_size_stratum_BS()}}
+\code{gapindex::calc_sizecomp_aigoa_stratum()} or
+\code{gapindex::calc_sizecomp_bs_stratum()}}
 }
 \value{
 dataframe of size composition estimates across
