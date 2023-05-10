@@ -86,6 +86,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
     stats::aggregate(
       FREQ ~ SURVEY + YEAR + SPECIES_CODE + SEX + LENGTH_MM + AGE,
       data = specimen,
+      subset = SEX %in% 1:2,
       FUN = sum),
     
     ## For UNSEXED, we pool MALES and FEMALES AND UNSEXED TOGETHER
