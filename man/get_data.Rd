@@ -11,6 +11,7 @@ get_data(
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
   sql_channel = NULL,
+  good_performance = TRUE,
   pull_lengths = F
 )
 }
