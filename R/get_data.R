@@ -21,11 +21,6 @@
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls and "N" are 
 #'                       other hauls.
-#' @param good_performance boolean. Should only "good" hauls (i.e., those with
-#'                         performance code >= 0) be included? Defaults to TRUE
-#'                         for standard biomass/abundance and size composition.
-#'                         Toggle this option to FALSE when calculating 
-#'                         age composition in the Bering Sea.
 #' @param sql_channel connection created via gapindex::get_connected()
 #' @param pull_lengths boolean T/F. Should lengths and specimen data be pulled? 
 #'                     Defaults to FALSE for speed.
@@ -43,7 +38,6 @@ get_data <- function(year_set = c(1996, 1999),
                      haul_type = 3,
                      abundance_haul = c("Y", "N")[1],
                      sql_channel = NULL,
-                     good_performance = TRUE,
                      pull_lengths = F) {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -142,9 +136,8 @@ get_data <- function(year_set = c(1996, 1999),
     RODBC::sqlQuery(channel = sql_channel, 
                     query = paste0(
                       "SELECT * FROM RACEBASE.HAUL WHERE CRUISEJOIN IN ", 
-                      cruisejoin_vec, " AND HAUL_TYPE IN ", haultype_vec))
-  if (good_performance) haul_data <- subset(x = haul_data,
-                                            subset = PERFORMANCE >= 0)
+                      cruisejoin_vec, " AND HAUL_TYPE IN ", haultype_vec,
+                      " AND PERFORMANCE >= 0"))
   
   haul_data <- subset(x = haul_data, 
                       subset = ABUNDANCE_HAUL %in% abundance_haul)
