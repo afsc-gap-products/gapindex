@@ -59,14 +59,24 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
         
         subarea_summed_biomass <- 
           stats::aggregate(cbind(BIOMASS_MT, 
-                                 BIOMASS_VAR,
-                                 POPULATION_COUNT, 
-                                 POPULATION_VAR,
-                                 COUNT_HAUL, COUNT_CATCH, COUNT_NUMBER) ~
+                                 POPULATION_COUNT) ~
+                             SPECIES_CODE + YEAR,
+                           data = subarea_biomass_by_stratrum,
+                           FUN = sum)
+        
+        subarea_summed_variance <- 
+          stats::aggregate(cbind(CPUE_KGKM2_VAR, CPUE_NOKM2_VAR, 
+                                 BIOMASS_VAR, POPULATION_VAR) ~
                              SPECIES_CODE + YEAR,
                            data = subarea_biomass_by_stratrum,
                            FUN = sum,
                            na.rm = TRUE)
+        
+        subarea_summed_hauls <- 
+          stats::aggregate(cbind(COUNT_HAUL, COUNT_CATCH, COUNT_NUMBER) ~
+                             SPECIES_CODE + YEAR,
+                           data = subarea_biomass_by_stratrum,
+                           FUN = sum)
         
         subarea_mean_cpue <- 
           do.call(what = rbind, 
@@ -86,6 +96,14 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
         
         subarea_summed_biomass <- merge(x = subarea_summed_biomass,
                                         y = subarea_mean_cpue,
+                                        by = c("SPECIES_CODE", "YEAR"))
+        
+        subarea_summed_biomass <- merge(y = subarea_summed_variance,
+                                        x = subarea_summed_biomass,
+                                        by = c("SPECIES_CODE", "YEAR"))
+        
+        subarea_summed_biomass <- merge(y = subarea_summed_hauls,
+                                        x = subarea_summed_biomass,
                                         by = c("SPECIES_CODE", "YEAR"))
         
         subarea_summed_biomass$CPUE_KGKM2_VAR <- 
@@ -114,10 +132,10 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   
   ## Warning Messages
   if ( 47 %in% subarea_biomass$SURVEY_DEFINITION_ID & 
-       2023 %in% subarea_biomass$YEAR) {
+       2025 %in% subarea_biomass$YEAR) {
     warning("The GOA total biomass across INPFC area and across depth zones
-              only includes years 1987-2023. Starting from 2023, total biomass
-              across NMFS areas will only be reported.")
+              only includes years 1987-2023. Starting from 2025, only total 
+              biomass across NMFS areas will be reported.")
   }
   
   return(subarea_biomass)
