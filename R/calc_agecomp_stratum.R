@@ -49,33 +49,13 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                                                   start = 1, stop = 4)))
   
   
-  ## TEST -- delete ---
-  ## Remove specimen with no STRATUM data IN 2018, THESE ARE NBS HAULS?
+  ## Remove specimen without stratum information
   specimen <- subset(x = specimen, 
                      subset = !is.na(STRATUM))
   
   ## Renamve "LENGTH" column add a "FREQ" column of 1s
   names(specimen)[names(specimen) == "LENGTH"] <- "LENGTH_MM"
   specimen$FREQ <- 1
-  
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   Narrow `size_comp` so each record refers to a sex/length combo
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # size_comp <- rbind(data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
-  #                                             'SPECIES_CODE', "LENGTH_MM")],
-  #                               SEX = 1, 
-  #                               sizepop = size_comp$MALES),
-  #                    data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
-  #                                             'SPECIES_CODE', "LENGTH_MM")],
-  #                               SEX = 2, 
-  #                               sizepop = size_comp$FEMALES),
-  #                    data.frame(size_comp[, c("SURVEY", "YEAR", "STRATUM", 
-  #                                             'SPECIES_CODE', "LENGTH_MM")],
-  #                               SEX = 3,
-  #                               sizepop = size_comp$UNSEXED)
-  # )
-  ## Remove zero records
-  # size_comp <- subset(x = size_comp, subset = sizepop > 0)
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Aggregate specimen information: s_yklm will be the total number 
@@ -149,40 +129,6 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   ## "AGEPOP" as the weight. Calculations are done separately for lengths with
   ## associated ages and lengths without associated ages (AGE = -9)
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-  # mean_length_at_age <- unique(x = subset(x = age_comp, 
-  #                                         subset = AGE > 0,
-  #                                         select = c(SURVEY, YEAR, 
-  #                                                    SPECIES_CODE, 
-  #                                                    STRATUM, SEX, AGE)))
-  # 
-  # for (irow in 1:nrow(x = mean_length_at_age)) {
-  #   mean_length_at_age[irow, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
-  #     with(subset(x = age_comp,
-  #                 subset = SURVEY == mean_length_at_age$SURVEY[irow] & 
-  #                   YEAR == mean_length_at_age$YEAR[irow] & 
-  #                   SPECIES_CODE == mean_length_at_age$SPECIES_CODE[irow] &  
-  #                   STRATUM == mean_length_at_age$STRATUM[irow] & 
-  #                   SEX == mean_length_at_age$SEX[irow] & 
-  #                   AGE == mean_length_at_age$AGE[irow] ), 
-  #          {
-  #            mean_length <- weighted.mean(x = LENGTH_MM, 
-  #                                         w = AGEPOP)
-  #            
-  #            ## weighted std.dev length
-  #            sd_length <- sqrt(sum(AGEPOP/sum(AGEPOP) * (LENGTH_MM - mean_length)^2))
-  #            c(mean_length, sd_length)
-  #          }
-  #     )
-  # }
-  
-  # split_df <- split(x = subset(x = age_comp,
-  #                              subset = AGE > 0),
-  #                   f = with(subset(x = age_comp,
-  #                                   subset = AGE > 0),
-  #                            list(SURVEY, YEAR, SPECIES_CODE,
-  #                                 STRATUM, SEX, AGE)))
-
   mean_length_at_age <-
     do.call(
       what = rbind,
@@ -227,39 +173,8 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
 
         }))
   rownames(mean_length_at_age) <- NULL
-  
-  # mean_length_at_age_neg9 <- unique(x = subset(x = age_comp, 
-  #                                         subset = AGE == -9,
-  #                                         select = c(SURVEY, YEAR, 
-  #                                                    SPECIES_CODE, 
-  #                                                    STRATUM, SEX, AGE)))
-  # 
-  # for (irow in 1:nrow(x = mean_length_at_age_neg9)) {
-  #   mean_length_at_age_neg9[irow, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
-  #     with(subset(x = age_comp,
-  #                 subset = SURVEY == mean_length_at_age_neg9$SURVEY[irow] & 
-  #                   YEAR == mean_length_at_age_neg9$YEAR[irow] & 
-  #                   SPECIES_CODE == mean_length_at_age_neg9$SPECIES_CODE[irow] &  
-  #                   STRATUM == mean_length_at_age_neg9$STRATUM[irow] & 
-  #                   SEX == mean_length_at_age_neg9$SEX[irow] & 
-  #                   AGE == mean_length_at_age_neg9$AGE[irow] ), 
-  #          {
-  #            mean_length <- weighted.mean(x = LENGTH_MM, 
-  #                                         w = AGEPOP)
-  #            
-  #            ## weighted std.dev length
-  #            sd_length <- sqrt(sum(AGEPOP/sum(AGEPOP) * (LENGTH_MM - mean_length)^2))
-  #            c(mean_length, sd_length)
-  #          }
-  #     )
-  # }
-  
-  ## Calculate mean and sd of length @ age for age -9 category
-  # split_df <- split(x = subset(x = age_comp, subset = AGE == -9),
-  #                   f = with(subset(x = age_comp, subset = AGE == -9),
-  #                            list(SURVEY, YEAR, SPECIES_CODE,
-  #                                 STRATUM, SEX)))
 
+  ## Calculate mean and sd of length @ age for age -9 category
   mean_length_at_age_neg9 <-
     do.call(
       what = rbind,
