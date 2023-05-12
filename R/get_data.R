@@ -38,9 +38,8 @@
 #'  
 
 get_data <- function(year_set = c(1996, 1999),
-                     survey_set = NULL,
-                     spp_codes = data.frame("SPECIES_CODE" = 21720, 
-                                            "GROUP" = 21720),
+                     survey_set = c("GOA"),
+                     spp_codes = c(21720, 30060, 10110),
                      haul_type = 3,
                      abundance_haul = c("Y", "N")[1],
                      sql_channel = NULL,
@@ -58,11 +57,10 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## Error Query: check that argument survey_set is one the correct options.
   if (is.null(x = survey_set) | 
-      !all(survey_set %in% c("GOA", "AI", "EBS", "NBS"))) {
+      !all(survey_set %in% c("GOA", "AI", "EBS", "NBS", "EBS_SLOPE"))) {
     stop(paste0("arg survey_set must contain one or more of these options",
                 " (case-sensitive): 
-                'GOA', 'AI', 'EBS', or 'NBS'. 
-                At this time, the 'EBS_SLOPE' is not an option."))
+                'GOA', 'AI', 'EBS', 'EBS_SLOPE', or 'NBS'."))
   }
   
   cat("Pulling cruise data...\n")
@@ -70,8 +68,8 @@ get_data <- function(year_set = c(1996, 1999),
   ## Query cruise data and filter survey and years of interest
   year_vec <- gapindex::stitch_entries(stitch_what = year_set)
   
-  survey_def_ids <- 
-    c("AI" = 52, "GOA" = 47, "EBS" = 98, "NBS" = 143)[survey_set]
+  survey_def_ids <- c("AI" = 52, "GOA" = 47, "EBS" = 98, 
+                      "EBS_SLOPE" = 78, "NBS" = 143)[survey_set]
   survey_def_ids_vec <- gapindex::stitch_entries(survey_def_ids)
   
   cruise_data <- RODBC::sqlQuery(
@@ -145,9 +143,8 @@ get_data <- function(year_set = c(1996, 1999),
                     query = paste0(
                       "SELECT * FROM RACEBASE.HAUL WHERE CRUISEJOIN IN ", 
                       cruisejoin_vec, " AND HAUL_TYPE IN ", haultype_vec))
-  if (good_performance) 
-    haul_data <- subset(x = haul_data, 
-                        subset = PERFORMANCE >= 0)
+  if (good_performance) haul_data <- subset(x = haul_data,
+                                            subset = PERFORMANCE >= 0)
   
   haul_data <- subset(x = haul_data, 
                       subset = ABUNDANCE_HAUL %in% abundance_haul)
@@ -220,7 +217,7 @@ get_data <- function(year_set = c(1996, 1999),
     stop("There are no catch records for any of the species codes in argument
          spp_codes for survey area '", survey_set, "' in the chosen years ",
          year_vec)
-
+  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   9) Query Size information if pull_lengths == TRUE
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
