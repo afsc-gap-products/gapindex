@@ -33,13 +33,13 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
   ## Subset only AI/GOA data from the cruise data. If there are no AI/GOA
   ## cruises in the dataset, send out an error to use the other size comp fn. 
   cruise <- subset(x = racebase_tables$cruise,
-                   subset = SURVEY %in% c("NBS", "EBS"))
+                   subset = SURVEY %in% c("NBS", "EBS", "EBS_SLOPE"))
   
   if (nrow(x = cruise) == 0){
-    stop("EBS or NBS cruises are not in argument racebase_tables$cruise.
-         This function only applies the size composition to the EBS/NBS. 
-         Use gapindex::calc_size_stratum_AIGOA() to calculate the size 
-         composition to the AI/GOA.")
+    stop("EBS, EBS_SLOPE, or NBS cruises are not in argument 
+         racebase_tables$cruise. This function only applies the size 
+         composition to the EBS/NBS. Use gapindex::calc_size_stratum_AIGOA() 
+         to calculate the size composition to the AI/GOA survey regions.")
   }
   
   ## Subset dataframe haul based on the CRUISEJOIN field in dataframe cruise. 
@@ -55,7 +55,7 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
                  subset = CRUISEJOIN %in% cruise$CRUISEJOIN)
   size <- subset(x = racebase_tables$size, 
                  subset = HAULJOIN %in% haul$HAULJOIN)
-
+  
   ## Attach YEAR, SURVEY,  and STRATUM information from dataframe `haul to 
   ## dataframe `size` using HAULJOIN as the key.
   
@@ -164,15 +164,15 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
   
   ## Rename "NUMBER" column back to "POPULATION_COUNT"
   names(S_iklm)[names(S_iklm) == "NUMBER"] <- "POPULATION_COUNT"
-
+  
   # ## Add units to LENGTH column name
   names(S_iklm)[names(S_iklm) == "LENGTH"] <- "LENGTH_MM"
-
+  
   ## Add SURVEY_DEFINITION_ID to output
   S_iklm <- merge(x = S_iklm, 
                   y = racebase_tables$survey, 
                   by = "SURVEY")
-
+  
   ## For those -9 Length records with SEX = 4, change value of SEX to 3
   S_iklm$SEX[S_iklm$SEX == 4] <- 3
   
