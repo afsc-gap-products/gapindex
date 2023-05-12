@@ -6,12 +6,11 @@
 \usage{
 get_data(
   year_set = c(1996, 1999),
-  survey_set = NULL,
-  spp_codes = data.frame(SPECIES_CODE = 21720, GROUP = 21720),
+  survey_set = c("GOA"),
+  spp_codes = c(21720, 30060, 10110),
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
   sql_channel = NULL,
-  good_performance = TRUE,
   pull_lengths = F
 )
 }
