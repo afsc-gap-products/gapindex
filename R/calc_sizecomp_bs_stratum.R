@@ -65,7 +65,7 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
                 by = "HAULJOIN")
   
   racebase_stratum_popn <- subset(x = racebase_stratum_popn, 
-                                  SURVEY %in% c("EBS", "NBS"))
+                                  SURVEY %in% c("EBS", "NBS", "EBS_SLOPE"))
   
   ##############################################
   ## Wakabayashi et al. 1985 Equation 16: 
