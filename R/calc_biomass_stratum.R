@@ -70,15 +70,26 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
     aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
                 SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
               data = size,
-              FUN = function(x) length(unique(x)) )
+              FUN = function(x) length(unique(x)))
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
     wgt_stats[, c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
                   "SURVEY", "SURVEY_DEFINITION_ID")],
     wgt_stats$CPUE_KGKM2,
-    num_stats$CPUE_NOKM2,
-    N_LENGTH = size_stats$HAULJOIN)
+    num_stats$CPUE_NOKM2)
+  
+  ## Merge "HAULJOIN" column from `size_stats` into stratum_stats using 
+  ## "SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", "SURVEY", and 
+  ## "SURVEY_DEFINITION_ID" as a composite key
+  stratum_stats <- 
+    merge(x = stratum_stats,
+          y = size_stats,
+          by = c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
+                 "SURVEY", "SURVEY_DEFINITION_ID"),
+          all.x = TRUE)
+  names(stratum_stats)[names(stratum_stats) == "HAULJOIN"] <- "N_LENGTH"
+  stratum_stats$N_LENGTH[is.na(stratum_stats$N_LENGTH)] <- 0
   
   ## Attach stratum data to stratum_stats
   stratum_stats <- merge(
