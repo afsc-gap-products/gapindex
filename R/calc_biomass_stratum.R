@@ -37,8 +37,8 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                     yes = NA, 
                                     no = stats::var(x, na.rm = TRUE) / 
                                       length(stats::na.omit(x))),
-          "COUNT_HAUL" = length(x = x),
-          "COUNT_CATCH" = length(x = stats::na.omit(x[x > 0]))
+          "N_HAUL" = length(x = x),
+          "N_WEIGHT" = length(x = stats::na.omit(x[x > 0]))
         ))
   
   ## Calculate mean and variance of stratum abundance. For strata with only
@@ -55,15 +55,30 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                     yes = NA, 
                                     no = stats::var(x, na.rm = TRUE) / 
                                       length(stats::na.omit(x))),
-          "COUNT_NUMBER" =  length(x = stats::na.omit(x[x > 0]))
+          "N_COUNT" =  length(x = stats::na.omit(x[x > 0]))
         ))
+  
+  ##
+  size <- merge(x = racebase_tables$size,
+                y = haul[, c("HAULJOIN", "STRATUM")],
+                by = "HAULJOIN")
+  size <- merge(x = size, 
+                y = racebase_tables$cruise,
+                by = "CRUISEJOIN")
+  
+  size_stats <- 
+    aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
+                SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
+              data = size,
+              FUN = function(x) length(unique(x)) )
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
     wgt_stats[, c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
                   "SURVEY", "SURVEY_DEFINITION_ID")],
     wgt_stats$CPUE_KGKM2,
-    num_stats$CPUE_NOKM2)
+    num_stats$CPUE_NOKM2,
+    N_LENGTH = size_stats$HAULJOIN)
   
   ## Attach stratum data to stratum_stats
   stratum_stats <- merge(
@@ -87,7 +102,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   stratum_stats <- subset(x = stratum_stats,
                           select = c(SURVEY_DEFINITION_ID, SURVEY,
                                      STRATUM, SPECIES_CODE, YEAR,
-                                     COUNT_HAUL, COUNT_CATCH, COUNT_NUMBER,
+                                     N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH,
                                      CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
                                      CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
                                      BIOMASS_MT, BIOMASS_VAR, 
