@@ -193,10 +193,10 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## Query available species given the surveys queried
   avail_spp <-
-    as.vector(RODBC::sqlQuery(channel = sql_channel,
+   RODBC::sqlQuery(channel = sql_channel,
                               query = paste0("SELECT DISTINCT SPECIES_CODE ",
                                              "FROM RACEBASE.CATCH where CRUISEJOIN in ", 
-                                             cruisejoin_vec)))
+                                             cruisejoin_vec))$SPECIES_CODE
   
   ## Check that spp_codes can either be:
   ## 1) dataframe with columns "GROUP" and "SPECIES_CODE" for instances where
