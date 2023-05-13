@@ -16,15 +16,15 @@ rm(list = ls())
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 library(gapindex)
 library(googledrive)
+library(RODBC)
 
 sql_channel <- gapindex::get_connected()
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Specify the range of years to calculate indices
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-range_of_years <- 2010:2022
+range_of_years <- 1980:2022
 regions <- c("AI", "GOA", "EBS", "NBS")
-species_range <- c(30060, 21720, 21740)
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Create temporary folder to put downloaded metadata files. Double-check 
@@ -35,6 +35,11 @@ if (!dir.exists(paths = "temp")) dir.create(path = "temp")
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Authorize R to pull content from google drive
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+googledrive::drive_deauth()
+googledrive::drive_auth()
+1
+
+sql_channel <- gapindex::get_connected()
 
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,7 +139,8 @@ for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
   ## Aggregate `production_agecomp_stratum` to subareas and regions
   cat("\nAggregate age composition to regions\n")
   start_time <- Sys.time()
-  production_agecomp <- gapindex::calc_agecomp_region(
+  production_agecomp <- #gapindex::
+    calc_agecomp_region(
     racebase_tables = production_data,
     age_comps_stratum = production_agecomp_stratum)
   end_time <- Sys.time()
@@ -173,7 +179,7 @@ for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
   for (idata in c("production_cpue", 
                   "production_biomass", 
                   "production_sizecomp", 
-                  "production_agecomp")[2]) { ## Loop over table -- start
+                  "production_agecomp")[2:1]) { ## Loop over table -- start
     
     if (iregion == 1) append_table = FALSE
     
@@ -202,13 +208,14 @@ for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
                              nrow(x = get(x = idata))))
     
     for (irow in 1:nrow(x = idx) ) { ## loop over chunk -- start
-      gapindex::upload_oracle(
+      upload_oracle(
         channel = sql_channel,
         x = get(idata)[idx$from[irow]:idx$to[irow], ],
-        schema = "OYAFUSOZ",
-        table_name = toupper(x = gsub(x = idata, 
-                                      pattern = "production_", 
-                                      replacement = "")),
+        schema = "",
+        # table_name = toupper(x = gsub(x = idata, 
+        #                               pattern = "production_", 
+        #                               replacement = "")),
+        table_name = "NEW_CPUE",
         table_metadata = table_metadata,
         metadata_column = metadata_columns,
         append_table = append_table, 
