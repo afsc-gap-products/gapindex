@@ -18,13 +18,11 @@ library(gapindex)
 library(googledrive)
 library(RODBC)
 
-sql_channel <- gapindex::get_connected()
-
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Specify the range of years to calculate indices
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 range_of_years <- 1980:2022
-regions <- c("AI", "GOA", "EBS", "NBS")
+regions <- c("AI", "GOA", "EBS", "NBS", "EBS_SLOPE")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Create temporary folder to put downloaded metadata files. Double-check 
@@ -40,7 +38,6 @@ googledrive::drive_auth()
 1
 
 sql_channel <- gapindex::get_connected()
-
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Import metadata
@@ -60,7 +57,7 @@ main_metadata_tables_info <- readxl::read_xlsx("temp/metadata.xlsx" ,
 ##   Loop over regions
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
+for (iregion in (1:length(x = regions))[5]) { ## Loop over regions -- start
   
   ## Pull data for all years and species from Oracle
   start_time <- Sys.time()
@@ -179,9 +176,9 @@ for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
   for (idata in c("production_cpue", 
                   "production_biomass", 
                   "production_sizecomp", 
-                  "production_agecomp")[2:1]) { ## Loop over table -- start
+                  "production_agecomp")[3]) { ## Loop over table -- start
     
-    if (iregion == 1) append_table = FALSE
+    append_table_ <- ifelse(test = iregion == 1, yes = FALSE, no = TRUE)
     
     match_idx <- 
       match(x = names(get(idata)), 
@@ -208,19 +205,19 @@ for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
                              nrow(x = get(x = idata))))
     
     for (irow in 1:nrow(x = idx) ) { ## loop over chunk -- start
-      upload_oracle(
+      gapindex::upload_oracle(
         channel = sql_channel,
         x = get(idata)[idx$from[irow]:idx$to[irow], ],
-        schema = "",
-        # table_name = toupper(x = gsub(x = idata, 
-        #                               pattern = "production_", 
-        #                               replacement = "")),
-        table_name = "NEW_CPUE",
+        schema = "GAP_PRODUCTS",
+        table_name = toupper(x = gsub(x = idata,
+                                      pattern = "production_",
+                                      replacement = "")),
+        # table_name = "NEW_CPUE",
         table_metadata = table_metadata,
         metadata_column = metadata_columns,
-        append_table = append_table, 
+        append_table = append_table_, 
         update_metadata = TRUE)
-      append_table <- TRUE
+      append_table_ <- TRUE
     }  ## loop over chunk -- end
     
   } ## Loop over table -- end
