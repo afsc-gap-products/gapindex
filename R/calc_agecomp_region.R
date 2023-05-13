@@ -40,7 +40,7 @@ calc_agecomp_region <- function(racebase_tables,
     ## Extract the different regions to calculate over. Currently, age comps
     ## and mean/sd lengths are only being aggregated over regions. This 
     ## excludes calculations across subareas (e.g., Shumagin or 1-100 m). 
-    subareas <- subset(x = gapindex::area_table,
+    subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
                          TYPE == "REGION" &
@@ -50,7 +50,7 @@ calc_agecomp_region <- function(racebase_tables,
       
       ## Subset strata contained within the given region
       strata_in_iregion <- 
-        subset(x = gapindex::stratum_groupings,
+        subset(x = racebase_tables$stratum_groups,
                subset = AREA_ID %in% subareas$AREA_ID[iregion])$STRATUM
       
       if (length(x = strata_in_iregion) > 0) {
@@ -66,7 +66,8 @@ calc_agecomp_region <- function(racebase_tables,
         ## Total numbers by "SURVEY", "YEAR", "SPECIES_CODE", "SEX", and "AGE",
         ## aggregating over strata
         age_comp_iregion <-
-          stats::aggregate(POPULATION_COUNT ~ SURVEY + YEAR + SPECIES_CODE + SEX + AGE,
+          stats::aggregate(POPULATION_COUNT ~ SURVEY + YEAR + SPECIES_CODE + 
+                             SEX + AGE,
                            data = age_comp_iregion_by_strata,
                            FUN = sum)
         

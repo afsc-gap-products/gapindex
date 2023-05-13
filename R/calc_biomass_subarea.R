@@ -28,7 +28,7 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   
   ## Add DESIGN_YEAR to biomass_strata
   biomass_strata <- merge(x = biomass_strata,
-                          y = gapindex::design_table,
+                          y = racebase_tables$survey_design,
                           by = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR"))
   
   ## Add stratum area to biomass_strata
@@ -39,15 +39,14 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   
   for (isurvey in 1:nrow(x = survey_designs)) {
     
-    subareas <- subset(x = gapindex::area_table,
+    subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
-                         TYPE != "STRATUM" &
                          DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
     
     for (isubarea in 1:nrow(x = subareas)) {
       strata_in_subarea <- 
-        subset(x = gapindex::stratum_groupings,
+        subset(x = racebase_tables$stratum_groups,
                subset = AREA_ID %in% subareas$AREA_ID[isubarea])
       
       if (nrow(x = strata_in_subarea) > 0) {

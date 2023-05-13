@@ -73,11 +73,19 @@ get_data <- function(year_set = c(1996, 1999),
                    " SURVEY_DEFINITION_ID IN ", survey_def_ids_vec, 
                    " AND YEAR IN ", year_vec))
   
+  ## Pull Survey Design table
+  survey_design <- 
+    RODBC::sqlQuery(channel = sql_channel,
+                    query = paste0("SELECT * FROM GAP_PRODUCTS.SURVEY_DESIGN",
+                                   " WHERE SURVEY_DEFINITION_ID IN ", 
+                                   survey_def_ids_vec, 
+                                   " AND YEAR IN ", year_vec) )
+  
   ## Merge columns "DESIGN_YEAR" and "SURVEY" from `gapindex::design_table`
   ## to the `cruise_data` using columns "YEAR" AND "SURVEY_DEFINITION_ID" 
   ## as a composite key. 
   cruise_data <- merge(x = cruise_data, 
-                       y = gapindex::design_table,
+                       y = survey_design,
                        by = c("YEAR", "SURVEY_DEFINITION_ID"))
   
   ## Remove any records with NA in teh CRUISEJOIN
@@ -102,11 +110,31 @@ get_data <- function(year_set = c(1996, 1999),
   ##   4) Query stratum data from `gapindex::area_table`
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Pulling stratum data...\n")
+  area_info <- 
+    RODBC::sqlQuery(channel = sql_channel,
+                    query = paste0("SELECT * FROM GAP_PRODUCTS.AREA",
+                                   " WHERE SURVEY_DEFINITION_ID IN ", 
+                                   survey_def_ids_vec))
   
-  stratum_data <- subset(x = gapindex::area_table,
-                         subset = TYPE == "STRATUM",
+  stratum_data <- subset(x = area_info,
+                         subset = TYPE == "STRATUM" & 
+                           DESIGN_YEAR %in% survey_df$DESIGN_YEAR,
                          select = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR",
-                                    "AREA_ID", "DESCRIPTION", "AREA_KM2"))
+                                    "AREA_ID", "AREA_NAME", "DESCRIPTION", 
+                                    "AREA_KM2"))
+  
+  subarea_data <- subset(x = area_info,
+                         subset = TYPE != "STRATUM" & 
+                           DESIGN_YEAR %in% survey_df$DESIGN_YEAR,
+                         select = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR",
+                                    "TYPE", "AREA_ID", "AREA_NAME", 
+                                    "DESCRIPTION", "AREA_KM2"))
+  
+  stratum_groups <-
+    RODBC::sqlQuery(channel = sql_channel, 
+                    query = paste0("SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS", 
+                                   " WHERE SURVEY_DEFINITION_ID IN ", 
+                                   survey_def_ids_vec))
   
   ## Merge the "SURVEY" column in `survey_df` to `stratum_data` using 
   ## columns "SURVEY_DEFINITION_ID" and "DESIGN_YEAR" as a composite key. 
@@ -114,12 +142,29 @@ get_data <- function(year_set = c(1996, 1999),
                         y = survey_df, 
                         by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR"))
   
+  subarea_data <- merge(x = subarea_data,
+                        y = survey_df, 
+                        by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR"))
+  
+  stratum_groups <- merge(x = stratum_groups,
+                          y = survey_df, 
+                          by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR"))
+  
   ## Reorder `stratum_data` columns and sort records. 
   stratum_data <- 
     stratum_data[order(stratum_data$SURVEY, stratum_data$AREA_ID),
                  c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "AREA_ID",
-                   "DESCRIPTION", "AREA_KM2")]
+                   "AREA_NAME", "DESCRIPTION", "AREA_KM2")]
   names(stratum_data)[names(stratum_data) == "AREA_ID"] <- "STRATUM"
+  
+  subarea_data <- 
+    subarea_data[order(subarea_data$SURVEY, subarea_data$AREA_ID),
+                 c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "TYPE",
+                   "AREA_ID", "AREA_NAME", "DESCRIPTION")]
+  
+  
+  stratum_groups <- 
+    stratum_groups[order(stratum_groups$SURVEY, stratum_groups$AREA_ID), ]
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## 5) Query Haul data based on the CRUISEJOIN values in the cruise_data
@@ -148,10 +193,10 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## Query available species given the surveys queried
   avail_spp <-
-    RODBC::sqlQuery(channel = sql_channel,
-                    query = paste0("SELECT DISTINCT SPECIES_CODE ",
-                                   "FROM RACEBASE.CATCH where CRUISEJOIN in ", 
-                                   cruisejoin_vec))$SPECIES_CODE
+    as.vector(RODBC::sqlQuery(channel = sql_channel,
+                              query = paste0("SELECT DISTINCT SPECIES_CODE ",
+                                             "FROM RACEBASE.CATCH where CRUISEJOIN in ", 
+                                             cruisejoin_vec)))
   
   ## Check that spp_codes can either be:
   ## 1) dataframe with columns "GROUP" and "SPECIES_CODE" for instances where
@@ -295,11 +340,14 @@ get_data <- function(year_set = c(1996, 1999),
   ##   Put cruise, haul, catch, stratu, and species data into a list and return
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   return(list(survey = survey_df,
+              survey_design = survey_design,
               cruise = cruise_data,
               haul = haul_data,
               catch = catch_data,
               size = size_data,
               specimen = speclist,
               species = species_info,
-              strata = stratum_data))
+              strata = stratum_data,
+              stratum_groups = stratum_groups,
+              subarea = subarea_data))
 }

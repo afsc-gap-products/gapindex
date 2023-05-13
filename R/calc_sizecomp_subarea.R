@@ -13,47 +13,19 @@
 calc_sizecomp_subareas <- function(racebase_tables, 
                                    size_comps) {
   
-  ## Error checks
-  # if (is.null(size_comps))
-  #   stop("Please supply a size composition dataframe created using 
-  #        `gapindex::calc_size_stratum_AIGOA()` or 
-  #        `gapindex::calc_size_stratum_BS()`")
-  # 
-  # if (!region %in% c("EBS_STANDARD", "EBS_PLUSNW", "NBS", "GOA", "AI"))
-  #   stop("Argument `region` must be one of these options: 
-  #        EBS_STANDARD, EBS_PLUSNW, NBS, GOA, AI. " )
-  # 
-  # if (region == "GOA") {
-  #   if (any(unique(size_comps$YEAR) > 2023))
-  #     warning("The GOA total biomass across INPFC area and across depth zones
-  #             only includes years 1987-2023. Starting from 2025, total biomass
-  #             across NMFS areas will only be reported.")
-  # }
-  # 
-  # if (region == "EBS_PLUSNW") {
-  #   if ( any(unique(size_comps$YEAR) < 1987) ){
-  #     
-  #     stop("The (EBS + NW) output only includes years 1987-present. 
-  #     Years 1982-1986 are NOT included for the (EBS + NW) output because 
-  #     essentially no stations within strata 82 & 90 (subarea 8 & 9) 
-  #     were sampled during those years.")
-  #   }
-  # } 
-  
   subarea_size_comp_df <- data.frame()
   survey_designs <- racebase_tables$survey
   
   for (isurvey in 1:nrow(x = survey_designs)) { 
     
-    subareas <- subset(x = gapindex::area_table,
+    subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
-                         TYPE != "STRATUM" &
                          DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
     
     for (isubarea in 1:nrow(x = subareas)) {
       strata_in_subarea <- 
-        subset(x = gapindex::stratum_groupings,
+        subset(x = racebase_tables$stratum_groups,
                subset = AREA_ID %in% subareas$AREA_ID[isubarea])
       
       if (nrow(x = strata_in_subarea) > 0) {
@@ -63,6 +35,8 @@ calc_sizecomp_subareas <- function(racebase_tables,
                  subset = SURVEY_DEFINITION_ID == 
                    subareas$SURVEY_DEFINITION_ID[isubarea] &
                    STRATUM %in% strata_in_subarea$STRATUM)
+        
+        if (nrow(x = subarea_size_comp) == 0) next
         
         subarea_summed_sizecomp <- 
           stats::aggregate(POPULATION_COUNT ~ 
