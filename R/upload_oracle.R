@@ -77,7 +77,8 @@ upload_oracle <- function(x = NULL,
              sum(!is.na(x = metadata_column$colname)), "\n"))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   Initiate table if it is new
+  ##   Initiate table if new, 
+  ##   If table already exits, drop table before overwriting
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   start_time <- Sys.time()
   if (!append_table) {
@@ -91,7 +92,11 @@ upload_oracle <- function(x = NULL,
       RODBC::sqlDrop(channel = channel, sqtable = table_name, errors = FALSE)
   }
   
-  cat(paste0("Updating Table ", schema, ".", table_name, " ... "))
+  cat(paste0("Updating Table ", table_name, " ... "))
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Upload table to Oracle
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ## Format metadata as a named vector to be inputted as argument 
   ## `varTypes` in RODBC::sqlSave()
@@ -105,19 +110,9 @@ upload_oracle <- function(x = NULL,
   assign(x = table_name, value = x)
   
   ## Add the table to the schema
-  # eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
-  #                          table_name, ", varTypes = vartype_vec, tablename = '",
-  #                          table_name, "', ",
-  #                          "rownames = FALSE, append = ", append_table, ")")))
-  
-  sql_save_args <- list(channel = channel, 
-                        dat = x, 
-                        varTypes = vartype_vec, 
-                        tablename = paste0(schema, ".", table_name), 
-                        rownames = FALSE, 
-                        append = FALSE)
-  
-  do.call(what = sqlSave, args = sql_save_args)
+  eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
+                           table_name, ", varTypes = vartype_vec, ",
+                           "rownames = FALSE, append = ", append_table, ")")))
   
   end_time <- Sys.time()
   cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
