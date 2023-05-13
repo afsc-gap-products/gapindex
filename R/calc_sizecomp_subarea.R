@@ -48,7 +48,7 @@ calc_sizecomp_subareas <- function(racebase_tables,
           rbind(
             subarea_size_comp_df,
             cbind(data.frame(AREA_ID = subareas$AREA_ID[isubarea],
-                             SURVEY_DEFINITION_ID = subareas$SURVEY[isubarea]),
+                             SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[isubarea]),
                   subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", 
                                               "SEX", "LENGTH_MM", 
                                               "POPULATION_COUNT")]))

@@ -180,7 +180,7 @@ calc_agecomp_region <- function(racebase_tables,
         ## Append AREA_ID and SURVEY_DEFINITION_ID to `age_comp_iregion`
         age_comp_iregion <-
           cbind(data.frame(SURVEY = age_comp_iregion$SURVEY,
-                           SURVEY_DEFINITION_ID = subareas$SURVEY[iregion],
+                           SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[iregion],
                            AREA_ID = subareas$AREA_ID[iregion]),
                 age_comp_iregion[, c("YEAR", "SPECIES_CODE",  "SEX", 
                                      "AGE", "POPULATION_COUNT", 
