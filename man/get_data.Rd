@@ -6,8 +6,8 @@
 \usage{
 get_data(
   year_set = c(1996, 1999),
-  survey_set = c("GOA", "AI", "EBS_SHELF", "NBS_SHELF")[1],
-  spp_codes = data.frame(SPECIES_CODE = 21720, GROUP = 21720),
+  survey_set = c("GOA"),
+  spp_codes = c(21720, 30060, 10110),
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
   sql_channel = NULL,
@@ -17,30 +17,36 @@ get_data(
 \arguments{
 \item{year_set}{numeric or integer vector of years}
 
-\item{survey_set}{character string. One of c("GOA", "AI", "EBS_SHELF",
-"EBS_SLOPE", "NBS_SHELF")}
+\item{survey_set}{character string. One of c("GOA", "AI", "EBS", "NBS").
+At this time, the 'EBS_SLOPE' is not an option.}
 
 \item{spp_codes}{two-column dataframe of species codes (column name
 SPECIES_CODE) and GROUP name (column name GROUP).
 For single-species, the GROUP and species codes can be the
-same. Example: data.frame("SPECIES_CODE" = c(21720, 21220, 21230, 21232),
-"GROUP" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))}
+same. Examples:
+1) data.frame("SPECIES_CODE" = c(21720, 21220,
+21230, 21232),
+"GROUP" = c(21720, "Grenadiers", "Grenadiers",
+"Grenadiers")) # for taxon groups
+2) c(21720, 21740, 10110) # for single taxa
+3) NULL # for all species present in within the combination
+of survey_set and year_set}
 
 \item{haul_type}{integer. Defaults to haul type "3" for Standard bottom
 sample (preprogrammed station) used for biomass estimation}
 
-\item{abundance_haul}{character string. "Y" are abundance hauls (what does
-this mean?) and "N" are other hauls.}
+\item{abundance_haul}{character string. "Y" are abundance hauls and "N" are
+other hauls.}
 
-\item{sql_channel}{connection created via AFSC.GAP.DBE::get_connected()}
+\item{sql_channel}{connection created via gapindex::get_connected()}
 
-\item{pull_lengths}{boolean T/F. Should lengths be called? Defaults to FALSE
-for speed.}
+\item{pull_lengths}{boolean T/F. Should lengths and specimen data be pulled?
+Defaults to FALSE for speed.}
 }
 \value{
-a named list containing cruise, haul, catch, specimen,
-optional size (length), and stratum information
-for the region, years, and species of interest.
+a named list containing survey, cruise, haul, catch, specimen (if
+pull_lengths == TRUE), length (if pull_lengths == TRUE), species,
+stratum information for the survey, years, and species of interest.
 }
 \description{
 Pulls cruise, haul, catch, and stratum information for the

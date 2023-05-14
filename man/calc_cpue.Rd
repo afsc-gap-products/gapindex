@@ -7,11 +7,11 @@
 calc_cpue(racebase_tables = NULL)
 }
 \arguments{
-\item{racebase_tables}{data object created from `AFSC.GAP.DBE::get_data()``}
+\item{racebase_tables}{data object created from `gapindex::get_data()``}
 }
 \value{
 dataframe of weight and numerical CPUE for the region, species, and
-years pulled from \code{AFSC.GAP.DBE::get_data()}
+years pulled from \code{gapindex::get_data()}
 }
 \description{
 This function zero-fills the catch data and converts numbers

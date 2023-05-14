@@ -1,9 +1,8 @@
-Package: AFSC.GAP.DBE
-Title: Biomass and Population Abundance Index Calculations
+Package: gapindex
+Title: Standard AFSC GAP Product Calculations
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Zack", "Oyafuso", , "zack.oyafuso@noaa.gov", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
@@ -14,3 +13,6 @@ Imports:
     RODBC,
     getPass,
     stats
+Depends: 
+    R (>= 4.0.0)
+LazyData: true

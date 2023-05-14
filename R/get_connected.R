@@ -19,12 +19,12 @@ get_connected <- function(schema = "AFSC") {
                                                  pwd = paste(password), 
                                                  believeNRows = FALSE))
   if (channel == -1) {
-    stop("Unable to connect. Username or password may be incorrect. Please re-enter.\n\n")
+    stop("Unable to connect. Username or password may be incorrect. Check that you are connected to the network (e.g., VPN). Please re-enter.\n\n")
     return(invisible())
   }
   
   if (class(channel) == "RODBC") {
-    cat("Successfully connected to Oracle!\n\n")
+    cat("Successfully connected to Oracle.\n\n")
     return(channel)
   }
   
