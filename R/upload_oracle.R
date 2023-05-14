@@ -110,9 +110,18 @@ upload_oracle <- function(x = NULL,
   assign(x = table_name, value = x)
   
   ## Add the table to the schema
-  eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
-                           table_name, ", varTypes = vartype_vec, ",
-                           "rownames = FALSE, append = ", append_table, ")")))
+  # eval(parse(text = paste0("RODBC::sqlSave(channel = channel, dat = ",
+  #                          table_name, ", varTypes = vartype_vec, ",
+  #                          "rownames = FALSE, append = ", append_table, ")")))
+  
+  sql_save_args <- list(channel = channel, 
+                        dat = x, 
+                        varTypes = vartype_vec, 
+                        tablename = paste0(schema, ".", table_name), 
+                        rownames = FALSE, 
+                        append = append_table)
+  
+  do.call(what = RODBC::sqlSave, args = sql_save_args)
   
   end_time <- Sys.time()
   cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
