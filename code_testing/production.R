@@ -22,7 +22,7 @@ library(RODBC)
 ##   Specify the range of years to calculate indices
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 range_of_years <- 1980:2022
-regions <- c("AI", "GOA", "EBS", "NBS", "EBS_SLOPE")
+regions <- c("NBS", "AI", "GOA", "EBS", "EBS_SLOPE")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## Create temporary folder to put downloaded metadata files. Double-check 
@@ -57,7 +57,7 @@ main_metadata_tables_info <- readxl::read_xlsx("temp/metadata.xlsx" ,
 ##   Loop over regions
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-for (iregion in (1:length(x = regions))[5]) { ## Loop over regions -- start
+for (iregion in (1:length(x = regions))[1]) { ## Loop over regions -- start
   
   ## Pull data for all years and species from Oracle
   start_time <- Sys.time()
@@ -136,10 +136,10 @@ for (iregion in (1:length(x = regions))[5]) { ## Loop over regions -- start
   ## Aggregate `production_agecomp_stratum` to subareas and regions
   cat("\nAggregate age composition to regions\n")
   start_time <- Sys.time()
-  production_agecomp <- #gapindex::
+  production_agecomp_region <- #gapindex::
     calc_agecomp_region(
-    racebase_tables = production_data,
-    age_comps_stratum = production_agecomp_stratum)
+      racebase_tables = production_data,
+      age_comps_stratum = production_agecomp_stratum)
   end_time <- Sys.time()
   print(end_time - start_time)
   
@@ -161,6 +161,10 @@ for (iregion in (1:length(x = regions))[5]) { ## Loop over regions -- start
     names(x = production_sizecomp_stratum) == "STRATUM"
   ] <- "AREA_ID"
   
+  names(x = production_agecomp_stratum$age_comp)[
+    names(x = production_agecomp_stratum$age_comp) == "STRATUM"
+  ] <- "AREA_ID"
+  
   ## Combine stratum, subarea, and region estimates for the biomass and 
   ## size composition tables
   production_biomass <- 
@@ -171,12 +175,18 @@ for (iregion in (1:length(x = regions))[5]) { ## Loop over regions -- start
     rbind(production_sizecomp_subarea,
           production_sizecomp_stratum[, names(production_sizecomp_subarea)])
   
+  production_agecomp <- 
+    rbind(production_agecomp_region,
+          production_agecomp_stratum$age_comp[
+            , names(production_agecomp_region)]
+    )
+  
   ## Upload to Oracle
   cat("\nUploading to Oracle\n")
   for (idata in c("production_cpue", 
                   "production_biomass", 
                   "production_sizecomp", 
-                  "production_agecomp")[3]) { ## Loop over table -- start
+                  "production_agecomp")[4:1]) { ## Loop over table -- start
     
     append_table_ <- ifelse(test = iregion == 1, yes = FALSE, no = TRUE)
     
@@ -194,31 +204,32 @@ for (iregion in (1:length(x = regions))[5]) { ## Loop over regions -- start
     
     table_metadata <- "This is a test table."
     
-    ## Large tables are split and uploaded in smaller chunks of 100000 
-    ## records so that you can keep track of progress on SQL_Developer
-    idx <- data.frame(from = seq(from = 1, 
-                                 to = nrow(x = get(x = idata)), 
-                                 by = 100000),
-                      to = c(seq(from = 1, 
-                                 to = nrow(x = get(x = idata)), 
-                                 by = 100000)[-1] - 1, 
-                             nrow(x = get(x = idata))))
-    
-    for (irow in 1:nrow(x = idx) ) { ## loop over chunk -- start
-      gapindex::upload_oracle(
-        channel = sql_channel,
-        x = get(idata)[idx$from[irow]:idx$to[irow], ],
-        schema = "GAP_PRODUCTS",
-        table_name = toupper(x = gsub(x = idata,
-                                      pattern = "production_",
-                                      replacement = "")),
-        # table_name = "NEW_CPUE",
-        table_metadata = table_metadata,
-        metadata_column = metadata_columns,
-        append_table = append_table_, 
-        update_metadata = TRUE)
-      append_table_ <- TRUE
-    }  ## loop over chunk -- end
+    # ## Large tables are split and uploaded in smaller chunks of 100000 
+    # ## records so that you can keep track of progress on SQL_Developer
+    # idx <- data.frame(from = seq(from = 1, 
+    #                              to = nrow(x = get(x = idata)), 
+    #                              by = 100000),
+    #                   to = c(seq(from = 1, 
+    #                              to = nrow(x = get(x = idata)), 
+    #                              by = 100000)[-1] - 1, 
+    #                          nrow(x = get(x = idata))))
+    # 
+    # for (irow in 1:nrow(x = idx) ) { ## loop over chunk -- start
+    gapindex::upload_oracle(
+      channel = sql_channel,
+      x = get(idata),
+      schema = "GAP_PRODUCTS",
+      table_name = ifelse(test = idata == "production_cpue", 
+                          yes = "NEW_CPUE", 
+                          no = toupper(x = gsub(x = idata,
+                                                pattern = "production_",
+                                                replacement = ""))),
+      table_metadata = table_metadata,
+      metadata_column = metadata_columns,
+      append_table = append_table_, 
+      update_metadata = TRUE)
+    append_table_ <- TRUE
+    # }  ## loop over chunk -- end
     
   } ## Loop over table -- end
   
