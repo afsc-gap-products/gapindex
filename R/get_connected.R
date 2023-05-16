@@ -4,15 +4,23 @@
 #' queries from RACE database. Make sure you are connected to the VPN before 
 #' running the function. 
 #' 
-#' @param schema A registered data source name. To be used as the `dsn` argument in `RODBC::odbcConnect()`
+#' @param schema Character. A registered data source name. To be used as the `dsn` argument in `RODBC::odbcConnect()`
+#' @param username Optional. The username of a user/schema account. 
+#' @param password Optional. The password for the `username` user/schema account. 
 #' @return channel of class "RODBC". See `?RODBC::odbcConnect()` for more detail
 #' @export
 #' 
 
-get_connected <- function(schema = "AFSC") {
+get_connected <- function(schema = "AFSC", 
+                          username = NULL, 
+                          password = NULL) {
   
-  username <- getPass::getPass(msg = "Enter your ORACLE Username: ")
-  password <- getPass::getPass(msg = "Enter your ORACLE Password: ")
+  if (is.null(username)){ 
+    username <- getPass::getPass(msg = "Enter your ORACLE Username: ")
+  }
+  if (is.null(password)){   
+    password <- getPass::getPass(msg = "Enter your ORACLE Password: ")
+  } 
   
   suppressWarnings(channel <- RODBC::odbcConnect(dsn = paste(schema), 
                                                  uid = paste(username), 
