@@ -225,7 +225,7 @@ get_data <- function(year_set = c(1996, 1999),
   cat("Pulling species data...\n")
   species_info <- RODBC::sqlQuery(
     channel = sql_channel, 
-    query = paste0("SELECT * FROM RACEBASE.SPECIES where ",
+    query = paste0("SELECT * FROM GAP_PRODUCTS.TAXONOMICS_WORMS where ",
                    "SPECIES_CODE IN ",
                    ifelse(test = is.null(x = spp_codes$SPECIES_CODE),
                           yes = paste0("(SELECT DISTINCT SPECIES_CODE ",
