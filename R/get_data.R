@@ -4,8 +4,7 @@
 #'              region, years, and species of interest. 
 #' 
 #' @param year_set numeric or integer vector of years
-#' @param survey_set character string. One of c("GOA", "AI", "EBS", "NBS"). 
-#'                   At this time, the 'EBS_SLOPE' is not an option.
+#' @param survey_set character string. One of c("GOA", "AI", "EBS", "NBS", "BSS"). 
 #' @param spp_codes two-column dataframe of species codes (column name 
 #'                  SPECIES_CODE) and GROUP name (column name GROUP). 
 #'                  For single-species, the GROUP and species codes can be the
@@ -51,10 +50,10 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## Error Query: check that argument survey_set is one the correct options.
   if (is.null(x = survey_set) | 
-      !all(survey_set %in% c("GOA", "AI", "EBS", "NBS", "EBS_SLOPE"))) {
+      !all(survey_set %in% c("GOA", "AI", "EBS", "NBS", "BSS"))) {
     stop(paste0("arg survey_set must contain one or more of these options",
                 " (case-sensitive): 
-                'GOA', 'AI', 'EBS', 'EBS_SLOPE', or 'NBS'."))
+                'GOA', 'AI', 'EBS', 'BSS', or 'NBS'."))
   }
   
   cat("Pulling cruise data...\n")
@@ -63,7 +62,7 @@ get_data <- function(year_set = c(1996, 1999),
   year_vec <- gapindex::stitch_entries(stitch_what = year_set)
   
   survey_def_ids <- c("AI" = 52, "GOA" = 47, "EBS" = 98, 
-                      "EBS_SLOPE" = 78, "NBS" = 143)[survey_set]
+                      "BSS" = 78, "NBS" = 143)[survey_set]
   survey_def_ids_vec <- gapindex::stitch_entries(survey_def_ids)
   
   cruise_data <- RODBC::sqlQuery(
