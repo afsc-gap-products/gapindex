@@ -5,8 +5,28 @@
 #' @param vulnerability the vulnerability of the species to the survey 
 #'                      (defaults to 1).
 #' 
-#' @return dataframe of biomass and population abundance estimates across 
-#'         strata, along with variances and CIs. 
+#' @return dataframe of biomass and population abundance estimates (with 
+#' associated variances) across survey, year, species, and strata 
+#' 
+#' | Field Name           | Description                                                                                                                                                         |
+#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
+#' | SURVEY               | Survey region.                                                                                                                                                      |
+#' | STRATUM              | Stratum ID. STRATUM = 0 indicates an experimental tow.                                                                                                              |
+#' | SPECIES_CODE         | Taxon code. [See the code book for the full   list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual). |
+#' | YEAR                 | Survey year.                                                                                                                                                        |
+#' | N_HAUL               | Number of hauls in stratum.                                                                                                                                         |
+#' | N_WEIGHT             | Number of hauls with a positive catch weight.                                                                                                                       |
+#' | N_COUNT              | Number of hauls with a positive numerical catch.                                                                                                                    |
+#' | N_LENGTH             | Number of hauls with length-frequency data                                                                                                                          |
+#' | CPUE_KGKM2_MEAN      | Mean weight catch per area swept (kg/km^2).                                                                                                                         |
+#' | CPUE_KGKM2_VAR       | Variance of the mean weight catch per area swept.                                                                                                                   |
+#' | CPUE_NOKM2_MEAN      | Mean numerical catch per area swept (no/km^2).                                                                                                                      |
+#' | CPUE_NOKM2_VAR       | Variance of the mean weight catch per area swept                                                                                                                    |
+#' | BIOMASS_MT           | Estimated total biomass (mt).                                                                                                                                       |
+#' | BIOMASS_VAR          | Variance associated with the estimated total biomass.                                                                                                               |
+#' | POPULATION_COUNT     | Estimated total numerical abundance (numbers).                                                                                                                      |
+#' | POPULATION_VAR       | Variance associated with the estimated total numerical abundance.                                                                                                   |
 #' 
 #' @export
 #'

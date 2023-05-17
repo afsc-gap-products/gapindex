@@ -7,6 +7,23 @@
 #'
 #' @return dataframe of age composition and mean/standard deviation of length
 #'         at age aggregated across regions. 
+#'         
+#' @return dataframe of numbers at age by survey, year, subarea (AREA_ID), species, and sex. 
+#' 
+#' | Field Name           | Description                                                                                                                                                         |
+#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
+#' | SURVEY               | Survey region.                                                                                                                                                      |
+#' | AREA_ID              | Integer identifier for a subarea. See   gapindex::area_table for the full list.                                                                                     |
+#' | YEAR                 | Year the survey was conducted in.                                                                                                                                   |
+#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual).   |
+#' | SEX                  | Sex of a specimen where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                              |
+#' | AGE                  | Age (years).                                                                                                                                                        |
+#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
+#' | LENGTH_MM_MEAN       | Estimated mean length-at-age (mm) weighted by numbers-at-length.                                                                                                    |
+#' | LENGTH_MM_SD         | Standard deviation associated with the estimated mean length-at-age.                                                                                                |
+#'          
+#'         
 #' @export
 #'
 

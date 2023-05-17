@@ -17,8 +17,7 @@ get_data(
 \arguments{
 \item{year_set}{numeric or integer vector of years}
 
-\item{survey_set}{character string. One of c("GOA", "AI", "EBS", "NBS").
-At this time, the 'EBS_SLOPE' is not an option.}
+\item{survey_set}{character string. One of c("GOA", "AI", "EBS", "NBS", "BSS").}
 
 \item{spp_codes}{two-column dataframe of species codes (column name
 SPECIES_CODE) and GROUP name (column name GROUP).
