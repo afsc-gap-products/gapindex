@@ -81,10 +81,12 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(CRUISE, CRUISEJOIN, HAULJOIN, DESIGN_YEAR, 
-                         SURVEY, SURVEY_DEFINITION_ID, YEAR, STRATUM, 
-                         START_LATITUDE, END_LATITUDE, 
-                         START_LONGITUDE, END_LONGITUDE,
+              data.frame(SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
+                         HAULJOIN, STRATUM, DESIGN_YEAR,
+                         LATITUDE_DD_START = START_LATITUDE, 
+                         LATITUDE_DD_END = END_LATITUDE, 
+                         LONGITUDE_DD_START = START_LONGITUDE, 
+                         LONGITUDE_DD_END = END_LONGITUDE,
                          SPECIES_CODE,
                          WEIGHT_KG = WEIGHT,
                          COUNT = NUMBER_FISH,
