@@ -1,134 +1,141 @@
-# gapindex R Package 
+Index Computation
+================
+Zack Oyafuso (<zack.oyafuso@noaa.gov>)
+2023-05-15
 
-This R package generates design-based indices of biomass, abundance, size 
-composition, and age composition from NOAA-NMFS-AFSC-RACE-GAP bottom trawl 
-survey data. Survey regions include: Gulf of Alaska (from 1984), 
-Aleutian Islands (from 1980), Eastern Bering Sea Shelf (from 1982), 
-Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
+## Data Collection Process
 
-The [gap_products](https://github.com/afsc-gap-products/gap_products) 
-GitHub repository will store the code used to produce and 
-test the standard data products for all regions each year calculated using the
-gapindex R package. Rollout of this new workflow is currently slated for Fall 2024.
+For each station $j$ contained in stratum $i$, the total catch weight
+and numbers are recorded for all fish and most invertebrate taxa for the
+estimation of total biomass and abundance. For a subset of fish and
+invertebrate taxa, the lengths of either all individuals or a subsample
+of representative individuals are recorded for estimation of size
+composition. A smaller subsample of fish taxa are aged for estimation of
+age composition. The sex of the individuals are recorded for all
+subsampled individuals to decompose the size/age composition by sex.
 
-# Example Workflow
+## Catch Rates
 
-Make sure you have installed R packages devtools, RODBC, and getPass and are 
-connected to the AFSC network when using this package.
+All trawl catch weights and numbers are standardized using the area
+swept by the trawl, $E_{ij}$, of station $j$ in stratum $i$. $W_{ijk}$
+is the total catch weight of taxon $k$ at station $j$ in stratum $i$.
+$R_{ijk}$ is the total catch weight per area swept (also known as
+“weight-CPUE”, units $kg/km^2$) for taxon $k$ at station $j$ in stratum
+$i$:
 
-```
-## Install package
-library(devtools)
-devtools::install_github("afsc-gap-products/gapindex")
-library(gapindex)
+$R_{ijk} = \frac{W_{ijk}}{E_{ij}}$
 
-## Connect to Oracle
-sql_channel <- gapindex::get_connected()
+$N_{ijk}$ is the total numerical catch of taxon $k$ at station $j$ in
+stratum $i$ enumerated either directly from every individual caught in
+the trawl sample or expanded from an assumed representative subsample of
+individuals. For logistical and ergonomic constraints, usually a
+subsample of 100-200 individuals per taxon are randomly chosen from the
+haul. The expanded total numerical catch is estimated by dividing the
+total catch weight by the mean weight $h_{ijk}$:
 
-## Pull data.  See ?gapindex::get_data first for more details
-gapindex_data <- gapindex::get_data(
-  year_set = c(2007, 2009),
-  survey_set = "GOA",
-  spp_codes = 10261,   
-  haul_type = 3,
-  abundance_haul = "Y",
-  pull_lengths = T,
-  sql_channel = sql_channel)
+$\hat N_{ijk} = \frac{W_{ijk}}{h_{ijk}}$
 
-## Fill in zeros and calculate CPUE
-cpue <- gapindex::calc_cpue(racebase_tables = gapindex_data)
+$h_{ijk} = \frac{w_{ijk}}{s_{ijk}}$
 
-## Calculate stratum-level biomass, population abundance, mean CPUE and 
-## associated variances
-biomass_stratum <- gapindex::calc_biomass_stratum(
-  racebase_tables = gapindex_data,
-  cpue = cpue,
-  vulnerability = 1)
+where $w_{ijk}$ and $s_{ijk}$ are the total subsampled weight and
+numbers of taxon $k$ at station $j$ in stratum $i$. Since the total
+numerical catch is often estimated, $\hat N_{ijk}$ will be the notation
+used in the subsequent equations.
 
-## Calculate aggregated biomass and population abundance across subareas,
-## management areas, and regions
-biomass_subareas <- gapindex::calc_biomass_subarea(
-  racebase_tables = gapindex_data,
-  biomass_strata = biomass_stratum)
+The estimate of numerical catch per area trawled (also known as
+“numerical CPUE”, units $no/km^2$) is calculated similar to weight-CPUE:
 
-## Calculate size composition by stratum. If you are calculating stratum-level
-## size composition for the Bering sea survey areas (i.e., NBS, EBS, EBS_SLOPE) 
-## call the gapindex::calc_sizecomp_bs_stratum() function instead. 
-size_comp_stratum <- gapindex::calc_sizecomp_aigoa_stratum(
-  racebase_tables = gapindex_data,
-  racebase_cpue = cpue,
-  racebase_stratum_popn = biomass_stratum)
+$\hat S_{ijk} = \frac{\hat N_{ijk}}{E_{ij}}$
 
-## Calculate aggregated size compositon across subareas, management areas, and
-## regions
-size_comp_subareas <- gapindex::calc_sizecomp_subareas(
-  racebase_tables = gapindex_data,
-  size_comps = size_comp_stratum)
+## Biomass and Abundance Calculations
 
-## Calculate age composition by stratum
-age_comp_stratum <- gapindex::calc_agecomp_stratum(
-  racebase_tables = gapindex_data, 
-  size_comp = size_comp_stratum)
+Total biomass or abundance (and the associated estimated variances) of
+taxon $k$ in stratum $i$ is the product of average CPUE and the area of
+stratum $i$ ($A_i$):
 
-## Calculate aggregated age compositon across subareas, management areas, and
-## regions
-age_comp_region <- gapindex::calc_agecomp_region(
-  racebase_tables = gapindex_data, 
-  age_comps_stratum = age_comp_stratum)
+$\hat B_{ik} = A_i \bar R_{ik}$
 
-```
+$\bar R_{ik} = \frac{\sum_{j = 1}^{n_i} R_{ijk}}{n_i}$
 
-## In progress
-* @MargaretSiple-NOAA created a [vignette](https://github.com/zoyafuso-NOAA/design-based-indices/tree/master/old_scripts/vignettes) on the biomass calculations using equations (from [Wakabayashi et al. 1985](https://drive.google.com/file/d/1m5c1N4WYysM1pscrpcgWOGZSZIK8vIHr/view?usp=sharing). We should make this into a wiki and have different pages for the different calculations (biomass, age compositions, etc.), assumptions, peculiarities, etc. 
-* Increased documentation of function output similar to the metadata associated with GAP_PRODUCTS tables.
-* Standardize data pulling process for ModSquad model-based index production
-* Establish production cycle for standard gap products
-* Formalize documentation of any changes that occur in the standard data products after each production cycle. 
-* Create a Tech Memo that describes the changes in the Oracle data infrastructure
-  in tandem with the creation of the gapindex package.
+with variance:
 
-## Collaborators
-The gapindex R package is a product of two AFSC-RACE-GAP working groups 
-regarding GAP data processes and index computation. Many thanks to those who 
-participated in those working groups:
+$Var(\hat B_{ik}) = A_i^2 Var(\bar R_{ik})$
 
-**Data Processes Working Group**|**Index Computation Working Group**|**Supervisors **
-:-----:|:-----:|:-----:
-Alexandra Dowlin (AlexandraDowlin-NOAA)|Zack Oyafuso (zoyafuso-NOAA)*|Stan Kotwicki (StanKotwicki-NOAA)
-Emily Markowitz (EmilyMarkowitz-NOAA)|Margaret Siple (MargaretSiple-NOAA)|Duane Stevenson (Duane-Stevenson-NOAA)
-Liz Dawson (liz-dawson-NOAA)|Rebecca Haehn (RebeccaHaehn-NOAA)|Ned Laman (Ned-Laman-NOAA)
-Sarah Friedman (SarahFriedman-NOAA)|Lukas DeFilippo (Lukas-DeFilippo-NOAA)| 
-Christopher Anderson (ChrisAnderson-NOAA)|Paul von Szalay (vszalay)| 
-Nancy Roberson (NancyRoberson)|Thaddaeus Buser (ThaddaeusBuser-NOAA)| 
- |*maintainer| 
+$Var (\bar R_{ik}) = \frac{\sum_{j = 1}^{n_i} (R_{ijk} - \bar R_{ik})^2 }{n_i(n_i-1)}$
 
-## Legacy
-*nanos gigantum humeris insidentes*: we stand on the shoulders of giants. 
-Here is an non-exhaustive list of people who provided the foundation for many 
-of the functions in this package:
+Since strata are independent, the total biomass and variance across the
+a subarea or the entire survey region is the calculated by summing the
+stratum-level estimates of total biomass and variance, respectively,
+that make up the subarea/region.
 
-AI-GOA: Michael Martin, 
+$\hat B_{k} = \sum_{i=1}^I \hat B_{ik}$
 
-Bering Sea: REM, Jason Conner, Jerry Hoff, 
+$Var(\hat B_{k}) = \sum_{i=1}^I Var(\hat B_{ik})$
 
-Many of the index calculations are from Wakabayashi et al. (1985):
+Total abundance ($\hat P_{k}$) is calculated similar to total biomass,
+replacing weight-CPUE with numerical CPUE.
 
-Wakabayashi, K., R. G. Bakkala, and M. S. Alton. 1985. Methods of the 
-     U.S.-Japan demersal trawl surveys, p. 7-29. In R. G. Bakkala and K. 
-     Wakabayashi (editors), Results of cooperative U.S.-Japan groundfish 
-     investigations in the Bering Sea during May-August 1979. Int. North Pac. 
-     Fish. Comm. Bull. 44.
+## Size Composition
 
-## Acronymns
-NOAA: National Oceanic and Atmospheric Administration
+All individuals (or subsampled individuals) from the haul taxon $k$ at
+station $j$ in stratum $i$ ($s_{ijk}$) were furthered identified by sex,
+indexed by $m$ where 1 = Male, 2 = Female, and 3 = Unsexed. Unsexed
+individuals were either too small to determine sex or not identified.
+The length of the individuals were also recorded.
 
-NMFS: National Marine Fisheries Service
+The calculation of the size composition comes from two expansions.
+First, the observed proportion of individuals of sex $m$ in length bin
+$l$ of taxon $k$ at station $j$ in stratum $i$ ($z_{ijklm}$) was used to
+expand the length-frequency subsample to the total numbers of
+individuals per area swept ($\hat S_{ijk}$) to calculate the estimated
+number of individuals of sex $m$ and length bin $l$ of taxon $k$ at
+station $j$ in stratum $i$ ($z_{ijklm}$).
 
-AFSC: Alaska Fisheries Science Center
+$z_{ijklm} = \frac{s_{ijklm}} {\sum_{m=1}^3\sum_{l=1}^{L_{ijkm}} s_{ijklm} }$
 
-RACE: Resource Assessment and Conservation Engineering Division
+$\hat S_{ijklm} = \hat S_{ijk} z_{ijklm}$
 
-GAP: Groundfish Assessment Program (GAP)
+Second, $\hat S_{ijklm}$ was expanded to the total estimated
+stratum-level numerical abundance to calculate the estimated number of
+individuals of sex $m$ in length bin $l$ of taxon $k$ in stratum $i$
+($\hat P_{iklm}$)
 
-## Legal disclaimer
-This repository is a software product and is not official communication of the National Oceanic and Atmospheric Administration (NOAA), or the United States Department of Commerce (DOC). All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. Any claims against the DOC or DOC bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation, or favoring by the DOC. The DOC seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by the DOC or the United States Government.
+$\hat P_{iklm} = \hat P_{ik} \frac{\sum_{j=1}^{n_i} \hat S_{ijklm}} {\sum_{j=1}^{n_i}\sum_{m=1}^3\sum_{l=1}^{L} \hat S_{ijklm} }$
+
+In the Bering Sea survey areas, only hauls with associated
+length-frequency data are included in the size composition calculations.
+In the GOA and AI, there are hauls especially in the early years of the
+time series (late 1980s - early 1990s) where a positive catch was
+reported without length-frequency data. For this type of haul, the
+“average size composition” is computed using the hauls in the same
+stratum and year and then used to impute the size composition for that
+haul.
+
+## Age Composition
+
+A second-set of subsamples are drawn from the length subsample from the
+haul. For the early part of the time series, individuals of a taxon were
+randomly collected, stratified by length bin (1 cm bins), sex, and
+management area. More recently, subsampling for ages are simply
+conducted randomly from the length subsample from the haul.
+
+$y_{klmq} = \frac{v_{klmq}} {\sum_{q=1}^Q v_{klmq}}$
+
+where $Q_{klm}$ is the oldest age of taxon $k$ in length bin $l$ and sex
+$m$.
+
+$\hat Y_{iklmq} = \hat P_{iklm}y_{klmq}$
+
+<!-- $\hat Y_{ikmq} = \sum_{l=1}^L \hat P_{iklm}y_{klmq}$ -->
+
+The mean length (mm) at age $q$ and sex $m$ for taxon $k$ in stratum $i$
+$D_{ikmq}$ is a weighted average length using distribution of
+$\hat Y_{iklmq}$ across length bins as the weights.
+
+$\bar d_{ikmq} = \sum_{l=1}^L \hat Y_{iklmq}d_l$
+
+where $d_l$ is the length (mm) of length bin $l$
+
+with weighted variance
+
+$Var(\bar d_{ikmq}) = \sum_{l=1}^L (\frac{Y_{iklmq}}{\sum_{l=1}^L Y_{iklmq}} (d_l - \bar d_{ikmq})^2)$
