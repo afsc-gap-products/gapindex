@@ -29,7 +29,8 @@ upload_oracle <- function(x = NULL,
                           table_metadata = NULL,
                           channel = NULL, 
                           schema = NULL, 
-                          append_table = NULL,
+                          upload_table = TRUE,
+                          append_table = FALSE,
                           update_metadata = TRUE,
                           share_with_all_users = TRUE) {
   
@@ -87,12 +88,16 @@ upload_oracle <- function(x = NULL,
              "\nNumber of Rows: ", nrow(x = x), 
              "\nNumber of Fields with Metadata: ", 
              sum(!is.na(x = metadata_column$colname)), "\n"))
+
+  # If modify_table is false, there append_table must inherently be null
+  append_table <- ifelse(upload_table == FALSE, append_table = FALSE, append_table)
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Initiate table if new, 
   ##   If table already exits, drop table before overwriting
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   start_time <- Sys.time()
+  if (upload_table) { # affects initiating a new table and uploading a table to oracle
   if (!append_table) {
     cat(paste0("Creating or overwriting new table: ", schema, ".", table_name, "\n"))
     
@@ -138,7 +143,7 @@ upload_oracle <- function(x = NULL,
   end_time <- Sys.time()
   cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
             units(end_time - start_time), "\n"))
-  
+  }
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Update Metadata
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
