@@ -102,8 +102,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##  corresponding to different vessels.
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   survey_df <- unique(cruise_data[order(cruise_data$SURVEY_DEFINITION_ID), 
-                                  c("SURVEY_DEFINITION_ID", "SURVEY", 
-                                    "DESIGN_YEAR")])
+                                  c("SURVEY_DEFINITION_ID", "DESIGN_YEAR")])
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   4) Query stratum data from `gapindex::area_table`

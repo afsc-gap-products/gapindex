@@ -2,9 +2,9 @@
 #' 
 #' @description T
 #'
-#' @param x Either a character string of the path to the .csv file or a data.frame
-#' @param table_name Name of the table. (Add error checks to make sure table name follows any peculiarities of Oracle tables)
-#' @param table_metadata Description of what the table is
+#' @param x Either a character string of the path to the .csv file or the data.frame of the table to upload. 
+#' @param table_name Name of the table. (Add error checks to make sure table name follows any peculiarities of Oracle tables). 
+#' @param table_metadata Description of what the table is. 
 #' @param metadata_column data.frame describing the metadata for each of the 
 #'                        fields in the table. Must contain these columns: 
 #'                        1) colname: name of field
@@ -13,41 +13,54 @@
 #'                        3) units: units of field
 #'                        4) dataype: Oracle data type
 #'                        5) colname_desc: Full description of field
-#' @param channel Establish your oracle connection using a function 
-#'                like gapindex::get_connected() 
+#' @param channel Establish your oracle connection using a function like `gapindex::get_connected()`. 
 #' @param schema character string. The name of the schema to save table. 
-#'               "GAP_PRODUCTS" is the schema where production tables will live.
-#' @param update_metadata boolean. Default = TRUE. Temporary argument as we 
-#'                        continute to test the tables. 
-#' @param append_table boolean. If TRUE, appends to an existing table, otherwise a 
-#'               new table is created.
-#' @param share_with_all_users boolean. Default = TRUE. Give all users in 
-#'                             oracle view permissions. 
+#' @param update_metadata boolean. Default = TRUE indicates that the table metadata should be updated. 
+#' @param append_table boolean. If TRUE, appends to an existing table, otherwise a new table is created.
+#' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle view permissions. 
 #'
 #' @return
 #' @export
 #' 
 
-upload_oracle <- function(x = NULL,
+upload_oracle <- function(x = NULL, 
                           table_name = NULL, 
                           metadata_column = NULL, 
                           table_metadata = NULL,
                           channel = NULL, 
                           schema = NULL, 
-                          append_table = NULL,
+                          upload_table = TRUE,
+                          append_table = FALSE,
                           update_metadata = TRUE,
                           share_with_all_users = TRUE) {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Initial Error Checks
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  # Check that table_name is in all caps
+  table_name <- toupper(table_name)
+  
+  # Check that metadata_column was included in the funciton call. 
+  # If not, load it directly  from GAP_PRODUCTS
+  if (is.null(metadata_column)) {
+    metadata_column <- RODBC::sqlQuery(channel, paste0("SELECT * FROM GAP_PRODUCTS.METADATA_COLUMN"))
+    names(metadata_column) <- gsub(pattern = "metadata_", replacement = "", x = names(metadata_column))
+  }
+  
   ## Error Checks for NULLs
   for (ivar in c("x", "table_name", "metadata_column", "table_metadata")) 
     if (is.null(x = get(x = ivar))) 
       stop(paste0("Must provide argument `", ivar, "`."))
   
   ## Check that x is a data.frame. If a path is provided, read the path.
-  if (is.character(x = x)) x <- utils::read.csv(file = x)
+  if (is.character(x = x)) {
+    x <- utils::read.csv(file = x)
+    # Foce capitalization of column names. Lowercase column names can lead to 
+    # problematic downstream issues if not dealt with at this step and cause 
+    # mismatches with the metadata_column reference table. 
+    names(x) <- toupper(names(x))
+  }
   if (!is.data.frame(x = x)) stop("Please supply a data.frame for argument `x`")
   
   ## Check that metadata_column is a dataframe with columns colname, 
@@ -75,12 +88,16 @@ upload_oracle <- function(x = NULL,
              "\nNumber of Rows: ", nrow(x = x), 
              "\nNumber of Fields with Metadata: ", 
              sum(!is.na(x = metadata_column$colname)), "\n"))
+
+  # If modify_table is false, there append_table must inherently be null
+  append_table <- ifelse(upload_table == FALSE, append_table = FALSE, append_table)
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Initiate table if new, 
   ##   If table already exits, drop table before overwriting
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   start_time <- Sys.time()
+  if (upload_table) { # affects initiating a new table and uploading a table to oracle
   if (!append_table) {
     cat(paste0("Creating or overwriting new table: ", schema, ".", table_name, "\n"))
     
@@ -126,7 +143,7 @@ upload_oracle <- function(x = NULL,
   end_time <- Sys.time()
   cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
             units(end_time - start_time), "\n"))
-  
+  }
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Update Metadata
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
