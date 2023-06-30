@@ -14,6 +14,7 @@ dataframe of weight and numerical CPUE for the region, species, and
 years pulled from \code{gapindex::get_data()}\tabular{ll}{
    Field Name \tab Description \cr
    SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
+   SURVEY \tab Survey region. \cr
    CRUISE \tab Six-digit integer number identifying the cruise number of the form:   YYYY99 (where YYYY = year of the cruise; 99 = 2-digit number and is   sequential; 01 denotes the first cruise that vessel made in this year, 02 is   the second, etc.). \cr
    YEAR \tab Survey year. \cr
    HAULJOIN \tab Integer identifier assigned to each unique cruise, vessel, and haul   combination. \cr

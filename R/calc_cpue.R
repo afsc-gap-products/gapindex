@@ -10,7 +10,8 @@
 #' 
 #' | Field Name           | Description                                                                                                                                                                                                                                                                                                                    |
 #' |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                                                                                                                                                                                    |                                                                                                                                                                                                                                                                                                               |
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                                                                                                                                                                                    |
+#' | SURVEY               | Survey region.                                                                                                                                                                                                                                                                                                                 |
 #' | CRUISE               | Six-digit integer number identifying the cruise number of the form:   YYYY99 (where YYYY = year of the cruise; 99 = 2-digit number and is   sequential; 01 denotes the first cruise that vessel made in this year, 02 is   the second, etc.).                                                                                  |
 #' | YEAR                 | Survey year.                                                                                                                                                                                                                                                                                                                   |
 #' | HAULJOIN             | Integer identifier assigned to each unique cruise, vessel, and haul   combination.                                                                                                                                                                                                                                             |
@@ -61,8 +62,8 @@ calc_cpue <- function(racebase_tables = NULL) {
   ## Merge "SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR" columns from 
   ## `cruisedat` to `haul` using "CRUISEJOIN" as the key.
   dat <- merge(x = haul,
-               y = cruisedat[, c("CRUISEJOIN", "SURVEY_DEFINITION_ID", 
-                                 "DESIGN_YEAR")],
+               y = cruisedat[, c("CRUISEJOIN", "SURVEY", 
+                                 "SURVEY_DEFINITION_ID", "DESIGN_YEAR")],
                by = "CRUISEJOIN")
   
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
@@ -100,7 +101,7 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(SURVEY_DEFINITION_ID, CRUISE, CRUISEJOIN, YEAR, 
+              data.frame(SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
                          HAULJOIN, STRATUM, DESIGN_YEAR,
                          LATITUDE_DD_START = START_LATITUDE, 
                          LATITUDE_DD_END = END_LATITUDE, 
