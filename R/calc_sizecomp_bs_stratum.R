@@ -1,14 +1,27 @@
 #' Calculate numbers at length for each stratum
 #' 
 #' @description Uses Equations 16 and 17 in Wakabayashi et al. 1985 to calculate
-#'              numbers at length. To be used only for the EBS_SHELF or 
-#'              NBS_SHELF regions.
+#'              numbers at length. To be used only for the EBS, BSS or NBS 
+#'              survey regions.
 #' 
 #' @param racebase_tables data object created from `gapindex::get_data()`.
 #' @param racebase_cpue object created from `gapindex::calc_cpue()`.
 #' @param racebase_stratum_popn a dataframe of stratum abundances, result 
 #'                               object from  `gapindex::calc_biomass_stratum()`.
 #' 
+#' @return dataframe of numbers-at-length by survey, year, stratum, species, and sex
+#'
+#' | Field Name           | Description                                                                                                                                                         |
+#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
+#' | SURVEY               | Survey region.                                                                                                                                                      |
+#' | YEAR                 | Survey year.                                                                                                                                                        |
+#' | STRATUM              | Stratum ID. STRATUM = 0 indicates an experimental tow.                                                                                                              |
+#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual). |
+#' | LENGTH_MM            | Length bin (mm).                                                                                                                                                    |
+#' | SEX                  | Sex code where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                                       |
+#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
+#'
 #' @export
 #' 
 
@@ -33,13 +46,14 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
   ## Subset only AI/GOA data from the cruise data. If there are no AI/GOA
   ## cruises in the dataset, send out an error to use the other size comp fn. 
   cruise <- subset(x = racebase_tables$cruise,
-                   subset = SURVEY %in% c("NBS", "EBS", "EBS_SLOPE"))
+                   subset = SURVEY %in% c("NBS", "EBS", "BSS"))
   
   if (nrow(x = cruise) == 0){
-    stop("EBS, EBS_SLOPE, or NBS cruises are not in argument 
+    stop("EBS, BSS, or NBS cruises are not in argument 
          racebase_tables$cruise. This function only applies the size 
-         composition to the EBS/NBS. Use gapindex::calc_size_stratum_AIGOA() 
-         to calculate the size composition to the AI/GOA survey regions.")
+         composition to survey regions in the Bering Sea. 
+         Use gapindex::calc_size_stratum_AIGOA() to calculate the size 
+         composition to the AI/GOA survey regions.")
   }
   
   ## Subset dataframe haul based on the CRUISEJOIN field in dataframe cruise. 
@@ -65,7 +79,7 @@ calc_sizecomp_bs_stratum <- function(racebase_tables = NULL,
                 by = "HAULJOIN")
   
   racebase_stratum_popn <- subset(x = racebase_stratum_popn, 
-                                  SURVEY %in% c("EBS", "NBS", "EBS_SLOPE"))
+                                  SURVEY %in% c("EBS", "NBS", "BSS"))
   
   ##############################################
   ## Wakabayashi et al. 1985 Equation 16: 

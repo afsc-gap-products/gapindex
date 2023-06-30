@@ -15,8 +15,27 @@ calc_biomass_stratum(racebase_tables = NULL, cpue = NULL, vulnerability = 1)
 (defaults to 1).}
 }
 \value{
-dataframe of biomass and population abundance estimates across
-strata, along with variances and CIs.
+dataframe of biomass and population abundance estimates (with
+associated variances) across survey, year, species, and strata\tabular{ll}{
+   Field Name \tab Description \cr
+   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
+   SURVEY \tab Survey region. \cr
+   STRATUM \tab Stratum ID. STRATUM = 0 indicates an experimental tow. \cr
+   SPECIES_CODE \tab Taxon code. \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{See the code book for the full   list.}. \cr
+   YEAR \tab Survey year. \cr
+   N_HAUL \tab Number of hauls in stratum. \cr
+   N_WEIGHT \tab Number of hauls with a positive catch weight. \cr
+   N_COUNT \tab Number of hauls with a positive numerical catch. \cr
+   N_LENGTH \tab Number of hauls with length-frequency data \cr
+   CPUE_KGKM2_MEAN \tab Mean weight catch per area swept (kg/km^2). \cr
+   CPUE_KGKM2_VAR \tab Variance of the mean weight catch per area swept. \cr
+   CPUE_NOKM2_MEAN \tab Mean numerical catch per area swept (no/km^2). \cr
+   CPUE_NOKM2_VAR \tab Variance of the mean weight catch per area swept \cr
+   BIOMASS_MT \tab Estimated total biomass (mt). \cr
+   BIOMASS_VAR \tab Variance associated with the estimated total biomass. \cr
+   POPULATION_COUNT \tab Estimated total numerical abundance (numbers). \cr
+   POPULATION_VAR \tab Variance associated with the estimated total numerical abundance. \cr
+}
 }
 \description{
 Calculate index of total biomass per stratum

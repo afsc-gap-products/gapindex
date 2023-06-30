@@ -18,8 +18,21 @@ calc_sizecomp_bs_stratum(
 \item{racebase_stratum_popn}{a dataframe of stratum abundances, result
 object from  \code{gapindex::calc_biomass_stratum()}.}
 }
+\value{
+dataframe of numbers-at-length by survey, year, stratum, species, and sex\tabular{ll}{
+   Field Name \tab Description \cr
+   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
+   SURVEY \tab Survey region. \cr
+   YEAR \tab Survey year. \cr
+   STRATUM \tab Stratum ID. STRATUM = 0 indicates an experimental tow. \cr
+   SPECIES_CODE \tab Taxon code. \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{See the code book for the full list.}. \cr
+   LENGTH_MM \tab Length bin (mm). \cr
+   SEX \tab Sex code where "1" = "Male", "2" =   "Female", "3" = Unsexed. \cr
+   POPULATION_COUNT \tab Total number of individuals. \cr
+}
+}
 \description{
 Uses Equations 16 and 17 in Wakabayashi et al. 1985 to calculate
-numbers at length. To be used only for the EBS_SHELF or
-NBS_SHELF regions.
+numbers at length. To be used only for the EBS, BSS or NBS
+survey regions.
 }

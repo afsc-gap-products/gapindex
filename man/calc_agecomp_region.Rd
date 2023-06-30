@@ -16,6 +16,20 @@ from \code{gapindex::calc_agecomp_stratum()}.}
 \value{
 dataframe of age composition and mean/standard deviation of length
 at age aggregated across regions.
+
+dataframe of numbers at age by survey, year, subarea (AREA_ID), species, and sex.\tabular{ll}{
+   Field Name \tab Description \cr
+   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
+   SURVEY \tab Survey region. \cr
+   AREA_ID \tab Integer identifier for a subarea. See   gapindex::area_table for the full list. \cr
+   YEAR \tab Year the survey was conducted in. \cr
+   SPECIES_CODE \tab Taxon code. \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{See the code book for the full list.}. \cr
+   SEX \tab Sex of a specimen where "1" = "Male", "2" =   "Female", "3" = Unsexed. \cr
+   AGE \tab Age (years). \cr
+   POPULATION_COUNT \tab Total number of individuals. \cr
+   LENGTH_MM_MEAN \tab Estimated mean length-at-age (mm) weighted by numbers-at-length. \cr
+   LENGTH_MM_SD \tab Standard deviation associated with the estimated mean length-at-age. \cr
+}
 }
 \description{
 Calculate region-level age composition and mean/std.dev length at age

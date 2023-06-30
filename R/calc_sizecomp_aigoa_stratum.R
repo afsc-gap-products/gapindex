@@ -8,6 +8,20 @@
 #' @param racebase_stratum_popn a dataframe of stratum abundances, result 
 #'                               object from  `gapindex::calc_biomass_stratum()`
 #' 
+#' @return dataframe of numbers-at-length by survey, year, stratum, species, and sex
+#'
+#' | Field Name           | Description                                                                                                                                                         |
+#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
+#' | SURVEY               | Survey region.                                                                                                                                                      |
+#' | YEAR                 | Survey year.                                                                                                                                                        |
+#' | STRATUM              | Stratum ID. STRATUM = 0 indicates an experimental tow.                                                                                                              |
+#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual). |
+#' | LENGTH_MM            | Length bin (mm).                                                                                                                                                    |
+#' | SEX                  | Sex code where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                                       |
+#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
+#'
+#' 
 #' @export
 #' 
 

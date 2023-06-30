@@ -25,12 +25,13 @@ sql_channel <- gapindex::get_connected()
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Loop over species, pull in data, compare to gapindex
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for (irow in 3) {
+for (irow in 1:nrow(data_sources)) {
   
   ## Pull data from gapindex for a given species using gapindex
   gapindex_data <- 
     gapindex::get_data(survey_set = "GOA",
-                       year_set = 1990:2021,
+                       year_set = seq(from = data_sources$year_start[irow],
+                                      to = data_sources$year_end[irow]),
                        spp_codes = data_sources$species_code[irow],
                        pull_lengths = FALSE,
                        sql_channel = sql_channel)
@@ -44,7 +45,7 @@ for (irow in 3) {
                   id[name == data_sources$filename[irow]])
   
   ## Download VAST input dataset, save locally
-  googledrive::drive_download( 
+  googledrive::drive_download(
     file = file_id,
     path = paste0("temp/", data_sources$filename[irow]), 
     overwrite = T)
@@ -57,6 +58,14 @@ for (irow in 3) {
             args = list(paste0("temp/", data_sources$filename[irow]) ))
   
   names(imported_file) <- toupper(names(imported_file))
+  
+  ## If AREASWEPT_KM2 is not a column of ones, standardize so that it is. 
+  if (!all(imported_file$AREASWEPT_KM2 == 1)) {
+    imported_file$CATCH_KG <- 
+      imported_file$CATCH_KG / imported_file$AREASWEPT_KM2 * 1000
+    
+    imported_file$AREASWEPT_KM2 <- 1
+  }
   
   ## Compare number of stations across years
   cat(paste0("\n\nNumber of stations across years (VAST Input) for ", 

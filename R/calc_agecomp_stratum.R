@@ -4,12 +4,27 @@
 #' @param size_comp a dataframe of stratum abundances, result 
 #'                  object from either `calc_sizecomp_aigoa_stratum()`
 #'                  or `calc_sizecomp_bs_stratum()` depending on the region.
+#'
+#' @return A named list with two elements. "age_comp" is a dataframe of numbers 
+#' at age by survey, year, stratum, species, and sex. "length_at_age" is a 
+#' support table for the gapindex::calc_agecomp_region() function and should
+#' not be used.
+#' 
+#' | Field Name           | Description                                                                                                                                                         |
+#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
+#' | SURVEY               | Survey region.                                                                                                                                                      |
+#' | STRATUM              | Stratum ID. STRATUM = 0 indicates an experimental tow.                                                                                                              |
+#' | YEAR                 | Year the survey was conducted in.                                                                                                                                   |
+#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual). |
+#' | SEX                  | Sex of a specimen where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                              |
+#' | AGE                  | Age (years).                                                                                                                                                        |
+#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
+#' | LENGTH_MM_MEAN       | Estimated mean length-at-age (mm) weighted by numbers-at-length.                                                                                                    |
+#' | LENGTH_MM_SD         | Standard deviation associated with the estimated mean length-at-age.                                                                                                |
 #' 
 #' @export
 #' 
-
-# racebase_tables = cod_data
-# size_comp = size_comps
 
 calc_agecomp_stratum <- function(racebase_tables = NULL,
                                  size_comp = NULL) {

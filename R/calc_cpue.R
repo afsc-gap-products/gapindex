@@ -8,6 +8,26 @@
 #' @return dataframe of weight and numerical CPUE for the region, species, and
 #'         years pulled from `gapindex::get_data()`
 #' 
+#' | Field Name           | Description                                                                                                                                                                                                                                                                                                                    |
+#' |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                                                                                                                                                                                    |
+#' | SURVEY               | Survey region.                                                                                                                                                                                                                                                                                                                 |
+#' | CRUISE               | Six-digit integer number identifying the cruise number of the form:   YYYY99 (where YYYY = year of the cruise; 99 = 2-digit number and is   sequential; 01 denotes the first cruise that vessel made in this year, 02 is   the second, etc.).                                                                                  |
+#' | YEAR                 | Survey year.                                                                                                                                                                                                                                                                                                                   |
+#' | HAULJOIN             | Integer identifier assigned to each unique cruise, vessel, and haul   combination.                                                                                                                                                                                                                                             |
+#' | STRATUM              | Stratum ID. STRATUM = 0 indicates an experimental tow.                                                                                                                                                                                                                                                                         |
+#' | DESIGN_YEAR          | The year the survey design was created. For historical designs, this may   simply be the first year of the time series, e.g., 1984 for historical GOA   strata. In the Bering Sea, stratum boundaries are periodically updated to   incorporate more accurate bathymetric information or reflect modfied survey   footprints.  |
+#' | LATITUDE_DD_START    | Latitude (one hundred thousandth of a decimal degree) of the start of the   trawl path.                                                                                                                                                                                                                                        |
+#' | LATITUDE_DD_END      | Latitude (one hundred thousandth of a decimal degree) of the end of the   trawl path.                                                                                                                                                                                                                                          |
+#' | LONGITUDE_DD_START   | Longitude (one hundred thousandth of a decimal degree) of the start of   the trawl path.                                                                                                                                                                                                                                       |
+#' | LONGITUDE_DD_END     | Longitude (one hundred thousandth of a decimal degree) of the end of the   trawl path.                                                                                                                                                                                                                                         |
+#' | SPECIES_CODE         | The taxon code of the organism associated with the 'common_name' and   'scientific_name' columns. For a complete species list, review the [code   books](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual).                                                        |
+#' | WEIGHT_KG            | Total weight (kg) of individuals in a haul by taxon.                                                                                                                                                                                                                                                                           |
+#' | COUNT                | Total number of individuals caught in the haul                                                                                                                                                                                                                                                                                 |
+#' | AREA_SWEPT_KM2       | The total area the net sampled while the net was on-bottom (square km),   defined as the distance fished times the net width.                                                                                                                                                                                                  |
+#' | CPUE_KGKM2           | Total catch weight (kg) per area swept (square km) by the trawl net.                                                                                                                                                                                                                                                           |
+#' | CPUE_NOKM2           | Total catch number per area swept (square km) by the trawl net.                                                                                                                                                                                                                                                                |
+#' 
 #' @export
 #' 
 
@@ -81,10 +101,12 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(CRUISE, CRUISEJOIN, HAULJOIN, DESIGN_YEAR, 
-                         SURVEY, SURVEY_DEFINITION_ID, YEAR, STRATUM, 
-                         START_LATITUDE, END_LATITUDE, 
-                         START_LONGITUDE, END_LONGITUDE,
+              data.frame(SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
+                         HAULJOIN, STRATUM, DESIGN_YEAR,
+                         LATITUDE_DD_START = START_LATITUDE, 
+                         LATITUDE_DD_END = END_LATITUDE, 
+                         LONGITUDE_DD_START = START_LONGITUDE, 
+                         LONGITUDE_DD_END = END_LONGITUDE,
                          SPECIES_CODE,
                          WEIGHT_KG = WEIGHT,
                          COUNT = NUMBER_FISH,

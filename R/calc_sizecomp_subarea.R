@@ -5,8 +5,19 @@
 #'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
 #'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
-#' @return dataframe of size composition estimates across 
-#'         subareas and across region.
+#' @return dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex
+#'
+#' | Field Name           | Description                                                                                                                                                         |
+#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
+#' | SURVEY               | Survey region.                                                                                                                                                      |
+#' | YEAR                 | Survey year.                                                                                                                                                        |
+#' | AREA_ID              | Integer identifier for a subarea. See   gapindex::area_table for the full list.                                                                                     |
+#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual).   |
+#' | LENGTH_MM            | Length bin (mm).                                                                                                                                                    |
+#' | SEX                  | Sex code where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                                       |
+#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
+#' 
 #' @export
 #'
 
