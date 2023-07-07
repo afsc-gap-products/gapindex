@@ -16,6 +16,8 @@
 #' (LENGTH_MM) for a given survey ("SURVEY"), year ("YEAR"), species 
 #' (SPECIES_CODE), and sex (SEX). 
 #' 
+#' @export
+#' 
 
 calc_ALK <- function(racebase_tables = NULL,
                      unsex = c("all", "unsex")[2], 

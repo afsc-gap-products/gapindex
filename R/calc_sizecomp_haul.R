@@ -10,6 +10,8 @@
 #' year ("YEAR"), stratum ("STRATUM"), haul ("HAULJOIN), species (SPECIES_CODE), 
 #' sex (SEX), and length (LENGTH_MM). 
 #' 
+#' @export
+#' 
 
 calc_sizecomp_haul <- function(racebase_tables = NULL,
                                racebase_cpue = NULL) {
