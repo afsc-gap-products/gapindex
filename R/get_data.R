@@ -20,6 +20,8 @@
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls and "N" are 
 #'                       other hauls.
+#' @param na_rm_strata boolean. Remove hauls with NA stratum information. 
+#' Defaults to FALSE. 
 #' @param sql_channel connection created via gapindex::get_connected()
 #' @param pull_lengths boolean T/F. Should lengths and specimen data be pulled? 
 #'                     Defaults to FALSE for speed.
@@ -36,8 +38,9 @@ get_data <- function(year_set = c(1996, 1999),
                      spp_codes = c(21720, 30060, 10110),
                      haul_type = 3,
                      abundance_haul = c("Y", "N")[1],
+                     na_rm_strata = FALSE,
                      sql_channel = NULL,
-                     pull_lengths = F) {
+                     pull_lengths = FALSE) {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if sql_channel = NULL
@@ -204,6 +207,14 @@ get_data <- function(year_set = c(1996, 1999),
   haul_data <- subset(x = haul_data, 
                       subset = ABUNDANCE_HAUL %in% abundance_haul)
   
+  if (na_rm_strata)
+    haul_data <- subset(x = haul_data, 
+                        subset = !is.na(STRATUM))
+  
+  ## Update cruise_data if any cruises are removed when filtering hauls
+  cruise_data <- subset(x = cruise_data,
+                        subset = CRUISEJOIN %in% haul_data$CRUISEJOIN)
+  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   6) Error checks on the `spp_codes` argument
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -267,6 +278,9 @@ get_data <- function(year_set = c(1996, 1999),
                                         "CRUISEJOIN in ", cruisejoin_vec, ")"),
                            no = spp_codes_vec)))
   
+  catch_data <- subset(x = catch_data,
+                       subset = HAULJOIN %in% haul_data$HAULJOIN)
+  
   ## Error Query: check whether there are species data
   if (!is.data.frame(x = catch_data))
     stop("There are no catch records for any of the species codes in argument
@@ -292,6 +306,9 @@ get_data <- function(year_set = c(1996, 1999),
                                          "FROM RACEBASE.LENGTH where ",
                                          "CRUISEJOIN in ", cruisejoin_vec, ")"),
                             no = spp_codes_vec))) 
+    
+    size_data <- subset(x = size_data,
+                         subset = HAULJOIN %in% haul_data$HAULJOIN)
   }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -313,6 +330,9 @@ get_data <- function(year_set = c(1996, 1999),
                                          "FROM RACEBASE.SPECIMEN where ",
                                          "CRUISEJOIN in ", cruisejoin_vec, ")"),
                             no = spp_codes_vec)))
+    
+    speclist <- subset(x = speclist,
+                       subset = speclist$HAULJOIN %in% haul_data$HAULJOIN)
     
     ## Error Query: send out a warning if there are no ages in the dataset
     if (length(table(speclist$AGE)) == 0)

@@ -10,8 +10,9 @@ get_data(
   spp_codes = c(21720, 30060, 10110),
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
+  na_rm_strata = FALSE,
   sql_channel = NULL,
-  pull_lengths = F
+  pull_lengths = FALSE
 )
 }
 \arguments{
@@ -36,6 +37,9 @@ sample (preprogrammed station) used for biomass estimation}
 
 \item{abundance_haul}{character string. "Y" are abundance hauls and "N" are
 other hauls.}
+
+\item{na_rm_strata}{boolean. Remove hauls with NA stratum information.
+Defaults to FALSE.}
 
 \item{sql_channel}{connection created via gapindex::get_connected()}
 
