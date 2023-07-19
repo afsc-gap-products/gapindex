@@ -285,7 +285,7 @@ get_data <- function(year_set = c(1996, 1999),
                        subset = HAULJOIN %in% haul_data$HAULJOIN)
   
   ## Error Query: check whether there are species data
-  if (!is.data.frame(x = catch_data))
+  if (!is.data.frame(x = catch_data) | nrow(x = catch_data) == 0)
     stop("There are no catch records for any of the species codes in argument
          spp_codes for survey area '", survey_set, "' in the chosen years ",
          year_vec)
