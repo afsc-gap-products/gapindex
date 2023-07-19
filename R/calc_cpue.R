@@ -44,6 +44,17 @@ calc_cpue <- function(racebase_tables = NULL) {
   catch <- racebase_tables$catch
   species <- racebase_tables$species
   
+  ## remove species with no catch records, output warning
+  omitted_species <- 
+    species$SPECIES_CODE[!species$SPECIES_CODE %in% 
+                           racebase_tables$catch$SPECIES_CODE]
+  species <- subset(x = racebase_tables$species,
+                    subset = SPECIES_CODE %in% unique(catch$SPECIES_CODE))
+  
+  if (length(x = omitted_species) > 0) 
+    warning(paste0("No catch records found for species codes: ", 
+                   gapindex::stitch_entries(omitted_species)))
+  
   ## Attach "YEAR" column to `haul` from `cruisedat` using "CRUISEJOIN" as the 
   ## key.
   haul <- merge(x = haul, 
