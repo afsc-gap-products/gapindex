@@ -4,14 +4,15 @@
 \alias{calc_agecomp_stratum}
 \title{Calculate stratum-level age composition and mean/std.dev length at age}
 \usage{
-calc_agecomp_stratum(racebase_tables = NULL, size_comp = NULL)
+calc_agecomp_stratum(racebase_tables = NULL, alk = NULL, size_comp = NULL)
 }
 \arguments{
 \item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 
-\item{size_comp}{a dataframe of stratum abundances, result
-object from either \code{calc_sizecomp_aigoa_stratum()}
-or \code{calc_sizecomp_bs_stratum()} depending on the region.}
+\item{alk}{age-length key (dataframe) created from \code{gapindex::calc_ALK()}}
+
+\item{size_comp}{a dataframe of size compositions created from
+\code{gapindex::calc_sizecomp_stratum()}.}
 }
 \value{
 A named list with two elements. "age_comp" is a dataframe of numbers
