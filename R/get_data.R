@@ -131,8 +131,9 @@ get_data <- function(year_set = c(1996, 1999),
   ## Merge the "SURVEY" column in `cruise_data` to `area_info` using 
   ## column "SURVEY_DEFINITION_ID" as the key. 
   area_info <- merge(x = area_info, 
-                     y = cruise_data[, c("SURVEY_DEFINITION_ID", "SURVEY")],
-                     by = "SURVEY_DEFINITION_ID")
+                     y = survey_df,
+                     by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR"),
+                     all.x = TRUE)
   
   ## Subset stratum info out of `area_info`
   stratum_data <- 
@@ -176,9 +177,10 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## Merge the "SURVEY" column in `cruise_data` to `stratum_groups` using 
   ## columns "SURVEY_DEFINITION_ID" and "DESIGN_YEAR" as a composite key. 
-  stratum_groups <- merge(x = stratum_groups, 
-                          y = cruise_data[, c("SURVEY_DEFINITION_ID", 
-                                              "SURVEY")],
+  stratum_groups <- merge(x = stratum_groups,
+                          y = subset(x = survey_df, 
+                                     select = c(SURVEY_DEFINITION_ID, 
+                                                SURVEY)),
                           by = "SURVEY_DEFINITION_ID")
   
   stratum_groups <- stratum_groups[order(stratum_groups$SURVEY, 
@@ -202,10 +204,11 @@ get_data <- function(year_set = c(1996, 1999),
                     query = paste0(
                       "SELECT * FROM RACEBASE.HAUL WHERE CRUISEJOIN IN ", 
                       cruisejoin_vec, " AND HAUL_TYPE IN ", haultype_vec,
-                      " AND PERFORMANCE >= 0"))
+                      " AND PERFORMANCE >= 0 AND ABUNDANCE_HAUL IN ",
+                      gapindex::stitch_entries(abundance_haul)))
   
-  haul_data <- subset(x = haul_data, 
-                      subset = ABUNDANCE_HAUL %in% abundance_haul)
+  # haul_data <- subset(x = haul_data, 
+  #                     subset = ABUNDANCE_HAUL %in% abundance_haul)
   
   if (na_rm_strata)
     haul_data <- subset(x = haul_data, 
