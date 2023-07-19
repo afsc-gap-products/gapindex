@@ -94,76 +94,79 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                 y = biomass_strata, 
                 by = c("DESIGN_YEAR", "SURVEY_DEFINITION_ID", "STRATUM"))
         
-        subarea_summed_biomass <- 
-          stats::aggregate(cbind(BIOMASS_MT, 
-                                 POPULATION_COUNT) ~
-                             SPECIES_CODE + YEAR,
-                           data = subarea_biomass_by_stratrum,
-                           FUN = sum)
-        
-        subarea_summed_variance <- 
-          stats::aggregate(cbind(CPUE_KGKM2_VAR, CPUE_NOKM2_VAR, 
-                                 BIOMASS_VAR, POPULATION_VAR) ~
-                             SPECIES_CODE + YEAR,
-                           data = subarea_biomass_by_stratrum,
-                           FUN = sum,
-                           na.rm = TRUE)
-        
-        subarea_summed_hauls <- 
-          stats::aggregate(cbind(N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH) ~
-                             SPECIES_CODE + YEAR,
-                           data = subarea_biomass_by_stratrum,
-                           FUN = sum)
-        
-        subarea_mean_cpue <- 
-          do.call(what = rbind, 
-                  args = lapply(
-                    split(x = subarea_biomass_by_stratrum, 
-                          f = list(subarea_biomass_by_stratrum$SPECIES_CODE,
-                                   subarea_biomass_by_stratrum$YEAR)),
-                    FUN = function(x) { 
-                      cbind(
-                        SPECIES_CODE = unique(x$SPECIES_CODE),
-                        YEAR = unique(x$YEAR),
-                        TOT_AREA = sum(x$AREA_KM2),
-                        CPUE_KGKM2_MEAN = weighted.mean(x = x$CPUE_KGKM2_MEAN, 
-                                                        w = x$AREA_KM2),
-                        CPUE_NOKM2_MEAN = weighted.mean(x = x$CPUE_NOKM2_MEAN, 
-                                                        w = x$AREA_KM2))} ))
-        
-        subarea_summed_biomass <- merge(x = subarea_summed_biomass,
-                                        y = subarea_mean_cpue,
-                                        by = c("SPECIES_CODE", "YEAR"))
-        
-        subarea_summed_biomass <- merge(y = subarea_summed_variance,
-                                        x = subarea_summed_biomass,
-                                        by = c("SPECIES_CODE", "YEAR"))
-        
-        subarea_summed_biomass <- merge(y = subarea_summed_hauls,
-                                        x = subarea_summed_biomass,
-                                        by = c("SPECIES_CODE", "YEAR"))
-        
-        subarea_summed_biomass$CPUE_KGKM2_VAR <- 
-          subarea_summed_biomass$BIOMASS_VAR / 
-          subarea_summed_biomass$TOT_AREA^2 * 1e6
-        
-        subarea_summed_biomass$CPUE_NOKM2_VAR <- 
-          subarea_summed_biomass$POPULATION_VAR / 
-          subarea_summed_biomass$TOT_AREA^2 
-        
-        subarea_biomass <- 
-          rbind(subarea_biomass,
-                cbind(data.frame(SURVEY_DEFINITION_ID = 
-                                   subareas$SURVEY_DEFINITION_ID[isubarea], 
-                                 SURVEY = subareas$SURVEY[isubarea],
-                                 AREA_ID = subareas$AREA_ID[isubarea]),
-                      subset(x = subarea_summed_biomass,
-                             select = c(SPECIES_CODE, YEAR, 
-                                        N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH,
-                                        CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR,
-                                        CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
-                                        BIOMASS_MT, BIOMASS_VAR, 
-                                        POPULATION_COUNT, POPULATION_VAR) )))
+        if (nrow(x = subarea_biomass_by_stratrum) > 0) {
+          subarea_summed_biomass <- 
+            stats::aggregate(cbind(BIOMASS_MT, 
+                                   POPULATION_COUNT) ~
+                               SPECIES_CODE + YEAR,
+                             data = subarea_biomass_by_stratrum,
+                             FUN = sum)
+          
+          subarea_summed_variance <- 
+            stats::aggregate(cbind(CPUE_KGKM2_VAR, CPUE_NOKM2_VAR, 
+                                   BIOMASS_VAR, POPULATION_VAR) ~
+                               SPECIES_CODE + YEAR,
+                             data = subarea_biomass_by_stratrum,
+                             FUN = sum,
+                             na.rm = TRUE)
+          
+          subarea_summed_hauls <- 
+            stats::aggregate(cbind(N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH) ~
+                               SPECIES_CODE + YEAR,
+                             data = subarea_biomass_by_stratrum,
+                             FUN = sum)
+          
+          subarea_mean_cpue <- 
+            do.call(what = rbind, 
+                    args = lapply(
+                      split(x = subarea_biomass_by_stratrum, 
+                            f = list(subarea_biomass_by_stratrum$SPECIES_CODE,
+                                     subarea_biomass_by_stratrum$YEAR)),
+                      FUN = function(x) { 
+                        cbind(
+                          SPECIES_CODE = unique(x$SPECIES_CODE),
+                          YEAR = unique(x$YEAR),
+                          TOT_AREA = sum(x$AREA_KM2),
+                          CPUE_KGKM2_MEAN = weighted.mean(x = x$CPUE_KGKM2_MEAN, 
+                                                          w = x$AREA_KM2),
+                          CPUE_NOKM2_MEAN = weighted.mean(x = x$CPUE_NOKM2_MEAN, 
+                                                          w = x$AREA_KM2))} ))
+          
+          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                          y = subarea_mean_cpue,
+                                          by = c("SPECIES_CODE", "YEAR"))
+          
+          subarea_summed_biomass <- merge(y = subarea_summed_variance,
+                                          x = subarea_summed_biomass,
+                                          by = c("SPECIES_CODE", "YEAR"))
+          
+          subarea_summed_biomass <- merge(y = subarea_summed_hauls,
+                                          x = subarea_summed_biomass,
+                                          by = c("SPECIES_CODE", "YEAR"))
+          
+          subarea_summed_biomass$CPUE_KGKM2_VAR <- 
+            subarea_summed_biomass$BIOMASS_VAR / 
+            subarea_summed_biomass$TOT_AREA^2 * 1e6
+          
+          subarea_summed_biomass$CPUE_NOKM2_VAR <- 
+            subarea_summed_biomass$POPULATION_VAR / 
+            subarea_summed_biomass$TOT_AREA^2 
+          
+          subarea_biomass <- 
+            rbind(subarea_biomass,
+                  cbind(data.frame(SURVEY_DEFINITION_ID = 
+                                     subareas$SURVEY_DEFINITION_ID[isubarea], 
+                                   SURVEY = subareas$SURVEY[isubarea],
+                                   AREA_ID = subareas$AREA_ID[isubarea]),
+                        subset(x = subarea_summed_biomass,
+                               select = c(SPECIES_CODE, YEAR, 
+                                          N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH,
+                                          CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR,
+                                          CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
+                                          BIOMASS_MT, BIOMASS_VAR, 
+                                          POPULATION_COUNT, POPULATION_VAR) )))
+          
+        }
       }
     }
   }
