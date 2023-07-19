@@ -86,11 +86,20 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                 y = racebase_tables$cruise,
                 by = "CRUISEJOIN")
   
-  size_stats <- 
-    aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
-                SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
-              data = size,
-              FUN = function(x) length(unique(x)))
+  if (nrow(x = size) > 0) {
+    size_stats <- 
+      aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
+                  SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
+                data = size,
+                FUN = function(x) length(unique(x)))
+  } else {
+    size_stats <- subset(x = num_stats, 
+                         select = c("SPECIES_CODE", "STRATUM", "YEAR", 
+                                    "SURVEY", "SURVEY_DEFINITION_ID", 
+                                    "DESIGN_YEAR"))
+    size_stats$HAULJOIN <- 0
+  }
+
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
