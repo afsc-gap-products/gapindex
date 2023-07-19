@@ -47,12 +47,22 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   
   ## Which survey designs to pull from
   subarea_biomass <- data.frame()
-  survey_designs <- racebase_tables$survey
+  survey_designs <- racebase_tables$survey_design
   strata <- racebase_tables$strata
+  
+  ## Add "SURVEY" column from `racebase_tables$cruise` to `survey_designs` 
+  survey_designs <- merge(x = survey_designs,
+                          y = subset(x = racebase_tables$survey,
+                                     select = c(SURVEY_DEFINITION_ID, SURVEY)),
+                          by = "SURVEY_DEFINITION_ID")
+  
+  strata <- merge(x = strata,
+                  y = racebase_tables$survey,
+                  by = c( "SURVEY_DEFINITION_ID", "DESIGN_YEAR"))
   
   ## Add DESIGN_YEAR to biomass_strata
   biomass_strata <- merge(x = biomass_strata,
-                          y = racebase_tables$survey_design,
+                          y = survey_designs,
                           by = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR"))
   
   ## Add stratum area to biomass_strata
@@ -61,12 +71,16 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                                          "STRATUM", "AREA_KM2")],
                           by = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM"))
   
-  for (isurvey in 1:nrow(x = survey_designs)) {
+  unique_surveys <- racebase_tables$survey
+  
+  for (isurvey in 1:nrow(x = unique_surveys)) {
     
     subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
                          DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
+    
+    subareas$SURVEY <- unique_surveys$SURVEY[isurvey]
     
     for (isubarea in 1:nrow(x = subareas)) {
       strata_in_subarea <- 
