@@ -41,7 +41,7 @@ calc_sizecomp_haul <- function(racebase_tables = NULL,
   ## dataframe `size` using HAULJOIN as the key.
   size <-  merge(x = size[, c("HAULJOIN", "SPECIES_CODE",
                               "LENGTH", "FREQUENCY", "SEX")],
-                 y = cpue[, c("SURVEY", "HAULJOIN", "YEAR",
+                 y = cpue[, c("SURVEY", "HAULJOIN", "YEAR", "STRATUM",
                               "SPECIES_CODE", "CPUE_NOKM2")],
                  by = c("HAULJOIN", "SPECIES_CODE"))
   

@@ -30,7 +30,7 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
                                         racebase_stratum_popn = NULL) {
   
   ## Error Check
-  if (is.null(racebase_tables$size)) 
+  if (is.null(x = racebase_tables$size)) 
     stop("racebase_tables$size must not be NULL. Either the taxon does not 
          have size information or rerun gapindex::get_data() with 
          argument pull_lengths = TRUE")
@@ -48,7 +48,7 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
   cruise <- subset(x = racebase_tables$cruise,
                    subset = SURVEY %in% c("AI", "GOA"))
   
-  if (nrow(cruise) == 0){
+  if (nrow(x = cruise) == 0){
     stop("AI or GOA cruises are not in argument racebase_tables$cruise.
          This function only applies the size composition to the AI/GOA. 
          Use gapindex::calc_size_stratum_BS() to calculate the size 
@@ -66,18 +66,13 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
   
   cpue <- subset(x = racebase_cpue, 
                  subset = HAULJOIN %in% haul$HAULJOIN)
-  # cpue <- merge(x = cpue, 
-  #               y = haul[, c("HAULJOIN", "YEAR", "STRATUM", "SURVEY")],
-  #               by = "HAULJOIN")
-  # catch <- subset(x = racebase_tables$catch,
-  #                 subset = HAULJOIN %in% haul$HAULJOIN)
-  # catch$SURVEY <- catch$REGION
   
   racebase_stratum_popn <- 
     subset(x = racebase_stratum_popn, 
            subset = SURVEY_DEFINITION_ID %in% c("AI" = 52, "GOA" = 47))
   
-  ## Attach year and stratum information to size table
+  ## Attach year and stratum information from `haul` to `size` using 
+  ## column "HAULJOIN" as the key.
   size <- merge(x = size[, c("HAULJOIN", "SURVEY", "SPECIES_CODE", 
                              "LENGTH", "FREQUENCY", "SEX")],
                 all.x = TRUE,
@@ -102,14 +97,20 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
   cpue_ratio$CPUE_RATIO <- cpue_ratio$CPUE_NOKM2 / cpue_ratio$CPUE_SUM
   cpue_ratio <- subset(x = cpue_ratio, subset = CPUE_RATIO > 0)
   
-  ## Query whether the HAULJOIN in the cpue_ratio table is in the size table,
-  ## i.e., are there observed lengths associated with a positive catch?
+  ## Tabulate how many length records were collected for a given year, stratum,
+  ## haul, and species. 
   length_sum <- stats::aggregate( 
     FREQUENCY ~ YEAR + STRATUM + HAULJOIN + SPECIES_CODE,
     data = size,
     FUN = sum)
   names(length_sum)[names(length_sum) == "FREQUENCY"] <- "LENGTH_SUM"
   
+  ## Query whether the HAULJOIN in `cpue_ratio` is in `size`, i.e., are there
+  ## observed lengths associated with a positive catch? For the AIGOA this 
+  ## is important because size distributions are imputed for stations that 
+  ## have a positive catch but no size data. Column "POS_CATCH_W_LENS" is a 
+  ## boolean that will denote which records we will need to imput a size 
+  ## distribution.  
   cpue_ratio <- merge(x = cpue_ratio[, c("SPECIES_CODE", "HAULJOIN", "STRATUM", 
                                          "YEAR", "SURVEY", "CPUE_RATIO")],
                       y = length_sum[, c("SPECIES_CODE", "HAULJOIN", 
@@ -219,33 +220,6 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
                                 data = size,
                                 FUN = function(x) round(x = sum(x)))
   
-  # ## Widen the size_comp df so that each sex is a column.
-  # size_comp <- stats::reshape(data = size_comp, 
-  #                             v.names = "NUMBER", 
-  #                             idvar = c("SURVEY", "YEAR", 'STRATUM', 
-  #                                       "SPECIES_CODE", "LENGTH"),
-  #                             timevar = "SEX", 
-  #                             direction = "wide")
-  # 
-  # ## Add a column of zeros if there are no unsexed individuals (NUMBER.3)
-  # if (!"NUMBER.3" %in% names(size_comp)) size_comp$NUMBER.3 <- 0
-  # 
-  # names(size_comp)[names(size_comp) %in% paste0("NUMBER.", 1:3)] <-
-  #   c("NUMBER.1" = "MALES", 
-  #     "NUMBER.2" =  "FEMALES", 
-  #     "NUMBER.3" = "UNSEXED")[names(size_comp)[names(size_comp) %in% 
-  #                                                paste0("NUMBER.", 1:3)]]
-  # 
-  # ## Order sexes to M, F, U. Set NAs to zero. 
-  # size_comp <- subset(size_comp, 
-  #                     select = c(SURVEY, YEAR, STRATUM, SPECIES_CODE, LENGTH,   
-  #                                MALES, FEMALES, UNSEXED))
-  # na_idx <- is.na(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
-  # size_comp[, c("MALES", "FEMALES", "UNSEXED")][na_idx] <- 0
-  # 
-  # ## Calculate total over sexes
-  # size_comp$TOTAL <- rowSums(size_comp[, c("MALES", "FEMALES", "UNSEXED")])
-  # 
   ## Add units to LENGTH column name
   names(size_comp)[names(size_comp) == "LENGTH"] <- "LENGTH_MM"
   ## Change column name "NUMBER" to "POPULATION_COUNT"
@@ -257,9 +231,7 @@ calc_sizecomp_aigoa_stratum <- function(racebase_tables = NULL,
   ## Rearrnge columns
   size_comp <- size_comp[, c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR",
                              "STRATUM", "SPECIES_CODE", "LENGTH_MM", "SEX",
-                             "POPULATION_COUNT"#,
-                             # "MALES", "FEMALES", "UNSEXED", "TOTAL"
-                             )]
+                             "POPULATION_COUNT")]
 
   return(size_comp[with(size_comp,
                         order(SPECIES_CODE, YEAR, SURVEY_DEFINITION_ID,
