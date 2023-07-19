@@ -79,10 +79,29 @@ calc_ALK <- function(racebase_tables = NULL,
   ##   Aggregate specimen information: s_yklm will be the total number 
   ##   of age-specimens collected in year-y, species-k, length-l, sex-m. 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  s_yklm <- stats::aggregate(
-    FREQ ~ SURVEY + YEAR + SPECIES_CODE + SEX + LENGTH_MM + AGE,
-    data = specimen,
-    FUN = sum)
+  if (unsex == "unsex") 
+    s_yklm <- stats::aggregate(
+      FREQ ~ SURVEY + YEAR + SPECIES_CODE + SEX + LENGTH_MM + AGE,
+      data = specimen,
+      FUN = sum)
+  
+  if (unsex == "all") 
+    s_yklm <- rbind(
+      ## Aggregate FEMALES and MALES
+      stats::aggregate(
+        FREQ ~ SURVEY + YEAR + SPECIES_CODE + SEX + LENGTH_MM + AGE,
+        data = specimen,
+        subset = SEX %in% 1:2,
+        FUN = sum),
+      
+      ## For UNSEXED, we pool MALES and FEMALES AND UNSEXED TOGETHER
+      cbind(
+        stats::aggregate(FREQ ~ SURVEY + YEAR + SPECIES_CODE + LENGTH_MM + AGE,
+                         data = specimen,
+                         FUN = sum), 
+        SEX = 3)[, c("SURVEY", "YEAR", "SPECIES_CODE", "SEX", 
+                     "LENGTH_MM", "AGE", "FREQ")] 
+    )
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Calculate distribution of age proportions for a given length, `p_yklm`.
@@ -109,28 +128,27 @@ calc_ALK <- function(racebase_tables = NULL,
                             return(subset(x = df, select = -FREQ))
                           }))
   
-  ## To figure out which length-bins we need to fill in, we tabulate
-  ## every length bin encountered in the length subsample (`size`) for a
-  ## given survey, year, species, and sex. 
-  every_combo_of_lengths <- 
-    expand.grid(SURVEY = sort(unique(size$SURVEY)),
-                YEAR = sort(unique(size$YEAR)),
-                SPECIES_CODE = sort(unique(size$SPECIES_CODE)),
-                SEX = sort(unique(size$SEX)),
-                LENGTH_MM = seq(from = min(size$LENGTH, na.rm = TRUE),
-                                to = max(size$LENGTH, na.rm = TRUE),
-                                by = 10),
-                AGE = seq(from = min(specimen$AGE, na.rm = TRUE),
-                          to = max(specimen$AGE, na.rm = TRUE),
-                          by = 1))
-  
-  p_yklm <- merge(x = every_combo_of_lengths,
-                  y = p_yklm,
-                  all.x = TRUE,
-                  by = c("SURVEY", "YEAR", "SPECIES_CODE", 
-                         "SEX", "LENGTH_MM", "AGE"))
-  
   if (global) {
+    ## To figure out which length-bins we need to fill in, we tabulate
+    ## every length bin encountered in the length subsample (`size`) for a
+    ## given survey, year, species, and sex. 
+    every_combo_of_lengths <- 
+      expand.grid(SURVEY = sort(unique(size$SURVEY)),
+                  YEAR = sort(unique(size$YEAR)),
+                  SPECIES_CODE = sort(unique(size$SPECIES_CODE)),
+                  SEX = sort(unique(size$SEX)),
+                  LENGTH_MM = seq(from = min(size$LENGTH, na.rm = TRUE),
+                                  to = max(size$LENGTH, na.rm = TRUE),
+                                  by = 10),
+                  AGE = seq(from = min(specimen$AGE, na.rm = TRUE),
+                            to = max(specimen$AGE, na.rm = TRUE),
+                            by = 1))
+    
+    p_yklm <- merge(x = every_combo_of_lengths,
+                    y = p_yklm,
+                    all.x = TRUE,
+                    by = c("SURVEY", "YEAR", "SPECIES_CODE", 
+                           "SEX", "LENGTH_MM", "AGE"))
     
     missing_lengths <- 
       do.call(what = rbind, 
