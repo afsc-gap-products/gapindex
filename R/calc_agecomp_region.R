@@ -90,8 +90,7 @@ calc_agecomp_region <- function(racebase_tables,
         
         ##  Calculate mean and sd length at age:
         ##  Calculate the weighted mean and sd of length at age using column 
-        ## "POPULATION_COUNT" as the weight. Calculations are done separately for lengths with
-        ## associated ages and lengths without associated ages (AGE = -9)
+        ## "POPULATION_COUNT" as the weight.
         mean_length_at_age <- 
           do.call(what = rbind,
                   args = lapply(
@@ -136,56 +135,7 @@ calc_agecomp_region <- function(racebase_tables,
                       
                     }))
         rownames(mean_length_at_age) <- NULL
-        
-        ## Calculate mean and sd of length @ age for age -9 category
-
-        mean_length_at_age_neg9 <- 
-          do.call(what = rbind,
-                  args = lapply(
-                    X = split(x = subset(x = count_length_age, 
-                                         subset = STRATUM %in% strata_in_iregion & 
-                                           AGE == -9),
-                              f = with(subset(x = count_length_age, 
-                                              subset = STRATUM %in% strata_in_iregion & 
-                                                AGE == -9), 
-                                       list(SURVEY, YEAR, SPECIES_CODE, SEX))),
-                    FUN = function(df) {
-                      
-                      ## temporary output df
-                      output_df <- data.frame()
-                      
-                      if (nrow(x = df) > 0) {
-                        
-                        ## record the combo of "SURVEY", "YEAR", 
-                        ## "SPECIES_CODE", "SEX", and "AGE" of the split df. 
-                        output_df[1, c("SURVEY", "YEAR", 
-                                       "SPECIES_CODE", "SEX")] <- 
-                          unique(subset(x = df, 
-                                        select = c(SURVEY, YEAR, 
-                                                   SPECIES_CODE, SEX)))
-                        output_df$AGE <- -9
-                        
-                        ## weighted mean length
-                        mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$POPULATION_COUNT)
-                        
-                        ## weighted std.dev length
-                        sd_length <- 
-                          sqrt(sum(df$POPULATION_COUNT/sum(df$POPULATION_COUNT) * 
-                                     (df$LENGTH_MM - mean_length)^2))
-                        
-                        ## append `mean_length` and `sd_length` to `output_df` 
-                        output_df[1, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
-                          round(x = c(mean_length, sd_length), 
-                                digits = 2)
-                      }
-                      
-                      return(output_df)
-                      
-                    })
-          )
-        rownames(mean_length_at_age_neg9) <- NULL
-        
+ 
         ## Merge the mean/sd length at age dataframes to `age_comp_iregion`
         ## using  "SURVEY", "YEAR", "SPECIES_CODE", "SEX", and "AGE"
         ## as a composite key.
