@@ -78,28 +78,34 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
           "N_COUNT" =  length(x = stats::na.omit(x[x > 0]))
         ))
   
-  ##
-  size <- merge(x = racebase_tables$size,
-                y = haul[, c("HAULJOIN", "STRATUM")],
-                by = "HAULJOIN")
-  size <- merge(x = size, 
-                y = racebase_tables$cruise,
-                by = "CRUISEJOIN")
-  
-  if (nrow(x = size) > 0) {
+  if (!is.null(x = racebase_tables$size)) {
+    size <- merge(x = racebase_tables$size,
+                  y = haul[, c("HAULJOIN", "STRATUM")],
+                  by = "HAULJOIN")
+    size <- merge(x = size, 
+                  y = racebase_tables$cruise,
+                  by = "CRUISEJOIN")
+    
     size_stats <- 
       aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
                   SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
                 data = size,
                 FUN = function(x) length(unique(x)))
+    
   } else {
     size_stats <- subset(x = num_stats, 
                          select = c("SPECIES_CODE", "STRATUM", "YEAR", 
                                     "SURVEY", "SURVEY_DEFINITION_ID", 
                                     "DESIGN_YEAR"))
     size_stats$HAULJOIN <- 0
+    
+    warning(paste0("Size data are not present in argument `racebase_tables`. ",
+                   "Thus, the 'N_LENGTH' column in the output of this ",
+                   "function is assumed to be zero but double-check ",
+                   "that the `pull_lengths` argument in the ",
+                   "gapindex::get_data() call == TRUE."))
   }
-
+  
   
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(

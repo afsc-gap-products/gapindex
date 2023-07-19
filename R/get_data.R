@@ -311,7 +311,12 @@ get_data <- function(year_set = c(1996, 1999),
                             no = spp_codes_vec))) 
     
     size_data <- subset(x = size_data,
-                         subset = HAULJOIN %in% haul_data$HAULJOIN)
+                        subset = HAULJOIN %in% haul_data$HAULJOIN)
+    
+    ## Error Query: send out a warning if there are no lengths in the dataset
+    if (nrow(x = size_data) == 0)
+      warning("There are no length data for any of the species_codes for 
+              survey area '", survey_set, "' in the chosen years ", year_vec)
   }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -339,7 +344,7 @@ get_data <- function(year_set = c(1996, 1999),
     
     ## Error Query: send out a warning if there are no ages in the dataset
     if (length(table(speclist$AGE)) == 0)
-      warning("There are no age data for the species_codes in spp_codes for 
+      warning("There are no age data for any the species_codes for 
             survey area '", survey_set, "' in the chosen years ", year_vec)
   }
   
