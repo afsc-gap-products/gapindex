@@ -70,7 +70,9 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
       data = cpue,
       na.action = NULL,
       FUN = function(x) 
-        c("CPUE_NOKM2_MEAN" = mean(x, na.rm = TRUE), 
+        c("CPUE_NOKM2_MEAN" = ifelse(test = length(stats::na.omit(x)) == 0,
+                                     yes = NA,
+                                     no = mean(x, na.rm = TRUE)), 
           "CPUE_NOKM2_VAR" = ifelse(test = length(stats::na.omit(x)) < 2, 
                                     yes = NA, 
                                     no = stats::var(x, na.rm = TRUE) / 
