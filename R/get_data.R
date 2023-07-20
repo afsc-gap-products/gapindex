@@ -314,9 +314,13 @@ get_data <- function(year_set = c(1996, 1999),
                         subset = HAULJOIN %in% haul_data$HAULJOIN)
     
     ## Error Query: send out a warning if there are no lengths in the dataset
-    if (nrow(x = size_data) == 0)
+    if (nrow(x = size_data) == 0) {
       warning("There are no length data for any of the species_codes for 
               survey area '", survey_set, "' in the chosen years ", year_vec)
+      size_data <- NULL
+      
+      }
+
   }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
