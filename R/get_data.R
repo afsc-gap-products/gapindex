@@ -341,15 +341,18 @@ get_data <- function(year_set = c(1996, 1999),
                             yes = paste0("(SELECT DISTINCT SPECIES_CODE ",
                                          "FROM RACEBASE.SPECIMEN where ",
                                          "CRUISEJOIN in ", cruisejoin_vec, ")"),
-                            no = spp_codes_vec)))
+                            no = spp_codes_vec),
+                     " AND AGE IS NOT NULL"))
     
     speclist <- subset(x = speclist,
                        subset = speclist$HAULJOIN %in% haul_data$HAULJOIN)
     
     ## Error Query: send out a warning if there are no ages in the dataset
-    if (length(table(speclist$AGE)) == 0)
+    if (nrow(x = speclist) == 0) {
       warning("There are no age data for any the species_codes for 
             survey area '", survey_set, "' in the chosen years ", year_vec)
+      speclist <- NULL
+    }
   }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
