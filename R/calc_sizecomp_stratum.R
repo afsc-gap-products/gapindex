@@ -211,7 +211,14 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
                                               "SPECIES_CODE", 
                                               "POPULATION_COUNT")],
                   by = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE"),
-                  all.y = TRUE)
+                  all.y = TRUE, all.x = TRUE)
+  
+  ## There are some strata with no length data. In these cases, the length
+  ## is coded as -9 and sex = 3. S_ik and S_ik are set to 1 to ease calculations.
+  S_iklm$LENGTH[is.na(x = S_iklm$LENGTH)] <- -9
+  S_iklm$SEX[is.na(x = S_iklm$SEX)] <- 3
+  S_iklm$S_iklm[is.na(x = S_iklm$S_iklm)] <- 1
+  S_iklm$S_ik[is.na(x = S_iklm$S_ik)] <- 1
   
   if (fill_NA_method == "BS") {
     
