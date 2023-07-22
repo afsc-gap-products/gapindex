@@ -25,8 +25,12 @@ calc_ALK <- function(racebase_tables = NULL,
   
   ## Error Check
   if (is.null(x = racebase_tables$size)) 
-    stop("racebase_tables$size must not be NULL. Either the taxon does not 
-         have size information or rerun gapindex::get_data() with 
+    stop("racebase_tables$size must not be NULL. Either the set of taxa does 
+         not have size information or rerun gapindex::get_data() with 
+         argument pull_lengths = TRUE")
+  if (is.null(x = racebase_tables$specimen)) 
+    stop("racebase_tables$specimen must not be NULL. Either the set of taxa 
+         does not have age information or rerun gapindex::get_data() with 
          argument pull_lengths = TRUE")
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
