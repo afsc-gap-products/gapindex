@@ -160,6 +160,9 @@ calc_agecomp_region <- function(racebase_tables,
     } ## Loop over regions -- end
   } ## Loop over surveys -- end
   
+  region_age_comp_df[region_age_comp_df$AGE == -99, 
+                     c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <- NA
+  
   return(region_age_comp_df[with(region_age_comp_df, 
                                  order(SURVEY_DEFINITION_ID, AREA_ID,
                                        SPECIES_CODE, YEAR, SEX, AGE)), ])

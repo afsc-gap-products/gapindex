@@ -53,6 +53,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   age_comp$AGEPOP <- age_comp$AGE_FRAC * age_comp$POPULATION_COUNT
   
   count_length_age <- age_comp
+  count_length_age$AGE[count_length_age$LENGTH_MM < 0] <- -99
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##  Calculate mean and sd length at age:
@@ -141,7 +142,8 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                                           SPECIES_CODE, SEX, AGE, 
                                           LENGTH_MM_MEAN, LENGTH_MM_SD)),
                     by = c("SURVEY", "YEAR", "STRATUM", 
-                           "SPECIES_CODE", "SEX", "AGE"))
+                           "SPECIES_CODE", "SEX", "AGE"),
+                    all.x = TRUE)
   
   ## Merge "SURVEY_DEFINITION_ID" column from `cruise`
   age_comp <- 
@@ -157,6 +159,11 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   ## Sort age_comp
   age_comp <- age_comp[with(age_comp, order(SURVEY, STRATUM, YEAR,
                                             SEX, AGE)), ]
+  
+  ## Any records with NA mean/sd length values are coded as AGE -99: 
+  ## INDICATES A CASE WHERE NO LENGTHS WERE COLLECTED WITHIN A STRATUM 
+  ## FOR A SPECIES/YEAR EVEN THOUGH CATCH NUMBERS EXISTED.
+  age_comp$AGE[is.na(age_comp$LENGTH_MM_MEAN)] <- -99
   
   return(list(age_comp = subset(x = age_comp,
                                 select = c(SURVEY, SURVEY_DEFINITION_ID, 
