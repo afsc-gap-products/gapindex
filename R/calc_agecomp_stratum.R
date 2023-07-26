@@ -40,11 +40,12 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   ## do not have observed age information. These AGES are coded as -9. 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  age_comp <- merge(x = size_comp,
-                    y = alk,
-                    by = c("SURVEY", "YEAR", "SPECIES_CODE", 
-                           "SEX", "LENGTH_MM"),
-                    all.x = TRUE)
+  age_comp <- 
+    merge(x = subset(x = size_comp, 
+                     subset = SPECIES_CODE %in% unique(x = alk$SPECIES_CODE)),
+          y = alk,
+          by = c("SURVEY", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
+          all.x = TRUE)
   age_comp$AGE[is.na(age_comp$AGE)] <- -9
   age_comp$AGE_FRAC[is.na(age_comp$AGE_FRAC)] <- 1
   
