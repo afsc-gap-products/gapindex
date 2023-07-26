@@ -43,6 +43,9 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   haul <- racebase_tables$haul
   cpue <- racebase_cpue
   size <- racebase_tables$size
+  racebase_stratum_popn <- 
+    subset(x = racebase_stratum_popn,
+           subset = SPECIES_CODE %in% unique(x = size$SPECIES_CODE))
   
   ## Attach "YEAR" and "SURVEY" columns from `haul` to `size` using column
   ## "CRUISEJOIN" as the key.
@@ -109,7 +112,7 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
               subset(x = cpue,
                      subset = CPUE_NOKM2 > 0 & 
                        SPECIES_CODE == ispp &
-                     !HAULJOIN %in% temp_hauljoins))
+                       !HAULJOIN %in% temp_hauljoins))
     }
     
     
