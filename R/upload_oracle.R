@@ -16,7 +16,7 @@
 #' @param channel Establish your oracle connection using a function like `gapindex::get_connected()`. 
 #' @param schema character string. The name of the schema to save table. 
 #' @param update_metadata boolean. Default = TRUE indicates that the table metadata should be updated. 
-#' @param append_table boolean. If TRUE, appends to an existing table, otherwise a new table is created.
+#' @param upload_table boolean. If TRUE, appends to an existing table, otherwise a new table is created.
 #' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle view permissions. 
 #'
 #' @return
@@ -30,7 +30,7 @@ upload_oracle <- function(x = NULL,
                           channel = NULL, 
                           schema = NULL, 
                           upload_table = TRUE,
-                          append_table = FALSE,
+                          # append_table = FALSE,
                           update_metadata = TRUE,
                           share_with_all_users = TRUE) {
   

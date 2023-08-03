@@ -12,7 +12,6 @@ upload_oracle(
   channel = NULL,
   schema = NULL,
   upload_table = TRUE,
-  append_table = FALSE,
   update_metadata = TRUE,
   share_with_all_users = TRUE
 )
@@ -37,7 +36,7 @@ purposes.
 
 \item{schema}{character string. The name of the schema to save table.}
 
-\item{append_table}{boolean. If TRUE, appends to an existing table, otherwise a new table is created.}
+\item{upload_table}{boolean. If TRUE, appends to an existing table, otherwise a new table is created.}
 
 \item{update_metadata}{boolean. Default = TRUE indicates that the table metadata should be updated.}
 
