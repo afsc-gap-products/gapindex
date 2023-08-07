@@ -71,6 +71,7 @@ upload_oracle <- function(x = NULL,
   ## Check that table_name is in all caps
   table_name <- toupper(x = table_name)
   schema <- toupper(x = schema)
+  names(x = x) <- toupper(x = names(x))
   
   ## Check that there is a connection
   if (is.null(x = channel)) channel <- gapindex::get_connected()
