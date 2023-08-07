@@ -166,7 +166,7 @@ upload_oracle <- function(x = NULL,
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (share_with_all_users) {
     
-    cat("Granting select access to all users ... ")
+    cat("Granting select access to all users ... \n")
     all_schemas <- RODBC::sqlQuery(channel = channel,
                                    query = paste0('SELECT * FROM all_users;'))
     
@@ -177,5 +177,5 @@ upload_oracle <- function(x = NULL,
     }
     
   }
-  cat("Finished\n\n")
+  cat("Finished.\n\n")
 }
