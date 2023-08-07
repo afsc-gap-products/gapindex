@@ -35,10 +35,6 @@ purposes.
 \item{schema}{character string. The name of the schema to save table.}
 
 \item{share_with_all_users}{boolean. Default = TRUE. Give all users in Oracle view permissions.}
-
-\item{update_metadata}{boolean. Default = TRUE indicates that the table metadata should be updated.}
-
-\item{upload_table}{boolean. If TRUE, appends to an existing table, otherwise a new table is created.}
 }
 \value{
 
