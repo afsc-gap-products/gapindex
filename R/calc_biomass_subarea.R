@@ -50,16 +50,6 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   survey_designs <- racebase_tables$survey_design
   strata <- racebase_tables$strata
   
-  ## Add "SURVEY" column from `racebase_tables$cruise` to `survey_designs` 
-  survey_designs <- merge(x = survey_designs,
-                          y = subset(x = racebase_tables$survey,
-                                     select = c(SURVEY_DEFINITION_ID, SURVEY)),
-                          by = "SURVEY_DEFINITION_ID")
-  
-  strata <- merge(x = strata,
-                  y = racebase_tables$survey,
-                  by = c( "SURVEY_DEFINITION_ID", "DESIGN_YEAR"))
-  
   ## Add DESIGN_YEAR to biomass_strata
   biomass_strata <- merge(x = biomass_strata,
                           y = survey_designs,
