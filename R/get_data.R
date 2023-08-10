@@ -166,13 +166,13 @@ get_data <- function(year_set = c(1996, 1999),
   ## Reorder `stratum_data` columns and sort records. 
   stratum_data <- 
     stratum_data[order(stratum_data$SURVEY, stratum_data$AREA_ID),
-                 c("SURVEY_DEFINITION_ID", "DESIGN_YEAR", "AREA_ID",
+                 c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "AREA_ID",
                    "AREA_NAME", "DESCRIPTION", "AREA_KM2")]
   names(stratum_data)[names(stratum_data) == "AREA_ID"] <- "STRATUM"
   
   subarea_data <- 
     subarea_data[order(subarea_data$SURVEY, subarea_data$AREA_ID),
-                 c("SURVEY_DEFINITION_ID", "DESIGN_YEAR", "TYPE",
+                 c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "TYPE",
                    "AREA_ID", "AREA_NAME", "DESCRIPTION")]
   
   
