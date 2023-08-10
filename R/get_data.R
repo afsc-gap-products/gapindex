@@ -42,14 +42,15 @@ get_data <- function(year_set = c(1996, 1999),
                      sql_channel = NULL,
                      pull_lengths = FALSE) {
   
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if sql_channel = NULL
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(x = sql_channel)) sql_channel <- gapindex::get_connected()
   
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   2) Get cruise data
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   2) Get survey designs for the survey regions and years queried
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ## Error Query: check that argument survey_set is one the correct options.
   if (is.null(x = survey_set) | 
@@ -58,63 +59,76 @@ get_data <- function(year_set = c(1996, 1999),
                 " (case-sensitive): 
                 'GOA', 'AI', 'EBS', 'BSS', or 'NBS'."))
   }
-  
-  cat("Pulling cruise data...\n")
-  
-  ## Query cruise data and filter survey and years of interest
   year_vec <- gapindex::stitch_entries(stitch_what = year_set)
-  
   survey_def_ids <- c("AI" = 52, "GOA" = 47, "EBS" = 98, 
                       "BSS" = 78, "NBS" = 143)[survey_set]
-  survey_def_ids_vec <- gapindex::stitch_entries(survey_def_ids)
-  
-  cruise_data <- RODBC::sqlQuery(
-    channel = sql_channel, 
-    query = paste0("SELECT DISTINCT YEAR, SURVEY_DEFINITION_ID, CRUISEJOIN, ",
-                   "REGION, CRUISE, CRUISE_ID FROM RACE_DATA.V_CRUISES WHERE",
-                   " SURVEY_DEFINITION_ID IN ", survey_def_ids_vec, 
-                   " AND YEAR IN ", year_vec))
-  
-  ## Attach survey name ("SURVEY") to `cruise_data`
-  cruise_data$SURVEY <- c("AI", "GOA", "EBS", "BSS", "NBS")[ 
-    match(x = cruise_data$SURVEY_DEFINITION_ID, 
-          table = c("AI" = 52, "GOA" = 47, "EBS" = 98, 
-                    "BSS" = 78, "NBS" = 143))
-  ]
-  
+  survey_def_ids_vec <- gapindex::stitch_entries(stitch_what = survey_def_ids)
   
   ## Query Survey Design table
+  cat("Pulling survey design table...\n")
   survey_design <- 
     RODBC::sqlQuery(channel = sql_channel,
-                    query = paste0("SELECT * FROM GAP_PRODUCTS.SURVEY_DESIGN",
-                                   " WHERE SURVEY_DEFINITION_ID IN ", 
-                                   survey_def_ids_vec, 
-                                   " AND YEAR IN ", year_vec) )
+                    query = paste0(
+                      "SELECT SURVEY_DEFINITION_ID, ",
+                      "CASE 
+                       WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+                       WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+                       WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+                       WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
+                       WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+                       ELSE NULL
+                       END AS SURVEY, ",
+                      "YEAR, DESIGN_YEAR FROM GAP_PRODUCTS.SURVEY_DESIGN ",
+                      " WHERE SURVEY_DEFINITION_ID IN ", 
+                      survey_def_ids_vec, 
+                      " AND YEAR IN ", year_vec) )
   
-  ## Merge "DESIGN_YEAR" column from `survey_design` to  `cruise_data` using 
+  ##  `survey_df` summarizes the unique surveys queried. Within a 
+  ##  survey year, there are often multiple records in `cruise_data` 
+  ##  corresponding to different vessels.
+  survey_df <- unique(x = subset(x = survey_design, select = -YEAR))
+  
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   2) Get cruise data
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cat("Pulling cruise table...\n")
+  
+  ## Query cruise data and filter survey and years of interest. Attach year,
+  ## survey_definition_id, and survey columns. 
+  cruise_data <- 
+    RODBC::sqlQuery(
+      channel = sql_channel, 
+      query = paste0(
+        "select distinct a.cruisejoin, b.cruise, floor(b.cruise/100) year, ",
+        "d.survey_definition_id, b.vessel_id, e.name vessel_name, ",
+        "CASE 
+         WHEN d.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+         WHEN d.SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+         WHEN d.SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+         WHEN d.SURVEY_DEFINITION_ID = 52 THEN 'AI'
+         WHEN d.SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+         ELSE NULL
+         END AS SURVEY ",
+        "from racebase.haul a, race_data.cruises b, race_data.surveys c, ",
+        "race_data.survey_definitions d, race_data.vessels e ",
+        "where a.vessel = b.vessel_id and b.vessel_id = e.vessel_id ",
+        "and a.cruise = b.cruise and c.survey_id = b.survey_id ",
+        "and c.survey_definition_id = d.survey_definition_id ",
+        "and d.survey_definition_id in ", survey_def_ids_vec,
+        "and a.abundance_haul in ", gapindex::stitch_entries(abundance_haul),
+        "and year in ", year_vec))
+  
+  ## Merge "DESIGN_YEAR" column from `survey_design` to `cruise_data` using 
   ## columns "YEAR" AND "SURVEY_DEFINITION_ID" as a composite key. 
-  cruise_data <- merge(x = cruise_data, 
+  cruise_data <- merge(x = cruise_data,
                        y = survey_design,
                        by = c("YEAR", "SURVEY_DEFINITION_ID"))
-  
-  ## Remove any records with NA CRUISEJOIN values
-  cruise_data <- subset(x = cruise_data, 
-                        subset = !is.na(CRUISEJOIN))
   
   ## Error Query: stop if there is no cruise data for the year and region.
   if (nrow(x = cruise_data) == 0) {
     stop("No data exist for survey area '", survey_set, 
          "' for the choosen set of years ", year_vec, ".")
   }
-  
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##  3) Create `survey_df` to summarize the unique surveys queried. Within a 
-  ##  survey year, there are often multiple records in `cruise_data` 
-  ##  corresponding to different vessels.
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  survey_df <- unique(x = cruise_data[order(cruise_data$SURVEY_DEFINITION_ID), 
-                                      c("SURVEY_DEFINITION_ID", "SURVEY", 
-                                        "DESIGN_YEAR")])
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   4) Get stratum, subarea, and stratum grouping data
@@ -124,34 +138,29 @@ get_data <- function(year_set = c(1996, 1999),
   ## Query all area records for the queried surveys
   area_info <- 
     RODBC::sqlQuery(channel = sql_channel,
-                    query = paste0("SELECT * FROM GAP_PRODUCTS.AREA",
-                                   " WHERE SURVEY_DEFINITION_ID IN ", 
-                                   survey_def_ids_vec))
-  
-  ## Merge the "SURVEY" column in `cruise_data` to `area_info` using 
-  ## column "SURVEY_DEFINITION_ID" as the key. 
-  area_info <- merge(x = area_info, 
-                     y = survey_df,
-                     by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR"),
-                     all.x = TRUE)
+                    query = paste0(
+                      "SELECT SURVEY_DEFINITION_ID, ",
+                      "CASE 
+                       WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+                       WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+                       WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+                       WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
+                       WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+                       ELSE NULL
+                       END AS SURVEY, ",
+                      "DESIGN_YEAR, AREA_ID, TYPE, AREA_KM2, DESCRIPTION, ",
+                      "AREA_NAME FROM GAP_PRODUCTS.AREA",
+                      " WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec))
   
   ## Subset stratum info out of `area_info`
-  stratum_data <- 
-    subset(x = area_info,
-           subset = TYPE == "STRATUM" & 
-             DESIGN_YEAR %in% survey_df$DESIGN_YEAR,
-           select = c("SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR",
-                      "AREA_ID", "AREA_NAME", "DESCRIPTION", 
-                      "AREA_KM2"))
+  stratum_data <- subset(x = area_info,
+                         subset = TYPE == "STRATUM" & 
+                           DESIGN_YEAR %in% survey_df$DESIGN_YEAR)
   
   ## Subset subarea info out of `area_info`
-  subarea_data <- 
-    subset(x = area_info,
-           subset = TYPE != "STRATUM" & 
-             DESIGN_YEAR %in% survey_df$DESIGN_YEAR,
-           select = c("SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR",
-                      "TYPE", "AREA_ID", "AREA_NAME", 
-                      "DESCRIPTION", "AREA_KM2"))
+  subarea_data <- subset(x = area_info,
+                         subset = TYPE != "STRATUM" & 
+                           DESIGN_YEAR %in% survey_df$DESIGN_YEAR)
   
   ## Change "AREA_ID" column name to "STRATUM". 
   ## Reorder `stratum_data` columns and sort records. 
@@ -171,22 +180,20 @@ get_data <- function(year_set = c(1996, 1999),
   ## you which strata make up a particular subarea/region. 
   stratum_groups <-
     RODBC::sqlQuery(channel = sql_channel, 
-                    query = paste0("SELECT * FROM GAP_PRODUCTS.STRATUM_GROUPS", 
-                                   " WHERE SURVEY_DEFINITION_ID IN ", 
-                                   survey_def_ids_vec))
-  
-  ## Merge the "SURVEY" column in `cruise_data` to `stratum_groups` using 
-  ## columns "SURVEY_DEFINITION_ID" and "DESIGN_YEAR" as a composite key. 
-  stratum_groups <- merge(x = stratum_groups,
-                          y = subset(x = survey_df, 
-                                     select = c(SURVEY_DEFINITION_ID, 
-                                                SURVEY)),
-                          by = "SURVEY_DEFINITION_ID")
-  
-  stratum_groups <- stratum_groups[order(stratum_groups$SURVEY, 
-                                         stratum_groups$AREA_ID), 
-                                   c("SURVEY_DEFINITION_ID", "SURVEY", 
-                                     "AREA_ID", "DESIGN_YEAR", "STRATUM")]
+                    query = paste0(
+                      "SELECT SURVEY_DEFINITION_ID, ", 
+                      "CASE 
+                       WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+                       WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+                       WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+                       WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
+                       WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+                       ELSE NULL
+                       END AS SURVEY, ", 
+                      "AREA_ID, DESIGN_YEAR, STRATUM ",
+                      "FROM GAP_PRODUCTS.STRATUM_GROUPS ", 
+                      "WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec, 
+                      "ORDER BY SURVEY, AREA_ID, STRATUM"))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## 5) Query Haul data based on the CRUISEJOIN values in the cruise_data
@@ -207,16 +214,8 @@ get_data <- function(year_set = c(1996, 1999),
                       " AND PERFORMANCE >= 0 AND ABUNDANCE_HAUL IN ",
                       gapindex::stitch_entries(abundance_haul)))
   
-  # haul_data <- subset(x = haul_data, 
-  #                     subset = ABUNDANCE_HAUL %in% abundance_haul)
-  
   if (na_rm_strata)
-    haul_data <- subset(x = haul_data, 
-                        subset = !is.na(STRATUM))
-  
-  ## Update cruise_data if any cruises are removed when filtering hauls
-  cruise_data <- subset(x = cruise_data,
-                        subset = CRUISEJOIN %in% haul_data$CRUISEJOIN)
+    haul_data <- subset(x = haul_data, subset = !is.na(x = STRATUM))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   6) Error checks on the `spp_codes` argument
@@ -319,8 +318,8 @@ get_data <- function(year_set = c(1996, 1999),
               survey area '", survey_set, "' in the chosen years ", year_vec)
       size_data <- NULL
       
-      }
-
+    }
+    
   }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -362,7 +361,8 @@ get_data <- function(year_set = c(1996, 1999),
   ## If `spp_codes` = NULL, fill in with species data
   if (is.null(x = spp_codes)) {    
     spp_codes <- data.frame(SPECIES_CODE = avail_spp, GROUP = avail_spp)
-    spp_codes_vec <- paste0("(", paste(sort(avail_spp), collapse=", "), ")")
+    spp_codes_vec <- 
+      paste0("(", paste(sort(x = avail_spp), collapse = ", "), ")")
   }
   
   ## Merge "GROUP" column from `spp_codes` into `catch_data` for scenraios
@@ -388,9 +388,10 @@ get_data <- function(year_set = c(1996, 1999),
   
   cat("Finished.\n")
   
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   Put cruise, haul, catch, stratu, and species data into a list and return
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Collate survey, cruise, haul, catch, size, specimen, subarea, strata, 
+  ##   and species data into a list and return
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   return(list(survey = survey_df,
               survey_design = survey_design,
               cruise = cruise_data,
