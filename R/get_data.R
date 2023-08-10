@@ -122,7 +122,7 @@ get_data <- function(year_set = c(1996, 1999),
   ## columns "YEAR" AND "SURVEY_DEFINITION_ID" as a composite key. 
   cruise_data <- merge(x = cruise_data,
                        y = survey_design,
-                       by = c("YEAR", "SURVEY_DEFINITION_ID"))
+                       by = c("YEAR", "SURVEY_DEFINITION_ID", "SURVEY"))
   
   ## Error Query: stop if there is no cruise data for the year and region.
   if (nrow(x = cruise_data) == 0) {
