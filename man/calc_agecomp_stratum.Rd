@@ -16,21 +16,10 @@ calc_agecomp_stratum(racebase_tables = NULL, alk = NULL, size_comp = NULL)
 }
 \value{
 A named list with two elements. "age_comp" is a dataframe of numbers
-at age by survey, year, stratum, species, and sex. "length_at_age" is a
-support table for the gapindex::calc_agecomp_region() function and should
-not be used.\tabular{ll}{
-   Field Name \tab Description \cr
-   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
-   SURVEY \tab Survey region. \cr
-   STRATUM \tab Stratum ID. STRATUM = 0 indicates an experimental tow. \cr
-   YEAR \tab Year the survey was conducted in. \cr
-   SPECIES_CODE \tab Taxon code. \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{See the code book for the full list.}. \cr
-   SEX \tab Sex of a specimen where "1" = "Male", "2" =   "Female", "3" = Unsexed. \cr
-   AGE \tab Age (years). \cr
-   POPULATION_COUNT \tab Total number of individuals. \cr
-   LENGTH_MM_MEAN \tab Estimated mean length-at-age (mm) weighted by numbers-at-length. \cr
-   LENGTH_MM_SD \tab Standard deviation associated with the estimated mean length-at-age. \cr
-}
+at age by survey, year, stratum, species, and sex. A table of column
+name descriptions is coming soon."length_at_age" is a support table
+for the gapindex::calc_agecomp_region() function and should not be
+used.
 }
 \description{
 Calculate stratum-level age composition and mean/std.dev length at age

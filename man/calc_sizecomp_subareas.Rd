@@ -14,17 +14,7 @@ calc_sizecomp_subareas(racebase_tables, size_comps)
 \code{gapindex::calc_sizecomp_bs_stratum()}}
 }
 \value{
-dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex\tabular{ll}{
-   Field Name \tab Description \cr
-   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
-   SURVEY \tab Survey region. \cr
-   YEAR \tab Survey year. \cr
-   AREA_ID \tab Integer identifier for a subarea. See   gapindex::area_table for the full list. \cr
-   SPECIES_CODE \tab Taxon code. \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{See the code book for the full list.}. \cr
-   LENGTH_MM \tab Length bin (mm). \cr
-   SEX \tab Sex code where "1" = "Male", "2" =   "Female", "3" = Unsexed. \cr
-   POPULATION_COUNT \tab Total number of individuals. \cr
-}
+dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex. A table of column name descriptions is coming soon.
 }
 \description{
 Calculate size composition across aggregated subareas
