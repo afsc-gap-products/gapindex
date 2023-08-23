@@ -5,18 +5,7 @@
 #'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
 #'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
-#' @return dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex
-#'
-#' | Field Name           | Description                                                                                                                                                         |
-#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
-#' | SURVEY               | Survey region.                                                                                                                                                      |
-#' | YEAR                 | Survey year.                                                                                                                                                        |
-#' | AREA_ID              | Integer identifier for a subarea. See   gapindex::area_table for the full list.                                                                                     |
-#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual).   |
-#' | LENGTH_MM            | Length bin (mm).                                                                                                                                                    |
-#' | SEX                  | Sex code where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                                       |
-#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
+#' @return dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex. A table of column name descriptions is coming soon.
 #' 
 #' @export
 #'
@@ -24,23 +13,30 @@
 calc_sizecomp_subareas <- function(racebase_tables, 
                                    size_comps) {
   
+  ## Which survey designs to pull from
   subarea_size_comp_df <- data.frame()
   survey_designs <- racebase_tables$survey
   
-  for (isurvey in 1:nrow(x = survey_designs)) { 
+  for (isurvey in 1:nrow(x = survey_designs)) { ## Loop over surveys -- start
     
+    ## Subset the set of subareas given the survey and design year. From 
+    ## 2025-on the GOA time series will have two unique survey designs with 
+    ## different design years.
     subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
                          DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
     
-    for (isubarea in 1:nrow(x = subareas)) {
+    for (isubarea in 1:nrow(x = subareas)) { ## Loop over subareas -- start
+      
+      ## Extract the strata (AREA_ID) that are contained within isubarea
       strata_in_subarea <- 
         subset(x = racebase_tables$stratum_groups,
                subset = AREA_ID %in% subareas$AREA_ID[isubarea])
       
       if (nrow(x = strata_in_subarea) > 0) {
         
+        ## Subset size comps for only the strata in isubarea
         subarea_size_comp <- 
           subset(x = size_comps,
                  subset = SURVEY_DEFINITION_ID == 
@@ -49,24 +45,28 @@ calc_sizecomp_subareas <- function(racebase_tables,
         
         if (nrow(x = subarea_size_comp) == 0) next
         
+        ## Aggregate size comps within the isubarea
         subarea_summed_sizecomp <- 
           stats::aggregate(POPULATION_COUNT ~ 
                              YEAR + SPECIES_CODE + SEX + LENGTH_MM,
                            data = subarea_size_comp,
                            FUN = sum)
         
+        ## append to result df
         subarea_size_comp_df <- 
           rbind(
             subarea_size_comp_df,
-            cbind(data.frame(AREA_ID = subareas$AREA_ID[isubarea],
-                             SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[isubarea]),
-                  subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", 
-                                              "SEX", "LENGTH_MM", 
-                                              "POPULATION_COUNT")]))
+            cbind(data.frame(
+              AREA_ID = subareas$AREA_ID[isubarea],
+              SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[isubarea]),
+              subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", 
+                                          "SEX", "LENGTH_MM", 
+                                          "POPULATION_COUNT")]))
       }
-    }
-  }
+    } ## Loop over subareas -- end
+  } ## Loop over surveys -- end
   
+  ## Reorder columns, sort, and return
   subarea_size_comp_df <- 
     subset(x = subarea_size_comp_df,
            select = c(SURVEY_DEFINITION_ID, YEAR, AREA_ID,

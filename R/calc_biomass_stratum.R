@@ -6,27 +6,8 @@
 #'                      (defaults to 1).
 #' 
 #' @return dataframe of biomass and population abundance estimates (with 
-#' associated variances) across survey, year, species, and strata 
-#' 
-#' | Field Name           | Description                                                                                                                                                         |
-#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
-#' | SURVEY               | Survey region.                                                                                                                                                      |
-#' | STRATUM              | Stratum ID. STRATUM = 0 indicates an experimental tow.                                                                                                              |
-#' | SPECIES_CODE         | Taxon code. [See the code book for the full   list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual). |
-#' | YEAR                 | Survey year.                                                                                                                                                        |
-#' | N_HAUL               | Number of hauls in stratum.                                                                                                                                         |
-#' | N_WEIGHT             | Number of hauls with a positive catch weight.                                                                                                                       |
-#' | N_COUNT              | Number of hauls with a positive numerical catch.                                                                                                                    |
-#' | N_LENGTH             | Number of hauls with length-frequency data                                                                                                                          |
-#' | CPUE_KGKM2_MEAN      | Mean weight catch per area swept (kg/km^2).                                                                                                                         |
-#' | CPUE_KGKM2_VAR       | Variance of the mean weight catch per area swept.                                                                                                                   |
-#' | CPUE_NOKM2_MEAN      | Mean numerical catch per area swept (no/km^2).                                                                                                                      |
-#' | CPUE_NOKM2_VAR       | Variance of the mean weight catch per area swept                                                                                                                    |
-#' | BIOMASS_MT           | Estimated total biomass (mt).                                                                                                                                       |
-#' | BIOMASS_VAR          | Variance associated with the estimated total biomass.                                                                                                               |
-#' | POPULATION_COUNT     | Estimated total numerical abundance (numbers).                                                                                                                      |
-#' | POPULATION_VAR       | Variance associated with the estimated total numerical abundance.                                                                                                   |
+#' associated variances) across survey, year, species, and strata. A table
+#' of column name descriptions is coming soon.
 #' 
 #' @export
 #'
@@ -35,6 +16,9 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                  cpue = NULL,
                                  vulnerability = 1) {
   
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ##   Gather datasets from `racebase_tables`
+  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cruise <- racebase_tables$cruise
   haul <- racebase_tables$haul
   
@@ -44,8 +28,9 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
          See ?gapindex::calc_biomass_stratum for more details.")
   }
   
-  ## Calculate mean and variance of stratum biomass. For strata with only
-  ## one station, variance is ASSUMED zero
+  ## Calculate mean and variance stratum weight CPUE, total number of hauls and 
+  ## number of hauls with positive weights. For strata with only one station, 
+  ## the variance is not defined (coded as NA).
   wgt_stats <- 
     stats::aggregate(
       CPUE_KGKM2 ~ SPECIES_CODE + STRATUM + YEAR + 
@@ -61,8 +46,9 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
           "N_WEIGHT" = length(x = stats::na.omit(x[x > 0]))
         ))
   
-  ## Calculate mean and variance of stratum abundance. For strata with only
-  ## one station, variance is ASSUMED zero
+  ## Calculate mean and variance stratum numerical CPUE, and number of hauls 
+  ## with count data. For strata with only one station, the variance is not 
+  ## defined (coded as NA).
   num_stats <- 
     stats::aggregate(
       CPUE_NOKM2 ~ SPECIES_CODE + STRATUM + YEAR + 
@@ -81,25 +67,31 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
         ))
   
   if (!is.null(x = racebase_tables$size)) {
+    ## Attach "STRATUM" column from `haul` to the size table using "HAULJOIN"
+    ## as the key
     size <- merge(x = racebase_tables$size,
                   y = haul[, c("HAULJOIN", "STRATUM")],
                   by = "HAULJOIN")
+    
+    ## Attach "CRUISEJOIN" column from the cruise data to the `size` 
+    ## table using "CRUISEJOIN" as the key
     size <- merge(x = size, 
                   y = racebase_tables$cruise,
                   by = "CRUISEJOIN")
     
+    ## Calculate the number of hauls with size data
     size_stats <- 
       aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
                   SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
                 data = size,
-                FUN = function(x) length(unique(x)))
-    
-  } else {
+                FUN = function(x) length(x = unique(x = x)))
+    names(x = size_stats)[names(x = size_stat) == "HAULJOIN"] <- "N_LENGTH"
+  } else { # If there are no size data, the number of hauls with size data is 0
     size_stats <- subset(x = num_stats, 
                          select = c("SPECIES_CODE", "STRATUM", "YEAR", 
                                     "SURVEY", "SURVEY_DEFINITION_ID", 
                                     "DESIGN_YEAR"))
-    size_stats$HAULJOIN <- 0
+    size_stats$N_LENGTH <- 0
     
     warning(paste0("Size data are not present in argument `racebase_tables`. ",
                    "Thus, the 'N_LENGTH' column in the output of this ",
@@ -108,7 +100,6 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                    "gapindex::get_data() call == TRUE."))
   }
   
-  
   ## Column merge mean wCPUE and nCPUE into one dataframe
   stratum_stats <- cbind(
     wgt_stats[, c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
@@ -116,7 +107,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
     wgt_stats$CPUE_KGKM2,
     num_stats$CPUE_NOKM2)
   
-  ## Merge "HAULJOIN" column from `size_stats` into stratum_stats using 
+  ## Merge N_LENGTH column from `size_stats` into stratum_stats using 
   ## "SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", "SURVEY", and 
   ## "SURVEY_DEFINITION_ID" as a composite key
   stratum_stats <- 
@@ -125,7 +116,6 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
           by = c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
                  "SURVEY", "SURVEY_DEFINITION_ID"),
           all.x = TRUE)
-  names(stratum_stats)[names(stratum_stats) == "HAULJOIN"] <- "N_LENGTH"
   stratum_stats$N_LENGTH[is.na(stratum_stats$N_LENGTH)] <- 0
   
   ## Attach stratum data to stratum_stats
@@ -174,5 +164,4 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   }
   
   return(stratum_stats)
-  
 }

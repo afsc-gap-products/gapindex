@@ -3,18 +3,20 @@
 #' @description 
 #'            
 #' @param racebase_tables data object created from `gapindex::get_data()`.
-#' @param unsex character option to determine how unsexed individuals are 
-#' treated. Option "all" means that unsexed alks are determined by combining 
-#' all sexes (males, females, and unsexed) and is the option used for standard
-#' design-based composition production. Option "unsex" means that unsexed alk 
-#' are only determined by unsexed individuals are is the option used for creating
-#' data inputs for model-based age composition indices. Defaults to "unsex"
-#' @param global boolean. Should missing length bins be filled by using an 
-#' alk consisting of all years? Defaults to TRUE. 
+#' @param unsex string, option to determine how unsexed individuals are 
+#'              treated. Option "all" means that unsexed alks are determined 
+#'              by combining all sexes (males, females, and unsexed) and is 
+#'              the option used for standard design-based composition 
+#'              production. Option "unsex" means that unsexed alk are only
+#'              determined by unsexed individuals and is the option used for
+#'              creating data inputs for model-based age composition indices.
+#'              Defaults to "unsex"
+#' @param global boolean. Should missing length bins be filled by using an
+#'               alk consisting of all years? Defaults to TRUE. 
 #' 
 #' @return dataframe of probabilities ("age_frac") of ages ("AGE") by length 
-#' (LENGTH_MM) for a given survey ("SURVEY"), year ("YEAR"), species 
-#' (SPECIES_CODE), and sex (SEX). 
+#'         (LENGTH_MM) for a given survey ("SURVEY"), year ("YEAR"), species 
+#'         (SPECIES_CODE), and sex (SEX). 
 #' 
 #' @export
 #' 
@@ -137,10 +139,10 @@ calc_ALK <- function(racebase_tables = NULL,
     ## every length bin encountered in the length subsample (`size`) for a
     ## given survey, year, species, and sex. 
     every_combo_of_lengths <- 
-      expand.grid(SURVEY = sort(unique(size$SURVEY)),
-                  YEAR = sort(unique(size$YEAR)),
-                  SPECIES_CODE = sort(unique(size$SPECIES_CODE)),
-                  SEX = sort(unique(size$SEX)),
+      expand.grid(SURVEY = sort(x = unique(x = size$SURVEY)),
+                  YEAR = sort(x = unique(x = size$YEAR)),
+                  SPECIES_CODE = sort(x = unique(x = size$SPECIES_CODE)),
+                  SEX = sort(x = unique(x = size$SEX)),
                   LENGTH_MM = seq(from = min(size$LENGTH, na.rm = TRUE),
                                   to = max(size$LENGTH, na.rm = TRUE),
                                   by = 10),
@@ -216,7 +218,7 @@ calc_ALK <- function(racebase_tables = NULL,
                            "SEX", "LENGTH_MM", "AGE"))
   }
   
-  p_yklm$AGE_FRAC[is.na(p_yklm$AGE_FRAC)] <- 0
+  p_yklm$AGE_FRAC[is.na(x = p_yklm$AGE_FRAC)] <- 0
   return(p_yklm)
 }
 

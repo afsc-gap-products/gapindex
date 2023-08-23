@@ -9,12 +9,14 @@ calc_ALK(racebase_tables = NULL, unsex = c("all", "unsex")[2], global = TRUE)
 \arguments{
 \item{racebase_tables}{data object created from \code{gapindex::get_data()}.}
 
-\item{unsex}{character option to determine how unsexed individuals are
-treated. Option "all" means that unsexed alks are determined by combining
-all sexes (males, females, and unsexed) and is the option used for standard
-design-based composition production. Option "unsex" means that unsexed alk
-are only determined by unsexed individuals are is the option used for creating
-data inputs for model-based age composition indices. Defaults to "unsex"}
+\item{unsex}{string, option to determine how unsexed individuals are
+treated. Option "all" means that unsexed alks are determined
+by combining all sexes (males, females, and unsexed) and is
+the option used for standard design-based composition
+production. Option "unsex" means that unsexed alk are only
+determined by unsexed individuals and is the option used for
+creating data inputs for model-based age composition indices.
+Defaults to "unsex"}
 
 \item{global}{boolean. Should missing length bins be filled by using an
 alk consisting of all years? Defaults to TRUE.}

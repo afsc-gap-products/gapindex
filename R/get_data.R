@@ -168,7 +168,7 @@ get_data <- function(year_set = c(1996, 1999),
     stratum_data[order(stratum_data$SURVEY, stratum_data$AREA_ID),
                  c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "AREA_ID",
                    "AREA_NAME", "DESCRIPTION", "AREA_KM2")]
-  names(stratum_data)[names(stratum_data) == "AREA_ID"] <- "STRATUM"
+  names(x = stratum_data)[names(x = stratum_data) == "AREA_ID"] <- "STRATUM"
   
   subarea_data <- 
     subarea_data[order(subarea_data$SURVEY, subarea_data$AREA_ID),
@@ -378,7 +378,7 @@ get_data <- function(year_set = c(1996, 1999),
                                  FUN = sum)
   
   ## Rename "GROUP" column 
-  names(catch_data)[names(catch_data) == "GROUP"] <- "SPECIES_CODE"
+  names(x = catch_data)[names(x = catch_data) == "GROUP"] <- "SPECIES_CODE"
   
   ##   Merge "GROUP" column from `spp_codes` to `species_info` using 
   ##   "SPECIES_CODE" as a key
