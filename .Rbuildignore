@@ -4,3 +4,4 @@
 ^code_testing$
 ^production$
 ^temp$
+^data-raw$

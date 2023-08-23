@@ -11,26 +11,8 @@ calc_cpue(racebase_tables = NULL)
 }
 \value{
 dataframe of weight and numerical CPUE for the region, species, and
-years pulled from \code{gapindex::get_data()}\tabular{ll}{
-   Field Name \tab Description \cr
-   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
-   SURVEY \tab Survey region. \cr
-   CRUISE \tab Six-digit integer number identifying the cruise number of the form:   YYYY99 (where YYYY = year of the cruise; 99 = 2-digit number and is   sequential; 01 denotes the first cruise that vessel made in this year, 02 is   the second, etc.). \cr
-   YEAR \tab Survey year. \cr
-   HAULJOIN \tab Integer identifier assigned to each unique cruise, vessel, and haul   combination. \cr
-   STRATUM \tab Stratum ID. STRATUM = 0 indicates an experimental tow. \cr
-   DESIGN_YEAR \tab The year the survey design was created. For historical designs, this may   simply be the first year of the time series, e.g., 1984 for historical GOA   strata. In the Bering Sea, stratum boundaries are periodically updated to   incorporate more accurate bathymetric information or reflect modfied survey   footprints. \cr
-   LATITUDE_DD_START \tab Latitude (one hundred thousandth of a decimal degree) of the start of the   trawl path. \cr
-   LATITUDE_DD_END \tab Latitude (one hundred thousandth of a decimal degree) of the end of the   trawl path. \cr
-   LONGITUDE_DD_START \tab Longitude (one hundred thousandth of a decimal degree) of the start of   the trawl path. \cr
-   LONGITUDE_DD_END \tab Longitude (one hundred thousandth of a decimal degree) of the end of the   trawl path. \cr
-   SPECIES_CODE \tab The taxon code of the organism associated with the 'common_name' and   'scientific_name' columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code   books}. \cr
-   WEIGHT_KG \tab Total weight (kg) of individuals in a haul by taxon. \cr
-   COUNT \tab Total number of individuals caught in the haul \cr
-   AREA_SWEPT_KM2 \tab The total area the net sampled while the net was on-bottom (square km),   defined as the distance fished times the net width. \cr
-   CPUE_KGKM2 \tab Total catch weight (kg) per area swept (square km) by the trawl net. \cr
-   CPUE_NOKM2 \tab Total catch number per area swept (square km) by the trawl net. \cr
-}
+years pulled from \code{gapindex::get_data()}. A table of column name
+descriptions is coming soon.
 }
 \description{
 This function zero-fills the catch data and converts numbers

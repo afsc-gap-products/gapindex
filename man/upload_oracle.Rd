@@ -11,15 +11,13 @@ upload_oracle(
   table_metadata = NULL,
   channel = NULL,
   schema = NULL,
-  append_table = NULL,
-  update_metadata = TRUE,
   share_with_all_users = TRUE
 )
 }
 \arguments{
-\item{x}{Either a character string of the path to the .csv file or a data.frame}
+\item{x}{Either a character string of the path to the .csv file or the data.frame of the table to upload.}
 
-\item{table_name}{Name of the table. (Add error checks to make sure table name follows any peculiarities of Oracle tables)}
+\item{table_name}{Name of the table. (Add error checks to make sure table name follows any peculiarities of Oracle tables).}
 
 \item{metadata_column}{data.frame describing the metadata for each of the
 fields in the table. Must contain these columns:
@@ -30,22 +28,13 @@ purposes.
 4) dataype: Oracle data type
 5) colname_desc: Full description of field}
 
-\item{table_metadata}{Description of what the table is}
+\item{table_metadata}{Description of what the table is.}
 
-\item{channel}{Establish your oracle connection using a function
-like gapindex::get_connected()}
+\item{channel}{Establish your oracle connection using a function like \code{gapindex::get_connected()}.}
 
-\item{schema}{character string. The name of the schema to save table.
-"GAP_PRODUCTS" is the schema where production tables will live.}
+\item{schema}{character string. The name of the schema to save table.}
 
-\item{append_table}{boolean. If TRUE, appends to an existing table, otherwise a
-new table is created.}
-
-\item{update_metadata}{boolean. Default = TRUE. Temporary argument as we
-continute to test the tables.}
-
-\item{share_with_all_users}{boolean. Default = TRUE. Give all users in
-oracle view permissions.}
+\item{share_with_all_users}{boolean. Default = TRUE. Give all users in Oracle view permissions.}
 }
 \value{
 
