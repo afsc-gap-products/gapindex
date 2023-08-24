@@ -28,11 +28,14 @@ sql_channel <- gapindex::get_connected()
 for (irow in 1:nrow(data_sources)) {
   
   ## Pull data from gapindex for a given species using gapindex
+  species_code <- data_sources$species_code[irow]
+  if (species_code == 30152) species_code <- data.frame(SPECIES_CODE = c(species_code, 30150), GROUP = 30152)
+  
   gapindex_data <- 
     gapindex::get_data(survey_set = "GOA",
                        year_set = seq(from = data_sources$year_start[irow],
                                       to = data_sources$year_end[irow]),
-                       spp_codes = data_sources$species_code[irow],
+                       spp_codes = species_code,
                        pull_lengths = FALSE,
                        sql_channel = sql_channel)
   
@@ -59,36 +62,55 @@ for (irow in 1:nrow(data_sources)) {
   
   names(imported_file) <- toupper(names(imported_file))
   
+  ## Correct scale if the area swept values are not in KM2
+  imported_file$AREASWEPT_KM2 <- 
+    imported_file$AREASWEPT_KM2 * data_sources$area_units_correct[irow]
+  
   ## If AREASWEPT_KM2 is not a column of ones, standardize so that it is. 
   if (!all(imported_file$AREASWEPT_KM2 == 1)) {
     imported_file$CATCH_KG <- 
-      imported_file$CATCH_KG / imported_file$AREASWEPT_KM2 * 1000
+      imported_file$CATCH_KG / imported_file$AREASWEPT_KM2 #* 1000
     
     imported_file$AREASWEPT_KM2 <- 1
   }
   
-  ## Compare number of stations across years
-  cat(paste0("\n\nNumber of stations across years (VAST Input) for ", 
-             data_sources$common_name[irow], "\n"))
-  print(table(imported_file$YEAR))
+  # ## Compare number of stations across years
+  # cat(paste0("\n\nNumber of stations across years (VAST Input) for ",
+  #            data_sources$common_name[irow], "\n"))
+  # print(table(imported_file$YEAR))
+  # 
+  # cat(paste0("\nNumber of stations across years (gapindex) for ",
+  #            data_sources$common_name[irow], "\n"))
+  # print(table(gapindex_cpue$YEAR))
+  # 
+  # ## Compare the summary statistics across years
+  # cat(paste0("\nCPUE summary across years (VAST Input) for ",
+  #            data_sources$common_name[irow], "\n"))
+  # print(do.call(what = rbind,
+  #               args = tapply(X = imported_file$CATCH_KG,
+  #                             INDEX = imported_file$YEAR,
+  #                             FUN = summary)))
+  # 
+  # cat(paste0("\nCPUE summary across years (gapindex) for ",
+  #            data_sources$common_name[irow], "\n"))
+  # print(do.call(what = rbind,
+  #               args = tapply(X = gapindex_cpue$CPUE_KGKM2,
+  #                             INDEX = gapindex_cpue$YEAR,
+  #                             FUN = summary)))
   
-  cat(paste0("\nNumber of stations across years (gapindex) for ", 
-             data_sources$common_name[irow], "\n"))
-  print(table(gapindex_cpue$YEAR))
+  ## Merge the CPUE values from the imported file and the CPUE tables that
+  ## come from gapindex::calc_cpue using latitude, longitude, and year as
+  ## a composite key
+  test <- 
+    merge(x = imported_file, 
+          by.x = c("LAT", "LON", "YEAR"),
+          y = subset(x = gapindex_cpue,
+                     select = c("LATITUDE_DD_START", "LONGITUDE_DD_START", 
+                                "YEAR", "CPUE_KGKM2")), 
+          by.y = c("LATITUDE_DD_START", "LONGITUDE_DD_START", "YEAR"),
+          all = TRUE)
   
-  ## Compare the summary statistics across years
-  cat(paste0("\nCPUE summary across years (VAST Input) for ", 
-             data_sources$common_name[irow], "\n"))
-  print(do.call(what = rbind, 
-                args = tapply(X = imported_file$CATCH_KG, 
-                              INDEX = imported_file$YEAR, 
-                              FUN = summary)))
-  
-  cat(paste0("\nCPUE summary across years (gapindex) for ", 
-             data_sources$common_name[irow], "\n"))
-  print(do.call(what = rbind, 
-                args = tapply(X = gapindex_cpue$CPUE_KGKM2, 
-                              INDEX = gapindex_cpue$YEAR, 
-                              FUN = summary)))
-  
+  ## Calculate differences between CPUE and print out any mismatches
+  test$cpue_diff <- round(test$CPUE_KGKM2 - test$CATCH_KG, 6)
+  print( subset(test, cpue_diff != 0 | is.na(cpue_diff)) )
 }
