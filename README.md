@@ -25,7 +25,7 @@ library(gapindex)
 ## Connect to Oracle
 sql_channel <- gapindex::get_connected()
 
-## Pull data.  See ?gapindex::get_data first for more details
+## Pull data.
 gapindex_data <- gapindex::get_data(
   year_set = c(2007, 2009),
   survey_set = "GOA",
@@ -51,13 +51,14 @@ biomass_subareas <- gapindex::calc_biomass_subarea(
   racebase_tables = gapindex_data,
   biomass_strata = biomass_stratum)
 
-## Calculate size composition by stratum. If you are calculating stratum-level
-## size composition for the Bering sea survey areas (i.e., NBS, EBS, EBS_SLOPE) 
-## call the gapindex::calc_sizecomp_bs_stratum() function instead. 
-size_comp_stratum <- gapindex::calc_sizecomp_aigoa_stratum(
+## Calculate size composition by stratum. See ?gapindex::calc_sizecomp_stratum
+## for details on arguments
+size_comp_stratum <- gapindex::calc_sizecomp_stratum(
   racebase_tables = gapindex_data,
   racebase_cpue = cpue,
-  racebase_stratum_popn = biomass_stratum)
+  racebase_stratum_popn = biomass_stratum,
+  spatial_level = "stratum",
+  fill_NA_method = "AIGOA")
 
 ## Calculate aggregated size compositon across subareas, management areas, and
 ## regions
@@ -65,13 +66,18 @@ size_comp_subareas <- gapindex::calc_sizecomp_subareas(
   racebase_tables = gapindex_data,
   size_comps = size_comp_stratum)
 
+## Calculate age-length key. See ?gapindex::calc_ALK for details on arguments
+alk <- gapindex::calc_ALK(racebase_tables = gapindex_data, 
+                          unsex = "all", 
+                          global = F)
+
 ## Calculate age composition by stratum
 age_comp_stratum <- gapindex::calc_agecomp_stratum(
   racebase_tables = gapindex_data, 
+  alk = alk,
   size_comp = size_comp_stratum)
 
-## Calculate aggregated age compositon across subareas, management areas, and
-## regions
+## Calculate aggregated age compositon across regions
 age_comp_region <- gapindex::calc_agecomp_region(
   racebase_tables = gapindex_data, 
   age_comps_stratum = age_comp_stratum)
