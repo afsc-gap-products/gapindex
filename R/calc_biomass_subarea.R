@@ -26,6 +26,7 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   subarea_biomass <- data.frame()
   survey_designs <- racebase_tables$survey_design
   strata <- racebase_tables$strata
+  subareas <- racebase_tables$subarea
   unique_surveys <- racebase_tables$survey
   
   ## Attach "DESIGN_YEAR" from `survey_designs` to `biomass_strata` using 
