@@ -128,7 +128,7 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     ## Query hauls with positive counts but have no records in `size`
     missing_hauljoins <- data.frame()
     
-    for (ispp in production_data$species$SPECIES_CODE) {
+    for (ispp in racebase_tables$species$SPECIES_CODE) {
       temp_hauljoins <- unique(x = size$HAULJOIN[size$SPECIES_CODE == ispp])
       
       missing_hauljoins <- 
