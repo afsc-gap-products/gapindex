@@ -29,7 +29,9 @@ for (irow in 1:nrow(data_sources)) {
   
   ## Pull data from gapindex for a given species using gapindex
   species_code <- data_sources$species_code[irow]
-  if (species_code == 30152) species_code <- data.frame(SPECIES_CODE = c(species_code, 30150), GROUP = 30152)
+  if (species_code == 30152) # For duskies, we add code 30150
+    species_code <- data.frame(SPECIES_CODE = c(species_code, 30150), 
+                               GROUP = 30152)
   
   gapindex_data <- 
     gapindex::get_data(survey_set = "GOA",
