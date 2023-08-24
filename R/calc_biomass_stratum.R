@@ -85,7 +85,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                   SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
                 data = size,
                 FUN = function(x) length(x = unique(x = x)))
-    names(x = size_stats)[names(x = size_stat) == "HAULJOIN"] <- "N_LENGTH"
+    names(x = size_stats)[names(x = size_stats) == "HAULJOIN"] <- "N_LENGTH"
   } else { # If there are no size data, the number of hauls with size data is 0
     size_stats <- subset(x = num_stats, 
                          select = c("SPECIES_CODE", "STRATUM", "YEAR", 
