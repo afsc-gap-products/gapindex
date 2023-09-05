@@ -27,5 +27,5 @@ dataframe of probabilities ("age_frac") of ages ("AGE") by length
 (SPECIES_CODE), and sex (SEX).
 }
 \description{
-Calculate age-length key (alk)
+
 }

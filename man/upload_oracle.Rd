@@ -36,6 +36,9 @@ purposes.
 
 \item{share_with_all_users}{boolean. Default = TRUE. Give all users in Oracle view permissions.}
 }
+\value{
+
+}
 \description{
 T
 }
