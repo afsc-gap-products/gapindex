@@ -201,7 +201,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##   standard bottom sample (pre-programmed station)). ABUNDANCE_TYPE == "Y"
   ##   should be a redundant criterion. 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cat("Now pulling haul data...\n")
+  cat("Pulling haul data...\n")
   
   cruisejoin_vec <- gapindex::stitch_entries(cruise_data$CRUISEJOIN)
   haultype_vec <- gapindex::stitch_entries(haul_type)
