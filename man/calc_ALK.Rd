@@ -22,7 +22,7 @@ Defaults to "unsex"}
 alk consisting of all years? Defaults to TRUE.}
 }
 \value{
-dataframe of probabilities ("age_frac") of ages ("AGE") by length
+dataframe of probabilities ("AGE_FRAC") of ages ("AGE") by length
 (LENGTH_MM) for a given survey ("SURVEY"), year ("YEAR"), species
 (SPECIES_CODE), and sex (SEX).
 }

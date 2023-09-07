@@ -5,7 +5,9 @@
 #'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
 #'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
-#' @return dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex. A table of column name descriptions is coming soon.
+#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE" ,
+#' "YEAR", "SEX", "LENGTH_MM", "POPULATION_COUNT")))
 #' 
 #' @export
 #'

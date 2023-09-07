@@ -1,8 +1,8 @@
 #https://jsta.rbind.io/blog/automated-roxygen-documentation-of-r-package-data/
-tabular <- function(df, select = names(df), ...) {
+tabular <- function(df, select_fields = names(df), ...) {
   stopifnot(is.data.frame(x = df))
   
-  df <- subset(x = df, select = select)
+  df <- subset(x = df, subset = Field %in% select_fields)
   
   align <- function(x) if (is.numeric(x = x)) "r" else "l"
   col_align <- vapply(X = df, FUN = align, character(1))

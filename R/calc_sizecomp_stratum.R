@@ -23,8 +23,7 @@
 #' 
 #' @return dataframe of numerical CPUE ("S_ijklm_NO_KM2") by survey ("SURVEY"), 
 #' year ("YEAR"), stratum ("STRATUM"), haul ("HAULJOIN), species (SPECIES_CODE), 
-#' sex (SEX), and length (LENGTH_MM). A table of column name descriptions is 
-#' coming soon.
+#' sex (SEX), and length (LENGTH_MM).
 #' 
 #' @export
 #' 

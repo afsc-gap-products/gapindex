@@ -14,7 +14,7 @@
 #' @param global boolean. Should missing length bins be filled by using an
 #'               alk consisting of all years? Defaults to TRUE. 
 #' 
-#' @return dataframe of probabilities ("age_frac") of ages ("AGE") by length 
+#' @return dataframe of probabilities ("AGE_FRAC") of ages ("AGE") by length 
 #'         (LENGTH_MM) for a given survey ("SURVEY"), year ("YEAR"), species 
 #'         (SPECIES_CODE), and sex (SEX). 
 #' 
