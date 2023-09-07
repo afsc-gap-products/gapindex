@@ -118,11 +118,11 @@ calc_agecomp_region <- function(racebase_tables,
                         
                         ## weighted mean length
                         mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$POPULATION_COUNT)
+                                                     w = df$AGEPOP)
                         
                         ## weighted std.dev length
                         sd_length <- 
-                          sqrt(sum(df$POPULATION_COUNT/sum(df$POPULATION_COUNT) * 
+                          sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
                                      (df$LENGTH_MM - mean_length)^2))
                         
                         ## append `mean_length` and `sd_length` to `output_df` 
