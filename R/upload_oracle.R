@@ -1,6 +1,4 @@
 #' Upload a table to Oracle with associated metadata
-#' 
-#' @description T
 #'
 #' @param x Either a character string of the path to the .csv file or the data.frame of the table to upload. 
 #' @param table_name Name of the table. (Add error checks to make sure table name follows any peculiarities of Oracle tables). 
@@ -17,7 +15,6 @@
 #' @param schema character string. The name of the schema to save table. 
 #' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle view permissions. 
 #'
-#' @return
 #' @export
 #' 
 

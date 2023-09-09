@@ -1,6 +1,6 @@
 #' Calculate age-length key (alk)
 #' 
-#' @description 
+#' @description Calculates empircal probability of age at length from collected otolith data. 
 #'            
 #' @param racebase_tables data object created from `gapindex::get_data()`.
 #' @param unsex string, option to determine how unsexed individuals are 

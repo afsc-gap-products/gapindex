@@ -27,5 +27,5 @@ dataframe of probabilities ("AGE_FRAC") of ages ("AGE") by length
 (SPECIES_CODE), and sex (SEX).
 }
 \description{
-
+Calculates empircal probability of age at length from collected otolith data.
 }
