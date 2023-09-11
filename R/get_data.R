@@ -380,6 +380,22 @@ get_data <- function(year_set = c(1996, 1999),
   ## Rename "GROUP" column 
   names(x = catch_data)[names(x = catch_data) == "GROUP"] <- "SPECIES_CODE"
   
+  ## Merge "GROUP" column from `spp_codes` into `size_data` for scenraios
+  ## where you are defining species complexes.
+  size_data <- merge(x = size_data, 
+                      y = spp_codes, 
+                      by = "SPECIES_CODE")
+  
+  ## Sum "WEIGHT" and "NUMBER_FISH" aggregated by "GROUP" and "HAULJOIN". 
+  size_data <- stats::aggregate(FREQUENCY ~ CRUISEJOIN + HAULJOIN + 
+                                  GROUP + LENGTH + SEX,
+                                 data = size_data,
+                                 na.rm = TRUE, na.action = NULL,
+                                 FUN = sum)
+  
+  ## Rename "GROUP" column 
+  names(x = size_data)[names(x = size_data) == "GROUP"] <- "SPECIES_CODE"
+  
   ##   Merge "GROUP" column from `spp_codes` to `species_info` using 
   ##   "SPECIES_CODE" as a key
   species_info <- merge(x = species_info, 

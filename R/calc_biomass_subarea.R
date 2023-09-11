@@ -166,5 +166,21 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
               biomass across NMFS areas will be reported.")
   }
   
+  ## Remove EBS + NW subarea estimates prior to 1987
+  if (any(subarea_biomass$YEAR < 1987 & subarea_biomass$AREA_ID == 99900)) {
+    warning("The (EBS + NW) output only includes years 1987-present.
+      Years 1982-1986 are NOT included for the (EBS + NW) output because
+      essentially no stations within strata 82 & 90 (subarea 8 & 9)
+      were sampled during those years. Biomass/Abundance estimates for 
+      these early years were removed.")
+    
+    subarea_biomass <- subset(x = subarea_biomass, 
+                            subset = !(SURVEY_DEFINITION_ID == 98 & 
+                                         YEAR < 1987 & 
+                                         AREA_ID %in% c(99900, 
+                                                        300, 200, 100, 
+                                                        8, 9)) )
+  }
+  
   return(subarea_biomass)
 }
