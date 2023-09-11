@@ -18,6 +18,10 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                                  alk = NULL,
                                  size_comp = NULL) {
   
+  for (iarg in c("racebase_tables", "alk", "size_comp"))
+    if (is.null(x = get(x = iarg)))
+      stop("Must provide argument `", iarg, "`")
+  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Merge age distribution proportions and population numbers
   ## 
