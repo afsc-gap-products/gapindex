@@ -15,6 +15,15 @@
 calc_sizecomp_subareas <- function(racebase_tables, 
                                    size_comps) {
   
+  ## Error Check on function arguments
+  if (is.null(x = racebase_tables))
+    stop("Must provide argument `racebase_tables` a named list from 
+         gapindex::get_data().")
+  
+  if (is.null(x = size_comps))
+    stop("Must provide argument `size_comps` a named list from 
+         gapindex::calc_sizecomp_stratum().")
+  
   ## Which survey designs to pull from
   subarea_size_comp_df <- data.frame()
   survey_designs <- racebase_tables$survey

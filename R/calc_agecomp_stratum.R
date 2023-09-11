@@ -18,6 +18,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                                  alk = NULL,
                                  size_comp = NULL) {
   
+  ## Error Check on function arguments
   for (iarg in c("racebase_tables", "alk", "size_comp"))
     if (is.null(x = get(x = iarg)))
       stop("Must provide argument `", iarg, "`")

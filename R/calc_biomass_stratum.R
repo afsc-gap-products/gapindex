@@ -18,17 +18,15 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                  cpue = NULL,
                                  vulnerability = 1) {
   
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   Gather datasets from `racebase_tables`
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cruise <- racebase_tables$cruise
-  haul <- racebase_tables$haul
-  
   ## Check inputs
   if (any(sapply(X = list(cpue, racebase_tables), FUN = is.null))) {
     stop("Please provide inputs for data args: `cpue` and `racebase_tables`. 
          See ?gapindex::calc_biomass_stratum for more details.")
   }
+  
+  ##   Gather datasets from `racebase_tables`
+  cruise <- racebase_tables$cruise
+  haul <- racebase_tables$haul
   
   ## Calculate mean and variance stratum weight CPUE, total number of hauls and 
   ## number of hauls with positive weights. For strata with only one station, 

@@ -26,6 +26,9 @@ calc_ALK <- function(racebase_tables = NULL,
                      global = TRUE) {
   
   ## Error Check
+  if (is.null(x = racebase_tables))
+    stop("Must provide argument `racebase_tables` a named list from 
+         gapindex::get_data().")
   if (is.null(x = racebase_tables$size)) 
     stop("racebase_tables$size must not be NULL. Either the set of taxa does 
          not have size information or rerun gapindex::get_data() with 

@@ -37,6 +37,19 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Error checks in data input
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ## Error Check on function arguments
+  if (is.null(x = racebase_tables))
+    stop("Must provide argument `racebase_tables` a named list from 
+         gapindex::get_data().")
+  
+  if (is.null(x = racebase_cpue))
+    stop("Must provide argument `racebase_cpue` a named list from 
+         gapindex::calc_cpue().")
+  
+  if (is.null(x = racebase_stratum_popn))
+    stop("Must provide argument `racebase_stratum_popn` dataframe from
+         gapindex::calc_biomass_stratum().")
+  
   ## Check that there are size data
   if (is.null(x = racebase_tables$size)) 
     stop("racebase_tables$size must not be NULL. Either the taxon does not 
