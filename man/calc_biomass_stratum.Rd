@@ -4,15 +4,12 @@
 \alias{calc_biomass_stratum}
 \title{Calculate index of total biomass per stratum}
 \usage{
-calc_biomass_stratum(racebase_tables = NULL, cpue = NULL, vulnerability = 1)
+calc_biomass_stratum(racebase_tables = NULL, cpue = NULL)
 }
 \arguments{
 \item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 
 \item{cpue}{object created from \code{gapindex::calc_cpue()}.}
-
-\item{vulnerability}{the vulnerability of the species to the survey
-(defaults to 1).}
 }
 \value{
 \tabular{ll}{
