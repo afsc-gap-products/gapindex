@@ -2,31 +2,28 @@
 #'
 #' @param racebase_tables data object created from `gapindex::get_data()`
 #' @param cpue object created from `gapindex::calc_cpue()`.
-#' @param vulnerability the vulnerability of the species to the survey 
-#'                      (defaults to 1).
-#' 
-#' @return dataframe of biomass and population abundance estimates (with 
-#' associated variances) across survey, year, species, and strata. A table
-#' of column name descriptions is coming soon.
+#'                      
+#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM", "SPECIES_CODE" ,
+#' "YEAR", "N_HAUL", "N_WEIGHT", "N_COUNT", "N_LENGTH", "CPUE_KGKM2_MEAN",
+#' "CPUE_KGKM2_VAR", "CPUE_NOKM2_MEAN", "CPUE_NOKM2_VAR", "BIOMASS_MT",
+#' "BIOMASS_VAR", "POPULATION_COUNT", "POPULATION_VAR")))
 #' 
 #' @export
 #'
 
 calc_biomass_stratum <- function(racebase_tables = NULL,
-                                 cpue = NULL,
-                                 vulnerability = 1) {
-  
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   Gather datasets from `racebase_tables`
-  ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cruise <- racebase_tables$cruise
-  haul <- racebase_tables$haul
+                                 cpue = NULL) {
   
   ## Check inputs
   if (any(sapply(X = list(cpue, racebase_tables), FUN = is.null))) {
     stop("Please provide inputs for data args: `cpue` and `racebase_tables`. 
          See ?gapindex::calc_biomass_stratum for more details.")
   }
+  
+  ##   Gather datasets from `racebase_tables`
+  cruise <- racebase_tables$cruise
+  haul <- racebase_tables$haul
   
   ## Calculate mean and variance stratum weight CPUE, total number of hauls and 
   ## number of hauls with positive weights. For strata with only one station, 
@@ -129,11 +126,9 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   stratum_stats[, c("BIOMASS_MT", "BIOMASS_VAR", 
                     "POPULATION_COUNT", "POPULATION_VAR")] <-
     with(stratum_stats, 
-         data.frame(BIOMASS_MT = AREA_KM2 * CPUE_KGKM2_MEAN / 
-                      vulnerability * 0.001,
+         data.frame(BIOMASS_MT = AREA_KM2 * CPUE_KGKM2_MEAN * 0.001,
                     BIOMASS_VAR = AREA_KM2^2 * CPUE_KGKM2_VAR * 1e-6,
-                    POPULATION_COUNT = AREA_KM2 * CPUE_NOKM2_MEAN / 
-                      vulnerability,
+                    POPULATION_COUNT = AREA_KM2 * CPUE_NOKM2_MEAN,
                     POPULATION_VAR = AREA_KM2^2 * CPUE_NOKM2_VAR))
   
   ## Reorder fields, sort

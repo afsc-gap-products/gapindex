@@ -8,22 +8,10 @@
 #' @return dataframe of age composition and mean/standard deviation of length
 #'         at age aggregated across regions. 
 #'         
-#' @return dataframe of numbers at age by survey, year, subarea (AREA_ID), species, and sex. 
-#' 
-#' | Field Name           | Description                                                                                                                                                         |
-#' |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-#' | SURVEY_DEFINITION_ID | Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions.                                         |
-#' | SURVEY               | Survey region.                                                                                                                                                      |
-#' | AREA_ID              | Integer identifier for a subarea. See   gapindex::area_table for the full list.                                                                                     |
-#' | YEAR                 | Year the survey was conducted in.                                                                                                                                   |
-#' | SPECIES_CODE         | Taxon code. [See the code book for the full list.](https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual).   |
-#' | SEX                  | Sex of a specimen where "1" = "Male", "2" =   "Female", "3" = Unsexed.                                                                                              |
-#' | AGE                  | Age (years).                                                                                                                                                        |
-#' | POPULATION_COUNT     | Total number of individuals.                                                                                                                                        |
-#' | LENGTH_MM_MEAN       | Estimated mean length-at-age (mm) weighted by numbers-at-length.                                                                                                    |
-#' | LENGTH_MM_SD         | Standard deviation associated with the estimated mean length-at-age.                                                                                                |
-#'          
-#'         
+#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "SURVEY", "AREA_ID", "SPECIES_CODE" ,
+#' "YEAR", "SEX", "AGE", "POPULATION_COUNT", "LENGTH_MM_MEAN", "LENGTH_MM_SD")))
+#'   
 #' @export
 #'
 
@@ -118,11 +106,11 @@ calc_agecomp_region <- function(racebase_tables,
                         
                         ## weighted mean length
                         mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$POPULATION_COUNT)
+                                                     w = df$AGEPOP)
                         
                         ## weighted std.dev length
                         sd_length <- 
-                          sqrt(sum(df$POPULATION_COUNT/sum(df$POPULATION_COUNT) * 
+                          sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
                                      (df$LENGTH_MM - mean_length)^2))
                         
                         ## append `mean_length` and `sd_length` to `output_df` 

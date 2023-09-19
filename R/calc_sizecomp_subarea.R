@@ -5,13 +5,24 @@
 #'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
 #'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
-#' @return dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex. A table of column name descriptions is coming soon.
+#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE" ,
+#' "YEAR", "SEX", "LENGTH_MM", "POPULATION_COUNT")))
 #' 
 #' @export
 #'
 
 calc_sizecomp_subareas <- function(racebase_tables, 
                                    size_comps) {
+  
+  ## Error Check on function arguments
+  if (is.null(x = racebase_tables))
+    stop("Must provide argument `racebase_tables` a named list from 
+         gapindex::get_data().")
+  
+  if (is.null(x = size_comps))
+    stop("Must provide argument `size_comps` a named list from 
+         gapindex::calc_sizecomp_stratum().")
   
   ## Which survey designs to pull from
   subarea_size_comp_df <- data.frame()

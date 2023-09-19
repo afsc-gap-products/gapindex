@@ -4,9 +4,12 @@
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
 #'                       `gapindex::calc_biomass_stratum()`
 #'
-#' @return dataframe of biomass and population abundance estimates (with 
-#' associated variances) across survey, year, species, and subarea (AREA_ID). 
-#' A table of column name descriptions is coming soon.
+#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "SURVEY", "AREA_ID", "SPECIES_CODE" ,
+#' "YEAR", "N_HAUL", "N_WEIGHT", "N_COUNT", "N_LENGTH", "CPUE_KGKM2_MEAN",
+#' "CPUE_KGKM2_VAR", "CPUE_NOKM2_MEAN", "CPUE_NOKM2_VAR", "BIOMASS_MT",
+#' "BIOMASS_VAR", "POPULATION_COUNT", "POPULATION_VAR")))
+#' 
 #' @export
 #' 
 
@@ -161,6 +164,22 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
     warning("The GOA total biomass across INPFC area and across depth zones
               only includes years 1987-2023. Starting from 2025, only total 
               biomass across NMFS areas will be reported.")
+  }
+  
+  ## Remove EBS + NW subarea estimates prior to 1987
+  if (any(subarea_biomass$YEAR < 1987 & subarea_biomass$AREA_ID == 99900)) {
+    warning("The (EBS + NW) output only includes years 1987-present.
+      Years 1982-1986 are NOT included for the (EBS + NW) output because
+      essentially no stations within strata 82 & 90 (subarea 8 & 9)
+      were sampled during those years. Biomass/Abundance estimates for 
+      these early years were removed.")
+    
+    subarea_biomass <- subset(x = subarea_biomass, 
+                            subset = !(SURVEY_DEFINITION_ID == 98 & 
+                                         YEAR < 1987 & 
+                                         AREA_ID %in% c(99900, 
+                                                        300, 200, 100, 
+                                                        8, 9)) )
   }
   
   return(subarea_biomass)

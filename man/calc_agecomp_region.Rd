@@ -17,18 +17,18 @@ from \code{gapindex::calc_agecomp_stratum()}.}
 dataframe of age composition and mean/standard deviation of length
 at age aggregated across regions.
 
-dataframe of numbers at age by survey, year, subarea (AREA_ID), species, and sex.\tabular{ll}{
-   Field Name \tab Description \cr
-   SURVEY_DEFINITION_ID \tab Integer number identifier corresponding to survey region. See   gapindex::survey_ids for a list of relevant survey regions. \cr
-   SURVEY \tab Survey region. \cr
-   AREA_ID \tab Integer identifier for a subarea. See   gapindex::area_table for the full list. \cr
-   YEAR \tab Year the survey was conducted in. \cr
-   SPECIES_CODE \tab Taxon code. \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{See the code book for the full list.}. \cr
-   SEX \tab Sex of a specimen where "1" = "Male", "2" =   "Female", "3" = Unsexed. \cr
-   AGE \tab Age (years). \cr
-   POPULATION_COUNT \tab Total number of individuals. \cr
-   LENGTH_MM_MEAN \tab Estimated mean length-at-age (mm) weighted by numbers-at-length. \cr
-   LENGTH_MM_SD \tab Standard deviation associated with the estimated mean length-at-age. \cr
+\tabular{ll}{
+\bold{Field} \tab \bold{Description} \cr
+YEAR                 \tab Year the survey was conducted in.                                                                                                                                                                                                                                                                                          \cr
+AGE                  \tab Age bin of a taxon in years estimated by the age comp estimate.                                                                                                                                                                                                                                                            \cr
+AREA_ID              \tab Area ID code for each statistical area used to produce production estimates (e.g., biomass, population, age comps, length comps). Each area ID is unique within each survey.                                                                                                                                               \cr
+LENGTH_MM_MEAN       \tab Mean length estimated in age comp estimate.                                                                                                                                                                                                                                                                                \cr
+LENGTH_MM_SD         \tab Variance of mean length estimated in age comp estimate.                                                                                                                                                                                                                                                                    \cr
+POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                           \cr
+SEX                  \tab Sex of a specimen where "1" = "Male", "2" = "Female", "3" = Unsexed.                                                                                                                                                                                                                                                       \cr
+SPECIES_CODE         \tab The species code of the organism associated with the 'common_name' and 'scientific_name' columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                      \cr
+SURVEY               \tab Name and description of survey. The column 'survey' is associated with the 'srvy' and 'survey_id' columns.                                                                                                                                                                                                                 \cr
+SURVEY_DEFINITION_ID \tab This number uniquely identifies a survey. Name and description of survey. The column 'survey_id' is associated with the 'srvy' and 'survey' columns. For a complete list of surveys, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.
 }
 }
 \description{

@@ -201,7 +201,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##   standard bottom sample (pre-programmed station)). ABUNDANCE_TYPE == "Y"
   ##   should be a redundant criterion. 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cat("Now pulling haul data...\n")
+  cat("Pulling haul data...\n")
   
   cruisejoin_vec <- gapindex::stitch_entries(cruise_data$CRUISEJOIN)
   haultype_vec <- gapindex::stitch_entries(haul_type)
@@ -379,6 +379,22 @@ get_data <- function(year_set = c(1996, 1999),
   
   ## Rename "GROUP" column 
   names(x = catch_data)[names(x = catch_data) == "GROUP"] <- "SPECIES_CODE"
+  
+  ## Merge "GROUP" column from `spp_codes` into `size_data` for scenraios
+  ## where you are defining species complexes.
+  size_data <- merge(x = size_data, 
+                      y = spp_codes, 
+                      by = "SPECIES_CODE")
+  
+  ## Sum "WEIGHT" and "NUMBER_FISH" aggregated by "GROUP" and "HAULJOIN". 
+  size_data <- stats::aggregate(FREQUENCY ~ CRUISEJOIN + HAULJOIN + 
+                                  GROUP + LENGTH + SEX,
+                                 data = size_data,
+                                 na.rm = TRUE, na.action = NULL,
+                                 FUN = sum)
+  
+  ## Rename "GROUP" column 
+  names(x = size_data)[names(x = size_data) == "GROUP"] <- "SPECIES_CODE"
   
   ##   Merge "GROUP" column from `spp_codes` to `species_info` using 
   ##   "SPECIES_CODE" as a key

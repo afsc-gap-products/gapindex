@@ -7,12 +7,24 @@
 calc_cpue(racebase_tables = NULL)
 }
 \arguments{
-\item{racebase_tables}{data object created from `gapindex::get_data()``}
+\item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 }
 \value{
-dataframe of weight and numerical CPUE for the region, species, and
-years pulled from \code{gapindex::get_data()}. A table of column name
-descriptions is coming soon.
+\tabular{ll}{
+\bold{Field} \tab \bold{Description} \cr
+YEAR                 \tab Year the survey was conducted in.                                                                                                                                                                                                                                                                                          \cr
+CRUISE               \tab This is a six-digit number identifying the cruise number of the form: YYYY99 (where YYYY = year of the cruise; 99 = 2-digit number and is sequential; 01 denotes the first cruise that vessel made in this year, 02 is the second, etc.).                                                                                  \cr
+CRUISEJOIN           \tab This is a unique numeric identifier assigned to each survey, vessel, and year combination.                                                                                                                                                                                                                                 \cr
+DESIGN_YEAR          \tab The year the survey area stratum (e.g., statistical stratum, summary area, region) was implimented in.                                                                                                                                                                                                                     \cr
+HAULJOIN             \tab This is a unique numeric identifier assigned to each (vessel, cruise, and haul) combination.                                                                                                                                                                                                                               \cr
+LATITUDE_DD_END      \tab Latitude (one hundred thousandth of a decimal degree) of the end of the haul.                                                                                                                                                                                                                                              \cr
+LATITUDE_DD_START    \tab Latitude (one hundred thousandth of a decimal degree) of the start of the haul.                                                                                                                                                                                                                                            \cr
+LONGITUDE_DD_END     \tab Longitude (one hundred thousandth of a decimal degree) of the end of the haul.                                                                                                                                                                                                                                             \cr
+LONGITUDE_DD_START   \tab Longitude (one hundred thousandth of a decimal degree) of the start of the haul.                                                                                                                                                                                                                                           \cr
+STRATUM              \tab RACE database statistical area for analyzing data. Strata were designed using bathymetry and other geographic and habitat-related elements. The strata are unique to each survey series. Stratum of value 0 indicates experimental tows.                                                                                   \cr
+SURVEY               \tab Name and description of survey. The column 'survey' is associated with the 'srvy' and 'survey_id' columns.                                                                                                                                                                                                                 \cr
+SURVEY_DEFINITION_ID \tab This number uniquely identifies a survey. Name and description of survey. The column 'survey_id' is associated with the 'srvy' and 'survey' columns. For a complete list of surveys, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.
+}
 }
 \description{
 This function zero-fills the catch data and converts numbers

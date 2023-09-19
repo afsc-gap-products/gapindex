@@ -19,7 +19,9 @@ sql_channel <- gapindex::get_connected()
 
 metadata_column <- 
   RODBC::sqlQuery(channel = sql_channel, 
-                  query = "SELECT * FROM GAP_PRODUCTS.METADATA_COLUMN")
+                  query = "SELECT METADATA_COLNAME, METADATA_COLNAME_DESC
+                  FROM GAP_PRODUCTS.METADATA_COLUMN")
+names(x = metadata_column) <- c("Field", "Description")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Write to data-raw folder

@@ -4,20 +4,34 @@
 \alias{calc_biomass_stratum}
 \title{Calculate index of total biomass per stratum}
 \usage{
-calc_biomass_stratum(racebase_tables = NULL, cpue = NULL, vulnerability = 1)
+calc_biomass_stratum(racebase_tables = NULL, cpue = NULL)
 }
 \arguments{
 \item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 
 \item{cpue}{object created from \code{gapindex::calc_cpue()}.}
-
-\item{vulnerability}{the vulnerability of the species to the survey
-(defaults to 1).}
 }
 \value{
-dataframe of biomass and population abundance estimates (with
-associated variances) across survey, year, species, and strata. A table
-of column name descriptions is coming soon.
+\tabular{ll}{
+\bold{Field} \tab \bold{Description} \cr
+YEAR                 \tab Year the survey was conducted in.                                                                                                                                                                                                                                                                                          \cr
+BIOMASS_MT           \tab The estimated biomass caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                              \cr
+BIOMASS_VAR          \tab The estimated biomass variance caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                     \cr
+N_WEIGHT             \tab Total number of hauls with positive catch/weighed taxon data used in calculation.                                                                                                                                                                                                                                          \cr
+N_COUNT              \tab Total number of hauls with positive taxon counts used in calculation.                                                                                                                                                                                                                                                      \cr
+N_HAUL               \tab Total number of valid hauls used in calculation.                                                                                                                                                                                                                                                                           \cr
+N_LENGTH             \tab Total number of hauls with taxon length data used in calculation.                                                                                                                                                                                                                                                          \cr
+CPUE_KGKM2_MEAN      \tab The mean of catch weight (kilograms) divided by area (squared kilometers) swept by the net used in design-based indicie calculation.                                                                                                                                                                                       \cr
+CPUE_KGKM2_VAR       \tab The variance of mean of catch weight (kilograms) divided by area (squared kilometers) swept by the net used in design-based indicie calculation.                                                                                                                                                                           \cr
+CPUE_NOKM2_MEAN      \tab The mean of catch count (number) divided by area (squared kilometers) swept by the net used in design-based indicie calculation.                                                                                                                                                                                           \cr
+CPUE_NOKM2_VAR       \tab The variance of mMean of catch count (number) divided by area (squared kilometers) swept by the net used in design-based indicie calculation.                                                                                                                                                                              \cr
+POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                           \cr
+POPULATION_VAR       \tab The estimated population variance caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                  \cr
+SPECIES_CODE         \tab The species code of the organism associated with the 'common_name' and 'scientific_name' columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                      \cr
+STRATUM              \tab RACE database statistical area for analyzing data. Strata were designed using bathymetry and other geographic and habitat-related elements. The strata are unique to each survey series. Stratum of value 0 indicates experimental tows.                                                                                   \cr
+SURVEY               \tab Name and description of survey. The column 'survey' is associated with the 'srvy' and 'survey_id' columns.                                                                                                                                                                                                                 \cr
+SURVEY_DEFINITION_ID \tab This number uniquely identifies a survey. Name and description of survey. The column 'survey_id' is associated with the 'srvy' and 'survey' columns. For a complete list of surveys, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.
+}
 }
 \description{
 Calculate index of total biomass per stratum

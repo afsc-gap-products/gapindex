@@ -14,7 +14,16 @@ calc_sizecomp_subareas(racebase_tables, size_comps)
 \code{gapindex::calc_sizecomp_bs_stratum()}}
 }
 \value{
-dataframe of numbers-at-length by survey, year, subarea (AREA_ID), species, and sex. A table of column name descriptions is coming soon.
+\tabular{ll}{
+\bold{Field} \tab \bold{Description} \cr
+YEAR                 \tab Year the survey was conducted in.                                                                                                                                                                                                                                                                                          \cr
+AREA_ID              \tab Area ID code for each statistical area used to produce production estimates (e.g., biomass, population, age comps, length comps). Each area ID is unique within each survey.                                                                                                                                               \cr
+LENGTH_MM            \tab Length of a specimen in millimeters.                                                                                                                                                                                                                                                                                       \cr
+POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                           \cr
+SEX                  \tab Sex of a specimen where "1" = "Male", "2" = "Female", "3" = Unsexed.                                                                                                                                                                                                                                                       \cr
+SPECIES_CODE         \tab The species code of the organism associated with the 'common_name' and 'scientific_name' columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                      \cr
+SURVEY_DEFINITION_ID \tab This number uniquely identifies a survey. Name and description of survey. The column 'survey_id' is associated with the 'srvy' and 'survey' columns. For a complete list of surveys, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.
+}
 }
 \description{
 Calculate size composition across aggregated subareas

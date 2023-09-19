@@ -1,13 +1,14 @@
 #' Calculate CPUEs at haul level
 #' 
-#' @description This function zero-fills the catch data and converts numbers 
+#' @description This function zero-fills the catch data and converts numbers
 #'              and weights to CPUE.
 #' 
-#' @param racebase_tables data object created from `gapindex::get_data()``
-#' 
-#' @return dataframe of weight and numerical CPUE for the region, species, and
-#'         years pulled from `gapindex::get_data()`. A table of column name 
-#'         descriptions is coming soon.
+#' @param racebase_tables data object created from `gapindex::get_data()`
+#'         
+#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "SURVEY", "CRUISE", "CRUISEJOIN", 
+#' "YEAR", "HAULJOIN", "STRATUM", "DESIGN_YEAR", "LATITUDE_DD_START",
+#' "LATITUDE_DD_END","LONGITUDE_DD_START", "LONGITUDE_DD_END") ))
 #' 
 #' @export
 #' 
@@ -27,10 +28,10 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   ## remove species with no catch records, output warning
   omitted_species <- 
-    species$SPECIES_CODE[!species$SPECIES_CODE %in% 
+    species$GROUP[!species$GROUP %in% 
                            racebase_tables$catch$SPECIES_CODE]
   species <- subset(x = racebase_tables$species,
-                    subset = SPECIES_CODE %in% unique(catch$SPECIES_CODE))
+                    subset = GROUP %in% unique(catch$SPECIES_CODE))
   
   if (length(x = omitted_species) > 0) 
     warning(paste0("No catch records found for species codes: ", 
