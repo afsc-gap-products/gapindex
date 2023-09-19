@@ -1,8 +1,8 @@
 ---
-title: 'Example: Data Inputs for ModSquad (GOA)'
+title: 'Example: Data Inputs for VAST'
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example: Data Inputs for ModSquad (GOA)}
+  %\VignetteIndexEntry{Example: Data Inputs for VAST}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,9 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This script can be used to pull geolocated catch and effort data used to 
-calculate model-based indices of abundance using the VAST R package as done by
-the GAP ModSquad group for Gulf of Alaska requests. 
+Example data pulling in the format of a [VAST](https://github.com/James-Thorson-NOAA/VAST) model 
 
 ```{r, eval = F}
 library(gapindex)
