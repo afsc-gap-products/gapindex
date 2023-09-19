@@ -1,0 +1,5 @@
+template:
+  bootstrap: 5
+  bootswatch: solar
+  bslib:
+    pkgdown-nav-height: 100px

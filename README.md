@@ -1,15 +1,10 @@
-# gapindex R Package 
+# Welcome 
 
-This R package generates design-based indices of biomass, abundance, size 
-composition, and age composition from NOAA-NMFS-AFSC-RACE-GAP bottom trawl 
-survey data. Survey regions include: Gulf of Alaska (from 1984), 
-Aleutian Islands (from 1980), Eastern Bering Sea Shelf (from 1982), 
+This R package generates the standard design-based indices of biomass, 
+abundance, size composition, and age composition from NOAA-NMFS-AFSC-RACE-GAP 
+bottom trawl survey data. Survey regions include: Gulf of Alaska (from 1993), 
+Aleutian Islands (from 1991), Eastern Bering Sea Shelf (from 1982), 
 Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
-
-The [gap_products](https://github.com/afsc-gap-products/gap_products) 
-GitHub repository will store the code used to produce and 
-test the standard data products for all regions each year calculated using the
-gapindex R package. Rollout of this new workflow is currently slated for Fall 2024.
 
 # Example Workflow
 
@@ -42,8 +37,7 @@ cpue <- gapindex::calc_cpue(racebase_tables = gapindex_data)
 ## associated variances
 biomass_stratum <- gapindex::calc_biomass_stratum(
   racebase_tables = gapindex_data,
-  cpue = cpue,
-  vulnerability = 1)
+  cpue = cpue)
 
 ## Calculate aggregated biomass and population abundance across subareas,
 ## management areas, and regions
@@ -84,15 +78,6 @@ age_comp_region <- gapindex::calc_agecomp_region(
 
 ```
 
-## In progress
-* @MargaretSiple-NOAA created a [vignette](https://github.com/zoyafuso-NOAA/design-based-indices/tree/master/old_scripts/vignettes) on the biomass calculations using equations (from [Wakabayashi et al. 1985](https://drive.google.com/file/d/1m5c1N4WYysM1pscrpcgWOGZSZIK8vIHr/view?usp=sharing). We should make this into a wiki and have different pages for the different calculations (biomass, age compositions, etc.), assumptions, peculiarities, etc. 
-* Increased documentation of function output similar to the metadata associated with GAP_PRODUCTS tables.
-* Standardize data pulling process for ModSquad model-based index production
-* Establish production cycle for standard gap products
-* Formalize documentation of any changes that occur in the standard data products after each production cycle. 
-* Create a Tech Memo that describes the changes in the Oracle data infrastructure
-  in tandem with the creation of the gapindex package.
-
 ## Collaborators
 The gapindex R package is a product of two AFSC-RACE-GAP working groups 
 regarding GAP data processes and index computation. Many thanks to those who 
@@ -113,7 +98,7 @@ Nancy Roberson (NancyRoberson)|Thaddaeus Buser (ThaddaeusBuser-NOAA)|
 Here is an non-exhaustive list of people who provided the foundation for many 
 of the functions in this package:
 
-AI-GOA: Michael Martin, 
+AI-GOA: Michael Martin, Peter Munro, Ned Laman
 
 Bering Sea: REM, Jason Conner, Jerry Hoff, 
 
@@ -134,7 +119,7 @@ AFSC: Alaska Fisheries Science Center
 
 RACE: Resource Assessment and Conservation Engineering Division
 
-GAP: Groundfish Assessment Program (GAP)
+GAP: Groundfish Assessment Program
 
 ## Legal disclaimer
 This repository is a software product and is not official communication of the National Oceanic and Atmospheric Administration (NOAA), or the United States Department of Commerce (DOC). All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. Any claims against the DOC or DOC bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation, or favoring by the DOC. The DOC seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by the DOC or the United States Government.

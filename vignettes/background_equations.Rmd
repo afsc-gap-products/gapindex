@@ -1,8 +1,10 @@
 ---
-title: "Index Computation"
-author: "Zack Oyafuso (zack.oyafuso@noaa.gov)"
-date: "2023-05-15"
-output: html_document
+title: "Background: Mathematical Methods"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Background: Mathematical Methods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ## Data Collection Process
