@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Here is an EBS example of how you would calculate design-based indices for a species complex, i.e., an aggregate of multiple SPECIES_CODE values. This script produces HAEHNR.CPUE_EBS_PLUSNW_GROUPED, HAEHNR.BIOMASS_EBS_PLUSNW_GROUPED, HAEHNR.SIZECOMP_EBS_PLUSNW_GROUPED.
+Here is an EBS example of how you would calculate design-based indices for a species complex, i.e., an aggregate of multiple SPECIES_CODE values. This script produces tables equivalent to HAEHNR.CPUE_EBS_PLUSNW_GROUPED, HAEHNR.BIOMASS_EBS_PLUSNW_GROUPED, HAEHNR.SIZECOMP_EBS_PLUSNW_GROUPED.
 
 ```{r setup, eval = F}
 library(gapindex)
@@ -90,7 +90,7 @@ production_sizecomp_stratum <-
     fill_NA_method = "BS")
 
 ## Aggregate size composition to subareas/region
-production_sizecomp_subarea <- gapindex::calc_sizecomp_subareas(
+production_sizecomp_subarea <- gapindex::calc_sizecomp_subarea(
   racebase_tables = production_data,
   size_comps = production_sizecomp_stratum)
 

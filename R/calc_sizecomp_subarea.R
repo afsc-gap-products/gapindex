@@ -12,8 +12,8 @@
 #' @export
 #'
 
-calc_sizecomp_subareas <- function(racebase_tables, 
-                                   size_comps) {
+calc_sizecomp_subarea <- function(racebase_tables, 
+                                  size_comps) {
   
   ## Error Check on function arguments
   if (is.null(x = racebase_tables))
@@ -65,15 +65,19 @@ calc_sizecomp_subareas <- function(racebase_tables,
         
         ## append to result df
         subarea_size_comp_df <- 
-          rbind(
+          rbind( 
             subarea_size_comp_df,
-            cbind(data.frame(
-              AREA_ID = subareas$AREA_ID[isubarea],
-              SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[isubarea]),
+            cbind(
+              data.frame(
+                AREA_ID = subareas$AREA_ID[isubarea],
+                SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[isubarea]),
               subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", 
                                           "SEX", "LENGTH_MM", 
-                                          "POPULATION_COUNT")]))
+                                          "POPULATION_COUNT")]
+            )
+          )
       }
+      
     } ## Loop over subareas -- end
   } ## Loop over surveys -- end
   
