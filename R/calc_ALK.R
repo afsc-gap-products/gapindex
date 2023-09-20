@@ -21,7 +21,7 @@
 #' @export
 #' 
 
-calc_ALK <- function(racebase_tables = NULL,
+calc_alk <- function(racebase_tables = NULL,
                      unsex = c("all", "unsex")[2], 
                      global = TRUE) {
   

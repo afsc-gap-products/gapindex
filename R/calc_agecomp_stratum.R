@@ -1,7 +1,7 @@
 #' Calculate stratum-level age composition and mean/std.dev length at age 
 #' 
 #' @param racebase_tables data object created from `gapindex::get_data()`
-#' @param alk age-length key (dataframe) created from `gapindex::calc_ALK()`
+#' @param alk age-length key (dataframe) created from `gapindex::calc_alk()`
 #' @param size_comp a dataframe of size compositions created from 
 #'                  `gapindex::calc_sizecomp_stratum()`.
 #'
@@ -39,8 +39,8 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
           y = alk,
           by = c("SURVEY", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
           all.x = TRUE)
-  age_comp$AGE[is.na(age_comp$AGE)] <- -9
-  age_comp$AGE_FRAC[is.na(age_comp$AGE_FRAC)] <- 1
+  age_comp$AGE[is.na(x = age_comp$AGE)] <- -9
+  age_comp$AGE_FRAC[is.na(x = age_comp$AGE_FRAC)] <- 1
   
   ## Calculate numbers at age as the product of the age_frac and the numbers 
   ## at length
@@ -84,17 +84,17 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                     ## "SPECIES_CODE", "SEX", and "AGE" of the sublist.
                     output_df[1, c("SURVEY", "YEAR",
                                    "STRATUM", "SEX", "AGE")] <-
-                      unique(subset(x = df,
-                                    select = c(SURVEY, YEAR,
-                                               STRATUM, SEX, AGE)))
+                      unique(x = subset(x = df,
+                                        select = c(SURVEY, YEAR,
+                                                   STRATUM, SEX, AGE)))
                     
                     ## weighted mean length
-                    mean_length <- weighted.mean(x = df$LENGTH_MM,
-                                                 w = df$AGEPOP)
+                    mean_length <- stats::weighted.mean(x = df$LENGTH_MM,
+                                                        w = df$AGEPOP)
                     
                     ## weighted std.dev length
-                    sd_length <- sqrt(sum(df$AGEPOP/sum(df$AGEPOP) *
-                                            (df$LENGTH_MM - mean_length)^2))
+                    sd_length <- sqrt(x = sum(df$AGEPOP/sum(df$AGEPOP) *
+                                                (df$LENGTH_MM - mean_length)^2))
                     
                     ## append `mean_length` and `sd_length` to `output_df`
                     output_df[, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
@@ -113,7 +113,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
     
   }
   
-  rownames(mean_length_at_age) <- NULL
+  rownames(x = mean_length_at_age) <- NULL
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Total numbers by "SURVEY", "YEAR", "STRATUM", "SPECIES_CODE", 
@@ -148,7 +148,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
                      by = c("SURVEY", "YEAR")))
   
   ## Rename AGEPOP column as POPULATION_COUNT
-  names(age_comp)[names(age_comp) == "AGEPOP"] <- "POPULATION_COUNT" 
+  names(x = age_comp)[names(age_comp) == "AGEPOP"] <- "POPULATION_COUNT" 
   
   ## Sort age_comp
   age_comp <- age_comp[with(age_comp, order(SURVEY, STRATUM, YEAR,
@@ -157,7 +157,7 @@ calc_agecomp_stratum <- function(racebase_tables = NULL,
   ## Any records with NA mean/sd length values are coded as AGE -99: 
   ## INDICATES A CASE WHERE NO LENGTHS WERE COLLECTED WITHIN A STRATUM 
   ## FOR A SPECIES/YEAR EVEN THOUGH CATCH NUMBERS EXISTED.
-  age_comp$AGE[is.na(age_comp$LENGTH_MM_MEAN)] <- -99
+  age_comp$AGE[is.na(x = age_comp$LENGTH_MM_MEAN)] <- -99
   
   return(list(age_comp = subset(x = age_comp,
                                 select = c(SURVEY, SURVEY_DEFINITION_ID, 

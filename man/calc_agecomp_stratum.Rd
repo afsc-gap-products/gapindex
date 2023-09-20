@@ -9,7 +9,7 @@ calc_agecomp_stratum(racebase_tables = NULL, alk = NULL, size_comp = NULL)
 \arguments{
 \item{racebase_tables}{data object created from \code{gapindex::get_data()}}
 
-\item{alk}{age-length key (dataframe) created from \code{gapindex::calc_ALK()}}
+\item{alk}{age-length key (dataframe) created from \code{gapindex::calc_alk()}}
 
 \item{size_comp}{a dataframe of size compositions created from
 \code{gapindex::calc_sizecomp_stratum()}.}
