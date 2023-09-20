@@ -6,7 +6,7 @@ template:
     
 navbar:
   structure:
-    left: [reference, vignettes, articles]
+    left: [reference, vignettes, articles, citation]
   components:
     reference:
       text: Functions
@@ -14,9 +14,39 @@ navbar:
     vignettes:
       text: Vignettes
       menu:
+      - text: Example Workflow
+        href: articles/ex_workflow.html
       - text: Incorporating Species Complexes
         href: articles/ex_species_complex.html
     articles:
       text: Background
       href: articles/background_equations.html
-        
+    
+footer:
+  structure: 
+    right: FALSE
+    left: built_with
+    
+home:
+  sidebar: FALSE
+    
+reference:
+  - title: Get Data
+    contents:
+      - starts_with("get_")
+  - title: Design-Based Index and Composition Estimation
+    contents:
+      - "calc_cpue"
+      - "calc_biomass_stratum"
+      - "calc_biomass_subarea"
+      - "calc_sizecomp_stratum"
+      - "calc_sizecomp_subarea"
+      - "calc_alk"
+      - "calc_agecomp_stratum"
+      - "calc_agecomp_region"
+  - title: Utility Functions
+    contents:
+      - starts_with("upload_")
+      - "stitch_entries"
+      
+      
