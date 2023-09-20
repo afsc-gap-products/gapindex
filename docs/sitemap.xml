@@ -13,6 +13,9 @@
     <loc>/articles/ex_species_complex.html</loc>
   </url>
   <url>
+    <loc>/articles/ex_workflow.html</loc>
+  </url>
+  <url>
     <loc>/articles/index.html</loc>
   </url>
   <url>
@@ -20,6 +23,12 @@
   </url>
   <url>
     <loc>/index.html</loc>
+  </url>
+  <url>
+    <loc>/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>/LICENSE.html</loc>
   </url>
   <url>
     <loc>/reference/calc_agecomp_region.html</loc>
@@ -41,6 +50,9 @@
   </url>
   <url>
     <loc>/reference/calc_sizecomp_stratum.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calc_sizecomp_subarea.html</loc>
   </url>
   <url>
     <loc>/reference/calc_sizecomp_subareas.html</loc>

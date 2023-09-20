@@ -6,3 +6,4 @@
 ^temp$
 ^data-raw$
 ^\.github$
+^LICENSE\.md$
