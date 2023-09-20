@@ -116,7 +116,7 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     FREQUENCY ~ SURVEY + YEAR + HAULJOIN + SPECIES_CODE,
     data = size,
     FUN = sum)
-  names(s_ijk)[names(s_ijk) == "FREQUENCY"] <- "s_ijk"
+  names(x = s_ijk)[names(x = s_ijk) == "FREQUENCY"] <- "s_ijk"
   
   ## Merge the "s_ijk" column from `s_ijk` to `size` using "SPECIES_CODE"
   ## and "HAULJOIN" as a composite key. 
@@ -125,9 +125,9 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
                 by = c("SPECIES_CODE", "HAULJOIN"))
   ## Merge the "CPUE_NOKM2" column from `cpue` to `size` using "SPECIES_CODE"
   ## and "HAULJOIN" as a composite key. 
-  size <-  merge(x = size, 
-                 y = cpue[, c("HAULJOIN", "SPECIES_CODE", "CPUE_NOKM2")],
-                 by = c("HAULJOIN", "SPECIES_CODE"))
+  size <- merge(x = size, 
+                y = cpue[, c("HAULJOIN", "SPECIES_CODE", "CPUE_NOKM2")],
+                by = c("HAULJOIN", "SPECIES_CODE"))
   
   ## The size CPUE (S_ijklm)
   size$S_ijklm <- size$FREQUENCY / size$s_ijk * size$CPUE_NOKM2
@@ -140,7 +140,8 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     ## Query hauls with positive counts but have no records in `size`
     missing_hauljoins <- data.frame()
     
-    for (ispp in racebase_tables$species$SPECIES_CODE) {
+    for (ispp in racebase_tables$species$SPECIES_CODE) 
+    { ## Loop over species -- start
       temp_hauljoins <- unique(x = size$HAULJOIN[size$SPECIES_CODE == ispp])
       
       missing_hauljoins <- 
@@ -149,7 +150,7 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
                      subset = CPUE_NOKM2 > 0 & 
                        SPECIES_CODE == ispp &
                        !HAULJOIN %in% temp_hauljoins))
-    }
+    } ## Loop over species -- end
     
     ## Calculate mean S_ijklm of individuals of species-k with sex-m and 
     ## length-l among the hauls within stratum-i. Technically, this would be

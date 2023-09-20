@@ -82,11 +82,14 @@ calc_agecomp_region <- function(racebase_tables,
         mean_length_at_age <- 
           do.call(what = rbind,
                   args = lapply(
-                    X = split(x = subset(x = count_length_age,
-                                         subset = STRATUM %in% strata_in_iregion),
-                              f = with(subset(x = count_length_age,
-                                              subset = STRATUM %in% strata_in_iregion), 
-                                       list(SURVEY, YEAR, SPECIES_CODE, SEX, AGE))),
+                    X = split(
+                      x = subset(x = count_length_age,
+                                 subset = STRATUM %in% strata_in_iregion),
+                      f = with(subset(x = count_length_age,
+                                      subset = STRATUM %in% strata_in_iregion), 
+                               list(SURVEY, YEAR, SPECIES_CODE, SEX, AGE)
+                      )
+                    ),
                     ## Within each sublist of split_df, calculate the 
                     ## weighted mean and std.dev of length
                     FUN = function(df) {
@@ -100,18 +103,19 @@ calc_agecomp_region <- function(racebase_tables,
                         ## "SPECIES_CODE", "SEX", and "AGE" of the sublist. 
                         output_df[1, c("SURVEY", "YEAR", "SPECIES_CODE", 
                                        "SEX", "AGE")] <- 
-                          unique(subset(x = df, 
-                                        select = c(SURVEY, YEAR, SPECIES_CODE, 
-                                                   SEX, AGE)))
+                          unique(x = subset(x = df, 
+                                            select = c(SURVEY, YEAR, 
+                                                       SPECIES_CODE, 
+                                                       SEX, AGE)))
                         
                         ## weighted mean length
-                        mean_length <- weighted.mean(x = df$LENGTH_MM, 
-                                                     w = df$AGEPOP)
+                        mean_length <- stats::weighted.mean(x = df$LENGTH_MM, 
+                                                            w = df$AGEPOP)
                         
                         ## weighted std.dev length
                         sd_length <- 
-                          sqrt(sum(df$AGEPOP/sum(df$AGEPOP) * 
-                                     (df$LENGTH_MM - mean_length)^2))
+                          sqrt(x = sum(df$AGEPOP/sum(df$AGEPOP) * 
+                                         (df$LENGTH_MM - mean_length)^2))
                         
                         ## append `mean_length` and `sd_length` to `output_df` 
                         output_df[1, c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <-
@@ -122,24 +126,26 @@ calc_agecomp_region <- function(racebase_tables,
                       return(output_df)
                       
                     }))
-        rownames(mean_length_at_age) <- NULL
- 
+        rownames(x = mean_length_at_age) <- NULL
+        
         ## Merge the mean/sd length at age dataframes to `age_comp_iregion`
         ## using  "SURVEY", "YEAR", "SPECIES_CODE", "SEX", and "AGE"
         ## as a composite key.
         age_comp_iregion <- 
           merge(x = age_comp_iregion,
-                y = rbind(mean_length_at_age),#, mean_length_at_age_neg9),
+                y = rbind(mean_length_at_age),
                 by = c("SURVEY", "YEAR", "SPECIES_CODE", "SEX", "AGE"))
         
         ## Append AREA_ID and SURVEY_DEFINITION_ID to `age_comp_iregion`
-        age_comp_iregion <-
-          cbind(data.frame(SURVEY = age_comp_iregion$SURVEY,
-                           SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[iregion],
-                           AREA_ID = subareas$AREA_ID[iregion]),
-                age_comp_iregion[, c("YEAR", "SPECIES_CODE",  "SEX", 
-                                     "AGE", "POPULATION_COUNT", 
-                                     "LENGTH_MM_MEAN", "LENGTH_MM_SD")])
+        age_comp_iregion <- cbind(
+          data.frame(
+            SURVEY = age_comp_iregion$SURVEY,
+            SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[iregion],
+            AREA_ID = subareas$AREA_ID[iregion]),
+          age_comp_iregion[, c("YEAR", "SPECIES_CODE",  "SEX", 
+                               "AGE", "POPULATION_COUNT", 
+                               "LENGTH_MM_MEAN", "LENGTH_MM_SD")]
+        )
         
         ## Append `age_comp_iregion` to `region_age_comp_df`
         region_age_comp_df <- rbind(region_age_comp_df, age_comp_iregion)
