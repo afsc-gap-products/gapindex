@@ -3,9 +3,8 @@ Title: Standard AFSC GAP Product Calculations
 Version: 0.0.0.9000
 Authors@R: 
     person("Zack", "Oyafuso", , "zack.oyafuso@noaa.gov", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: This package contains functions to calculate standard data products (CPUE, Biomass, Size Composition, and Age Composition) resulting from the NOAA AFSC GAP summer groundfish bottom trawl survey.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
