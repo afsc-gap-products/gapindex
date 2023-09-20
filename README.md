@@ -1,4 +1,4 @@
-# Welcome 
+## Welcome 
 
 This R package generates the standard design-based indices of biomass, 
 abundance, size composition, and age composition from NOAA-NMFS-AFSC-RACE-GAP 
@@ -6,76 +6,14 @@ bottom trawl survey data. Survey regions include: Gulf of Alaska (from 1993),
 Aleutian Islands (from 1991), Eastern Bering Sea Shelf (from 1982), 
 Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
 
-# Example Workflow
+## Installation Instructions
 
-Make sure you have installed R packages devtools, RODBC, and getPass and are 
-connected to the AFSC network when using this package.
+Make sure you have installed R packages `devtools`, `RODBC`, and `getPass` 
+and are connected to the AFSC network or VPN while using this package.
 
 ```
-## Install package
 library(devtools)
 devtools::install_github("afsc-gap-products/gapindex")
-library(gapindex)
-
-## Connect to Oracle
-sql_channel <- gapindex::get_connected()
-
-## Pull data.
-gapindex_data <- gapindex::get_data(
-  year_set = c(2007, 2009),
-  survey_set = "GOA",
-  spp_codes = 10261,   
-  haul_type = 3,
-  abundance_haul = "Y",
-  pull_lengths = T,
-  sql_channel = sql_channel)
-
-## Fill in zeros and calculate CPUE
-cpue <- gapindex::calc_cpue(racebase_tables = gapindex_data)
-
-## Calculate stratum-level biomass, population abundance, mean CPUE and 
-## associated variances
-biomass_stratum <- gapindex::calc_biomass_stratum(
-  racebase_tables = gapindex_data,
-  cpue = cpue)
-
-## Calculate aggregated biomass and population abundance across subareas,
-## management areas, and regions
-biomass_subareas <- gapindex::calc_biomass_subarea(
-  racebase_tables = gapindex_data,
-  biomass_strata = biomass_stratum)
-
-## Calculate size composition by stratum. See ?gapindex::calc_sizecomp_stratum
-## for details on arguments
-size_comp_stratum <- gapindex::calc_sizecomp_stratum(
-  racebase_tables = gapindex_data,
-  racebase_cpue = cpue,
-  racebase_stratum_popn = biomass_stratum,
-  spatial_level = "stratum",
-  fill_NA_method = "AIGOA")
-
-## Calculate aggregated size compositon across subareas, management areas, and
-## regions
-size_comp_subareas <- gapindex::calc_sizecomp_subareas(
-  racebase_tables = gapindex_data,
-  size_comps = size_comp_stratum)
-
-## Calculate age-length key. See ?gapindex::calc_ALK for details on arguments
-alk <- gapindex::calc_ALK(racebase_tables = gapindex_data, 
-                          unsex = "all", 
-                          global = F)
-
-## Calculate age composition by stratum
-age_comp_stratum <- gapindex::calc_agecomp_stratum(
-  racebase_tables = gapindex_data, 
-  alk = alk,
-  size_comp = size_comp_stratum)
-
-## Calculate aggregated age compositon across regions
-age_comp_region <- gapindex::calc_agecomp_region(
-  racebase_tables = gapindex_data, 
-  age_comps_stratum = age_comp_stratum)
-
 ```
 
 ## Collaborators
@@ -91,16 +29,15 @@ Liz Dawson (liz-dawson-NOAA)|Rebecca Haehn (RebeccaHaehn-NOAA)|Ned Laman (Ned-La
 Sarah Friedman (SarahFriedman-NOAA)|Lukas DeFilippo (Lukas-DeFilippo-NOAA)| 
 Christopher Anderson (ChrisAnderson-NOAA)|Paul von Szalay (vszalay)| 
 Nancy Roberson (NancyRoberson)|Thaddaeus Buser (ThaddaeusBuser-NOAA)| 
- |*maintainer| 
+ |*package maintainer| 
 
 ## Legacy
-*nanos gigantum humeris insidentes*: we stand on the shoulders of giants. 
 Here is an non-exhaustive list of people who provided the foundation for many 
 of the functions in this package:
 
 AI-GOA: Michael Martin, Peter Munro, Ned Laman
 
-Bering Sea: REM, Jason Conner, Jerry Hoff, 
+Bering Sea: REM, Jason Conner, Jerry Hoff, Rebecca Haehn 
 
 Many of the index calculations are from Wakabayashi et al. (1985):
 
