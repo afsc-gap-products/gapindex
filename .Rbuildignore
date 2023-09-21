@@ -4,6 +4,7 @@
 ^code_testing$
 ^production$
 ^temp$
-^data-raw$
 ^\.github$
 ^LICENSE\.md$
+^docs$
+^_pkgdown.yml$
