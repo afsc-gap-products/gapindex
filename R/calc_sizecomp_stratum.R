@@ -251,7 +251,7 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   ## Merge "POPULATION_COUNT" column from `racebase_stratum_popn` to `S_iklm`
   ## using "SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE" as a composite key. 
   S_iklm <- merge(x = S_iklm,
-                  y = racebase_stratum_popn[c("SURVEY", "YEAR", 'STRATUM', 
+                  y = racebase_stratum_popn[, c("SURVEY", "YEAR", 'STRATUM', 
                                               "SPECIES_CODE", 
                                               "POPULATION_COUNT")],
                   by = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE"),
