@@ -62,7 +62,8 @@ calc_cpue <- function(racebase_tables = NULL) {
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table called `all_combos` of "HAULJOIN" and "SPECIES_CODE"
   all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
-                            SPECIES_CODE = sort(unique(species$GROUP)))
+                            SPECIES_CODE = sort(x = unique(x = species$GROUP)),
+                            stringsAsFactors = F)
   
   ## Then merge the haul data in `dat` to `all_combos` using "HAULJOIN"
   ## as the key.

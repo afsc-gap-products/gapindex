@@ -110,14 +110,15 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                             f = list(subarea_biomass_by_stratrum$SPECIES_CODE,
                                      subarea_biomass_by_stratrum$YEAR)),
                       FUN = function(x) { 
-                        cbind(
+                        data.frame(
                           SPECIES_CODE = unique(x$SPECIES_CODE),
                           YEAR = unique(x$YEAR),
                           TOT_AREA = sum(x$AREA_KM2),
                           CPUE_KGKM2_MEAN = weighted.mean(x = x$CPUE_KGKM2_MEAN, 
                                                           w = x$AREA_KM2),
                           CPUE_NOKM2_MEAN = weighted.mean(x = x$CPUE_NOKM2_MEAN, 
-                                                          w = x$AREA_KM2))} ))
+                                                          w = x$AREA_KM2),
+                          stringsAsFactors = FALSE)} ))
           
           subarea_summed_biomass <- merge(x = subarea_summed_biomass,
                                           y = subarea_mean_cpue,
