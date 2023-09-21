@@ -133,13 +133,6 @@ HAEHNR.SIZECOMP_EBS_PLUSNW_GROUPED.</p>
 <span>  <span class="fu"><a href="../reference/calc_biomass_subarea.html">calc_biomass_subarea</a></span><span class="op">(</span>racebase_tables <span class="op">=</span> <span class="va">production_data</span>, </span>
 <span>                       biomass_strata <span class="op">=</span> <span class="va">production_biomass_stratum</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## rbind stratum and subarea/region biomass estimates into one dataframe</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">production_biomass_stratum</span><span class="op">)</span><span class="op">[</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">production_biomass_stratum</span><span class="op">)</span> <span class="op">==</span> <span class="st">"STRATUM"</span></span>
-<span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"AREA_ID"</span></span>
-<span><span class="va">production_biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">production_biomass_stratum</span>, </span>
-<span>                            <span class="va">production_biomass_subarea</span><span class="op">)</span></span>
-<span></span>
 <span><span class="co">## Calculate size composition by stratum. Note fill_NA_method == "BS" because</span></span>
 <span><span class="co">## our region is EBS, NBS, or BSS. If the survey region of interest is AI or </span></span>
 <span><span class="co">## GOA, use "AIGOA". See ?gapindex::gapindex::calc_sizecomp_stratum for more</span></span>
@@ -156,6 +149,14 @@ HAEHNR.SIZECOMP_EBS_PLUSNW_GROUPED.</p>
 <span><span class="va">production_sizecomp_subarea</span> <span class="op">&lt;-</span> <span class="fu">gapindex</span><span class="fu">::</span><span class="fu"><a href="../reference/calc_sizecomp_subarea.html">calc_sizecomp_subarea</a></span><span class="op">(</span></span>
 <span>  racebase_tables <span class="op">=</span> <span class="va">production_data</span>,</span>
 <span>  size_comps <span class="op">=</span> <span class="va">production_sizecomp_stratum</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co">## rbind stratum and subarea/region biomass estimates into one dataframe</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">production_biomass_stratum</span><span class="op">)</span><span class="op">[</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">production_biomass_stratum</span><span class="op">)</span> <span class="op">==</span> <span class="st">"STRATUM"</span></span>
+<span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"AREA_ID"</span></span>
+<span><span class="va">production_biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">production_biomass_stratum</span>, </span>
+<span>                            <span class="va">production_biomass_subarea</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## rbind stratum and subarea/region biomass estimates into one dataframe</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">production_sizecomp_stratum</span><span class="op">)</span><span class="op">[</span></span>
