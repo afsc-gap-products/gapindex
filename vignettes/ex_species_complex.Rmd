@@ -70,13 +70,6 @@ production_biomass_subarea <-
   calc_biomass_subarea(racebase_tables = production_data, 
                        biomass_strata = production_biomass_stratum)
 
-## rbind stratum and subarea/region biomass estimates into one dataframe
-names(x = production_biomass_stratum)[
-  names(x = production_biomass_stratum) == "STRATUM"
-] <- "AREA_ID"
-production_biomass <- rbind(production_biomass_stratum, 
-                            production_biomass_subarea)
-
 ## Calculate size composition by stratum. Note fill_NA_method == "BS" because
 ## our region is EBS, NBS, or BSS. If the survey region of interest is AI or 
 ## GOA, use "AIGOA". See ?gapindex::gapindex::calc_sizecomp_stratum for more
@@ -93,6 +86,14 @@ production_sizecomp_stratum <-
 production_sizecomp_subarea <- gapindex::calc_sizecomp_subarea(
   racebase_tables = production_data,
   size_comps = production_sizecomp_stratum)
+
+
+## rbind stratum and subarea/region biomass estimates into one dataframe
+names(x = production_biomass_stratum)[
+  names(x = production_biomass_stratum) == "STRATUM"
+] <- "AREA_ID"
+production_biomass <- rbind(production_biomass_stratum, 
+                            production_biomass_subarea)
 
 ## rbind stratum and subarea/region biomass estimates into one dataframe
 names(x = production_sizecomp_stratum)[
