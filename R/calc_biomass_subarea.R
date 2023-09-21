@@ -4,7 +4,7 @@
 #' @param biomass_strata a dataframe of stratum biomass, result object from 
 #'                       `gapindex::calc_biomass_stratum()`
 #'
-#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
 #' select = c("SURVEY_DEFINITION_ID", "SURVEY", "AREA_ID", "SPECIES_CODE" ,
 #' "YEAR", "N_HAUL", "N_WEIGHT", "N_COUNT", "N_LENGTH", "CPUE_KGKM2_MEAN",
 #' "CPUE_KGKM2_VAR", "CPUE_NOKM2_MEAN", "CPUE_NOKM2_VAR", "BIOMASS_MT",

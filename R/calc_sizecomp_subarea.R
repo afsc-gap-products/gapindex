@@ -5,7 +5,7 @@
 #'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
 #'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
-#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
 #' select = c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE" ,
 #' "YEAR", "SEX", "LENGTH_MM", "POPULATION_COUNT")))
 #' 

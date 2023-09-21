@@ -3,7 +3,7 @@
 #' @param racebase_tables data object created from `gapindex::get_data()`
 #' @param cpue object created from `gapindex::calc_cpue()`.
 #'                      
-#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
 #' select = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM", "SPECIES_CODE" ,
 #' "YEAR", "N_HAUL", "N_WEIGHT", "N_COUNT", "N_LENGTH", "CPUE_KGKM2_MEAN",
 #' "CPUE_KGKM2_VAR", "CPUE_NOKM2_MEAN", "CPUE_NOKM2_VAR", "BIOMASS_MT",

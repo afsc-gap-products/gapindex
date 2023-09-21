@@ -5,7 +5,7 @@
 #' 
 #' @param racebase_tables data object created from `gapindex::get_data()`
 #'         
-#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
 #' select = c("SURVEY_DEFINITION_ID", "SURVEY", "CRUISE", "CRUISEJOIN", 
 #' "YEAR", "HAULJOIN", "STRATUM", "DESIGN_YEAR", "LATITUDE_DD_START",
 #' "LATITUDE_DD_END","LONGITUDE_DD_START", "LONGITUDE_DD_END") ))

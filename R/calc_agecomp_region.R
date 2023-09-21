@@ -8,7 +8,7 @@
 #' @return dataframe of age composition and mean/standard deviation of length
 #'         at age aggregated across regions. 
 #'         
-#' @eval c("@return", get_table_metadata("data-raw/metadata.csv", 
+#' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
 #' select = c("SURVEY_DEFINITION_ID", "SURVEY", "AREA_ID", "SPECIES_CODE" ,
 #' "YEAR", "SEX", "AGE", "POPULATION_COUNT", "LENGTH_MM_MEAN", "LENGTH_MM_SD")))
 #'   
