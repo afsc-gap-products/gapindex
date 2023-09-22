@@ -101,6 +101,8 @@ calc_cpue <- function(racebase_tables = NULL) {
                          LATITUDE_DD_END = END_LATITUDE, 
                          LONGITUDE_DD_START = START_LONGITUDE, 
                          LONGITUDE_DD_END = END_LONGITUDE,
+                         DEPTH_M = BOTTOM_DEPTH,
+                         BOTTOM_TEMPERATURE_C = GEAR_TEMPERATURE,
                          SPECIES_CODE,
                          WEIGHT_KG = WEIGHT,
                          COUNT = NUMBER_FISH,
