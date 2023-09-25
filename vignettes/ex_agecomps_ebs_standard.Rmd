@@ -105,8 +105,7 @@ production_agecomp_stratum <-
 
 ## Aggregate `production_agecomp_stratum` to subareas and regions
 production_agecomp_region <- 
-  # gapindex::
-  calc_agecomp_region(
+  gapindex::calc_agecomp_region(
     racebase_tables = production_data,
     age_comps_stratum = production_agecomp_stratum)
 
