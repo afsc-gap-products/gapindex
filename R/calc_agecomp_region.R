@@ -157,6 +157,20 @@ calc_agecomp_region <- function(racebase_tables,
   region_age_comp_df[region_age_comp_df$AGE == -99, 
                      c("LENGTH_MM_MEAN", "LENGTH_MM_SD")] <- NA
   
+  ## Remove EBS + NW subarea estimates prior to 1987
+  if (any(region_age_comp_df$YEAR < 1987 & region_age_comp_df$AREA_ID == 99900)) {
+    warning("The (EBS + NW) output only includes years 1987-present.
+      Years 1982-1986 are NOT included for the (EBS + NW) output because
+      essentially no stations within strata 82 & 90 (subarea 8 & 9)
+      were sampled during those years. Biomass/Abundance estimates for 
+      these early years were removed.")
+    
+    region_age_comp_df <- subset(x = region_age_comp_df, 
+                              subset = !(SURVEY_DEFINITION_ID == 98 & 
+                                           YEAR < 1987 & 
+                                           AREA_ID == 99900) )
+  }
+  
   return(region_age_comp_df[with(region_age_comp_df, 
                                  order(SURVEY_DEFINITION_ID, AREA_ID,
                                        SPECIES_CODE, YEAR, SEX, AGE)), ])
