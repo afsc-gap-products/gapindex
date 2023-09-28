@@ -2,137 +2,156 @@
 title: "Background: Mathematical Methods"
 output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Background: Mathematical Methods}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
+These series of equations are based off of Wakabayashi et al. (1985):
+
+Wakabayashi, K., R. G. Bakkala, and M. S. Alton. 1985. Methods of the
+U.S.-Japan demersal trawl surveys, p. 7-29. In R. G. Bakkala and K.
+Wakabayashi (editors), Results of cooperative U.S.-Japan groundfish
+investigations in the Bering Sea during May-August 1979. Int. North Pac.
+Fish. Comm. Bull. 44.
+
 ## Data Collection Process
-For each station $j$ contained in stratum $i$, the total catch weight and 
-numbers are recorded for all fish and most invertebrate taxa for the estimation
-of total biomass and abundance. For a subset of fish and invertebrate taxa,
-the lengths of either all individuals or a subsample of representative 
-individuals are recorded for estimation of size composition. A smaller 
-subsample of fish taxa are aged for estimation of age composition. The sex of
-the individuals are recorded for all subsampled individuals to decompose the
-size/age composition by sex.
+
+For each station $j$ contained in stratum $i$, the total catch weight
+and numbers are recorded for all fish and most invertebrate taxa for the
+estimation of total biomass and abundance. For a subset of fish and
+invertebrate taxa, the lengths of either all individuals or a subsample
+of representative individuals are recorded for estimation of size
+composition. Individuals from a second level of subsampling from the length
+subsample are aged for estimation of age composition. The sex of the 
+individuals are recorded for all subsampled individuals to decompose the 
+size and age composition by sex.
 
 ## Catch Rates
-All trawl catch weights and numbers are standardized using the area swept by 
-the trawl, $E_{ij}$, of station $j$ in stratum $i$. $W_{ijk}$ is the total 
-catch weight of taxon $k$ at station $j$ in stratum $i$. $R_{ijk}$ is the 
-total catch weight per area swept (also known as "weight-CPUE", units
-$kg/km^2$) for taxon $k$ at station $j$ in stratum $i$: 
+
+All trawl catch weights and numbers are standardized using the area
+swept by the trawl, $E_{ij}$, of station $j$ in stratum $i$. $W_{ijk}$
+is the total catch weight of taxon $k$ at station $j$ in stratum $i$.
+$R_{ijk}$ is the total catch weight per area swept (also known as
+"weight-CPUE", units $kg/km^2$) for taxon $k$ at station $j$ in stratum
+$i$:
 
 $$R_{ijk} = \frac{W_{ijk}}{E_{ij}}$$
 
-$N_{ijk}$ is the total numerical catch of taxon $k$ at station $j$ in stratum 
-$i$ enumerated either directly from every individual caught in the trawl sample
-or expanded from an assumed representative subsample of individuals. For 
-logistical and ergonomic constraints, usually a subsample of 100-200 
-individuals per taxon are randomly chosen from the haul. The expanded total 
-numerical catch is estimated by dividing the total catch weight by the mean 
-weight $h_{ijk}$: 
+$N_{ijk}$ is the total numerical catch of taxon $k$ at station $j$ in
+stratum $i$ enumerated either directly from every individual caught in
+the trawl sample or expanded from a representative subsample of individuals. 
+In the case where a subsample is taken, the expanded total numerical catch 
+$(\hat N_{ijk})$ is estimated by dividing the total catch weight by the mean
+individual weight $h_{ijk}$:
 
-$$\hat N_{ijk} = \frac{W_{ijk}}{h_{ijk}}$$
+$$\hat N_{ijk} = \frac{W_{ijk}}{\hat h_{ijk}}$$
 
 $$h_{ijk} = \frac{w_{ijk}}{s_{ijk}}$$
 
-where $w_{ijk}$ and $s_{ijk}$ are the total subsampled weight and numbers of
-taxon $k$ at station $j$ in stratum $i$. Since the total numerical catch is 
-often estimated, $\hat N_{ijk}$ will be the notation used in the subsequent
-equations. 
+where $w_{ijk}$ and $s_{ijk}$ are the total subsampled weight and
+numbers of taxon $k$ at station $j$ in stratum $i$.
 
-The estimate of numerical catch per area trawled (also known as "numerical 
-CPUE", units $no/km^2$) is calculated similar to weight-CPUE: 
+The estimate of numerical catch per area trawled (also known as
+"numerical CPUE", units $no/km^2$) is calculated similar to weight-CPUE:
 
 $$\hat S_{ijk} = \frac{\hat N_{ijk}}{E_{ij}}$$
 
 ## Biomass and Abundance Calculations
-Total biomass or abundance (and the associated estimated variances) of taxon 
-$k$ in stratum $i$ is the product of average CPUE and the area of stratum $i$ 
-($A_i$):
+
+Total estimated biomass or abundance (and the associated estimated variances) 
+of taxon $k$ in stratum $i$ is the product of average CPUE and the area of
+stratum $i$ ($A_i$):
 
 $$\hat B_{ik} = A_i \bar R_{ik}$$
 
 $$\bar R_{ik} = \frac{\sum_{j = 1}^{n_i} R_{ijk}}{n_i}$$
 
-with variance: 
+with estimated variance:
 
-$$Var(\hat B_{ik}) = A_i^2 Var(\bar R_{ik})$$
+$$\hat{Var}(\hat B_{ik}) = A_i^2 \hat{Var}(\bar R_{ik})$$
 
-$$Var (\bar R_{ik}) = \frac{\sum\limits_{j=1}^{n_i} (R_{ijk} - \bar R_{ik})^2 }{n_i(n_i-1)}$$
+$$\hat{Var} (\bar R_{ik}) = \frac{\sum\limits_{j=1}^{n_i} (R_{ijk} - \bar R_{ik})^2 }{n_i(n_i-1)}$$
 
-Since strata are independent, the total biomass and variance across the a 
-subarea or the entire survey region is the calculated by summing the 
-stratum-level estimates of total biomass and variance, respectively, that 
-make up the subarea/region.
+Since strata are independent, the total biomass and variance estimates across 
+a subarea or the entire survey region is the calculated by summing the
+stratum-level estimates of total biomass and variance estimates, respectively,
+that are contained within the subarea or region.
 
 $$\hat B_{k} = \sum\limits_{i=1}^I \hat B_{ik}$$
 
 $$Var(\hat B_{k}) = \sum\limits_{i=1}^I Var(\hat B_{ik})$$
 
-Total abundance ($\hat P_{k}$) is calculated similar to total biomass, 
-replacing weight-CPUE with numerical CPUE. 
+Total abundance ($\hat P_{k}$) is calculated similar to total biomass,
+replacing weight-CPUE with numerical CPUE.
 
 ## Size Composition
-All individuals (or subsampled individuals) from the haul taxon $k$ at station 
-$j$ in stratum $i$ ($s_{ijk}$) were furthered identified by sex, indexed by 
-$m$ where 1 = Male, 2 = Female, and 3 = Unsexed. Unsexed individuals were 
-either too small to determine sex or not identified. The length of the 
-individuals were also recorded. 
 
-The calculation of the size composition comes from two expansions. First, the 
-observed proportion of individuals of sex $m$ in length bin $l$ of taxon $k$
-at station $j$ in stratum $i$ ($z_{ijklm}$) was used to expand the
-length-frequency subsample to the total numbers of individuals per area swept
-($\hat S_{ijk}$) to calculate the estimated number of individuals of sex $m$ 
-and length bin $l$ of taxon $k$ at station $j$ in stratum $i$ ($z_{ijklm}$).
+For a subset of taxa, all individuals (or subsampled individuals) of
+taxon $k$ at station $j$ in stratum $i$ were lengthed to the nearest 1-cm 
+bin (indexed by $l$) and classified by sex, indexed by $m$ where 1 = Male, 
+2 = Female, and 3 = Unsexed ($s_{ijklm}$). The recording of unsexed individuals
+occurs either because the sex of individual could not be determined or the sex 
+of individual was not collected.
+
+The calculation of the size composition comes from two expansions.
+First, the proportion of observed individuals of sex $m$ in length bin
+$l$ of taxon $k$ at station $j$ in stratum $i$ ($z_{ijklm}$) was used to
+expand the length-frequency subsample to the total numbers of
+individuals per area swept ($\hat S_{ijk}$) to calculate the estimated
+number per area swept of individuals of sex $m$ and length bin $l$ of taxon $k$
+at station $j$ in stratum $i$ ($\hat S_{ijklm}$).
 
 $$z_{ijklm} = \frac{s_{ijklm}} {\sum\limits_{m=1}^3\sum\limits_{l=1}^{L_{ijkm}} s_{ijklm} }$$
 
 $$\hat S_{ijklm} = \hat S_{ijk} z_{ijklm}$$
 
-Second, $\hat S_{ijklm}$ was expanded to the total estimated stratum-level
-numerical abundance to calculate the estimated number of individuals of sex 
-$m$ in length bin $l$ of taxon $k$ in stratum $i$ ($\hat P_{iklm}$)
+where $L_{ijkm}$ is the maximum length bin observed for taxon $k$, sex $m$ at
+station $j$ in stratum $i$. Second, $\hat S_{ijklm}$ was expanded to the total 
+estimated stratum-level numerical abundance to calculate the estimated number of
+individuals of sex $m$ in length bin $l$ of taxon $k$ in stratum $i$
+($\hat P_{iklm}$)
 
 $$\hat P_{iklm} = \hat P_{ik} \frac{\sum\limits_{j=1}^{n_i} \hat S_{ijklm}} {\sum\limits_{j=1}^{n_i}\sum\limits_{m=1}^3\sum\limits_{l=1}^{L} \hat S_{ijklm} }$$
 
-In the Bering Sea survey areas, only hauls with associated length-frequency 
-data are included in the size composition calculations. In the GOA and AI, 
-there are hauls especially in the early years of the time series (late 1980s 
-- early 1990s) where a positive catch was reported without length-frequency
-data. For this type of haul, the "average size composition" is computed using 
-the hauls in the same stratum and year and then used to impute the size 
-composition for that haul.
+In the Bering Sea survey regions, only hauls with associated
+length-frequency data are included in the size composition calculations. 
+In the GOA and AI an "average size composition" $\bar z_{iklm}$ is computed 
+using the hauls in the same stratum and year and then used to impute the size
+composition for that haul: 
+
+$$ \bar z_{iklm} = \frac{\sum\limits_{j=1}^{n_i} s_{ijklm}}{\sum\limits_{m=1}^{3}\sum\limits_{l=1}^{L_{ikm}}\sum\limits_{j=1}^{n_i} s_{ijklm}}$$
 
 ## Age Composition
-A second-set of subsamples are drawn from the length subsample from the haul. 
-For the early part of the time series, individuals of a taxon were randomly 
-collected, stratified by length bin (1 cm bins), sex, and management area. 
-More recently, subsampling for ages are simply conducted randomly from the 
-length subsample from the haul. 
+
+A second-set of subsamples are drawn from the length subsample from the
+haul to determine age, index by q. Thus, the number of observed individuals
+of age $q$, sex $m$, length bin $l$, taxon $k$, station $j$ in stratum $i$ is
+$v_{ijklmq}$. An age-length key characterizing the proportion of ages by 
+taxon $k$, length bin $l$, and sex $m$ is created by pooling age-data across
+stations and strata within a given survey region ($y_{klmq}$).
 
 $$y_{klmq} = \frac{v_{klmq}} {\sum\limits_{q=1}^Q v_{klmq}}$$
 
-where $Q_{klm}$ is the oldest age of taxon $k$ in length bin $l$ and sex $m$. 
+where $Q_{klm}$ is the oldest age of taxon $k$ in length bin $l$ and sex
+$m$. The age-length key is used to transform the size compositions to age 
+compositions, total number of individuals of age $q$, sex $m$, taxon $k$ and
+stratum $i$ $(\hat Y_{ikmq})$.
 
 $$\hat Y_{iklmq} = \hat P_{iklm}y_{klmq}$$
 
-<!-- $\hat Y_{ikmq} = \sum\limits_{l=1}^L \hat P_{iklm}y_{klmq}$ -->
+$$\hat Y_{ikmq} = \sum\limits_{l = 1}^{L_{ikm}}\hat Y_{iklmq}$$
 
-The mean length (mm) at age $q$ and sex $m$ for taxon $k$ in stratum $i$ 
-$D_{ikmq}$ is a weighted average length using distribution of $\hat Y_{iklmq}$ 
-across length bins as the weights. 
+The estimated mean length (mm) at age $q$ and sex $m$ for taxon $k$ in stratum 
+$i$ $(\bar d_{ikmq})$ is a weighted average of length using distribution of
+$\hat Y_{iklmq}$ across length bins as the weights.
 
-$$\bar d_{ikmq} = \sum\limits_{l=1}^L \hat Y_{iklmq}d_l$$
+$$\bar d_{ikmq} = \frac{\hat Y_{iklmq}d_l}{\sum\limits_{l=1}^{L_{ijkm}} \hat Y_{iklmq}}$$
 
-where $d_l$ is the length (mm) of length bin $l$
+where $d_l$ is the length value associated with length bin $l$, with estimated
+weighted variance:
 
-with weighted variance
-
-$$Var(\bar d_{ikmq}) = \sum\limits_{l=1}^L (\frac{Y_{iklmq}}{\sum\limits_{l=1}^L Y_{iklmq}} (d_l - \bar d_{ikmq})^2)$$
-
-                                                
-                                                
+$$\hat {Var}(\bar d_{ikmq}) = \sum\limits_{l=1}^{L_{ijkm}} (\frac{\hat Y_{iklmq}}{\sum\limits_{l=1}^L \hat Y_{iklmq}} (d_l - \bar d_{ikmq})^2)$$

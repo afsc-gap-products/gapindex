@@ -8,8 +8,8 @@
 <meta name="description" content="gapindex">
 <title>Background: Mathematical Methods • gapindex</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Background: Mathematical Methods">
 <meta property="og:description" content="gapindex">
@@ -75,6 +75,13 @@
 
     
     
+<p>These series of equations are based off of Wakabayashi et
+al. (1985):</p>
+<p>Wakabayashi, K., R. G. Bakkala, and M. S. Alton. 1985. Methods of the
+U.S.-Japan demersal trawl surveys, p. 7-29. In R. G. Bakkala and K.
+Wakabayashi (editors), Results of cooperative U.S.-Japan groundfish
+investigations in the Bering Sea during May-August 1979. Int. North Pac.
+Fish. Comm. Bull. 44.</p>
 <div class="section level2">
 <h2 id="data-collection-process">Data Collection Process<a class="anchor" aria-label="anchor" href="#data-collection-process"></a>
 </h2>
@@ -84,9 +91,10 @@ and numbers are recorded for all fish and most invertebrate taxa for the
 estimation of total biomass and abundance. For a subset of fish and
 invertebrate taxa, the lengths of either all individuals or a subsample
 of representative individuals are recorded for estimation of size
-composition. A smaller subsample of fish taxa are aged for estimation of
-age composition. The sex of the individuals are recorded for all
-subsampled individuals to decompose the size/age composition by sex.</p>
+composition. Individuals from a second level of subsampling from the
+length subsample are aged for estimation of age composition. The sex of
+the individuals are recorded for all subsampled individuals to decompose
+the size and age composition by sex.</p>
 </div>
 <div class="section level2">
 <h2 id="catch-rates">Catch Rates<a class="anchor" aria-label="anchor" href="#catch-rates"></a>
@@ -100,20 +108,18 @@ area swept (also known as “weight-CPUE”, units <span class="math inline">\(k
 \frac{W_{ijk}}{E_{ij}}\]</span></p>
 <p><span class="math inline">\(N_{ijk}\)</span> is the total numerical
 catch of taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> enumerated either directly from every
-individual caught in the trawl sample or expanded from an assumed
-representative subsample of individuals. For logistical and ergonomic
-constraints, usually a subsample of 100-200 individuals per taxon are
-randomly chosen from the haul. The expanded total numerical catch is
-estimated by dividing the total catch weight by the mean weight <span class="math inline">\(h_{ijk}\)</span>:</p>
-<p><span class="math display">\[\hat N_{ijk} =
-\frac{W_{ijk}}{h_{ijk}}\]</span></p>
+individual caught in the trawl sample or expanded from a representative
+subsample of individuals. In the case where a subsample is taken, the
+expanded total numerical catch <span class="math inline">\((\hat
+N_{ijk})\)</span> is estimated by dividing the total catch weight by the
+mean individual weight <span class="math inline">\(h_{ijk}\)</span>:</p>
+<p><span class="math display">\[\hat N_{ijk} = \frac{W_{ijk}}{\hat
+h_{ijk}}\]</span></p>
 <p><span class="math display">\[h_{ijk} =
 \frac{w_{ijk}}{s_{ijk}}\]</span></p>
 <p>where <span class="math inline">\(w_{ijk}\)</span> and <span class="math inline">\(s_{ijk}\)</span> are the total subsampled weight
 and numbers of taxon <span class="math inline">\(k\)</span> at station
-<span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span>. Since the total numerical catch is
-often estimated, <span class="math inline">\(\hat N_{ijk}\)</span> will
-be the notation used in the subsequent equations.</p>
+<span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span>.</p>
 <p>The estimate of numerical catch per area trawled (also known as
 “numerical CPUE”, units <span class="math inline">\(no/km^2\)</span>) is
 calculated similar to weight-CPUE:</p>
@@ -123,23 +129,25 @@ N_{ijk}}{E_{ij}}\]</span></p>
 <div class="section level2">
 <h2 id="biomass-and-abundance-calculations">Biomass and Abundance Calculations<a class="anchor" aria-label="anchor" href="#biomass-and-abundance-calculations"></a>
 </h2>
-<p>Total biomass or abundance (and the associated estimated variances)
-of taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> is the product of average CPUE and the
-area of stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(A_i\)</span>):</p>
+<p>Total estimated biomass or abundance (and the associated estimated
+variances) of taxon <span class="math inline">\(k\)</span> in stratum
+<span class="math inline">\(i\)</span> is the product of average CPUE
+and the area of stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(A_i\)</span>):</p>
 <p><span class="math display">\[\hat B_{ik} = A_i \bar
 R_{ik}\]</span></p>
 <p><span class="math display">\[\bar R_{ik} = \frac{\sum_{j = 1}^{n_i}
 R_{ijk}}{n_i}\]</span></p>
-<p>with variance:</p>
-<p><span class="math display">\[Var(\hat B_{ik}) = A_i^2 Var(\bar
-R_{ik})\]</span></p>
-<p><span class="math display">\[Var (\bar R_{ik}) =
+<p>with estimated variance:</p>
+<p><span class="math display">\[\hat{Var}(\hat B_{ik}) = A_i^2
+\hat{Var}(\bar R_{ik})\]</span></p>
+<p><span class="math display">\[\hat{Var} (\bar R_{ik}) =
 \frac{\sum\limits_{j=1}^{n_i} (R_{ijk} - \bar R_{ik})^2
 }{n_i(n_i-1)}\]</span></p>
-<p>Since strata are independent, the total biomass and variance across
-the a subarea or the entire survey region is the calculated by summing
-the stratum-level estimates of total biomass and variance, respectively,
-that make up the subarea/region.</p>
+<p>Since strata are independent, the total biomass and variance
+estimates across a subarea or the entire survey region is the calculated
+by summing the stratum-level estimates of total biomass and variance
+estimates, respectively, that are contained within the subarea or
+region.</p>
 <p><span class="math display">\[\hat B_{k} = \sum\limits_{i=1}^I \hat
 B_{ik}\]</span></p>
 <p><span class="math display">\[Var(\hat B_{k}) = \sum\limits_{i=1}^I
@@ -151,65 +159,76 @@ numerical CPUE.</p>
 <div class="section level2">
 <h2 id="size-composition">Size Composition<a class="anchor" aria-label="anchor" href="#size-composition"></a>
 </h2>
-<p>All individuals (or subsampled individuals) from the haul taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(s_{ijk}\)</span>) were furthered identified by
+<p>For a subset of taxa, all individuals (or subsampled individuals) of
+taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> were lengthed to the nearest 1-cm bin
+(indexed by <span class="math inline">\(l\)</span>) and classified by
 sex, indexed by <span class="math inline">\(m\)</span> where 1 = Male, 2
-= Female, and 3 = Unsexed. Unsexed individuals were either too small to
-determine sex or not identified. The length of the individuals were also
-recorded.</p>
+= Female, and 3 = Unsexed (<span class="math inline">\(s_{ijklm}\)</span>). The recording of unsexed
+individuals occurs either because the sex of individual could not be
+determined or the sex of individual was not collected.</p>
 <p>The calculation of the size composition comes from two expansions.
-First, the observed proportion of individuals of sex <span class="math inline">\(m\)</span> in length bin <span class="math inline">\(l\)</span> of taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(z_{ijklm}\)</span>) was used to expand the
+First, the proportion of observed individuals of sex <span class="math inline">\(m\)</span> in length bin <span class="math inline">\(l\)</span> of taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(z_{ijklm}\)</span>) was used to expand the
 length-frequency subsample to the total numbers of individuals per area
 swept (<span class="math inline">\(\hat S_{ijk}\)</span>) to calculate
-the estimated number of individuals of sex <span class="math inline">\(m\)</span> and length bin <span class="math inline">\(l\)</span> of taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(z_{ijklm}\)</span>).</p>
+the estimated number per area swept of individuals of sex <span class="math inline">\(m\)</span> and length bin <span class="math inline">\(l\)</span> of taxon <span class="math inline">\(k\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(\hat
+S_{ijklm}\)</span>).</p>
 <p><span class="math display">\[z_{ijklm} = \frac{s_{ijklm}}
 {\sum\limits_{m=1}^3\sum\limits_{l=1}^{L_{ijkm}} s_{ijklm}
 }\]</span></p>
 <p><span class="math display">\[\hat S_{ijklm} = \hat S_{ijk}
 z_{ijklm}\]</span></p>
-<p>Second, <span class="math inline">\(\hat S_{ijklm}\)</span> was
-expanded to the total estimated stratum-level numerical abundance to
-calculate the estimated number of individuals of sex <span class="math inline">\(m\)</span> in length bin <span class="math inline">\(l\)</span> of taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(\hat
+<p>where <span class="math inline">\(L_{ijkm}\)</span> is the maximum
+length bin observed for taxon <span class="math inline">\(k\)</span>,
+sex <span class="math inline">\(m\)</span> at station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span>. Second, <span class="math inline">\(\hat S_{ijklm}\)</span> was expanded to the total
+estimated stratum-level numerical abundance to calculate the estimated
+number of individuals of sex <span class="math inline">\(m\)</span> in
+length bin <span class="math inline">\(l\)</span> of taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> (<span class="math inline">\(\hat
 P_{iklm}\)</span>)</p>
 <p><span class="math display">\[\hat P_{iklm} = \hat P_{ik}
 \frac{\sum\limits_{j=1}^{n_i} \hat S_{ijklm}}
 {\sum\limits_{j=1}^{n_i}\sum\limits_{m=1}^3\sum\limits_{l=1}^{L} \hat
 S_{ijklm} }\]</span></p>
-<p>In the Bering Sea survey areas, only hauls with associated
+<p>In the Bering Sea survey regions, only hauls with associated
 length-frequency data are included in the size composition calculations.
-In the GOA and AI, there are hauls especially in the early years of the
-time series (late 1980s - early 1990s) where a positive catch was
-reported without length-frequency data. For this type of haul, the
-“average size composition” is computed using the hauls in the same
-stratum and year and then used to impute the size composition for that
-haul.</p>
+In the GOA and AI an “average size composition” <span class="math inline">\(\bar z_{iklm}\)</span> is computed using the hauls
+in the same stratum and year and then used to impute the size
+composition for that haul:</p>
+<p><span class="math display">\[ \bar z_{iklm} =
+\frac{\sum\limits_{j=1}^{n_i}
+s_{ijklm}}{\sum\limits_{m=1}^{3}\sum\limits_{l=1}^{L_{ikm}}\sum\limits_{j=1}^{n_i}
+s_{ijklm}}\]</span></p>
 </div>
 <div class="section level2">
 <h2 id="age-composition">Age Composition<a class="anchor" aria-label="anchor" href="#age-composition"></a>
 </h2>
 <p>A second-set of subsamples are drawn from the length subsample from
-the haul. For the early part of the time series, individuals of a taxon
-were randomly collected, stratified by length bin (1 cm bins), sex, and
-management area. More recently, subsampling for ages are simply
-conducted randomly from the length subsample from the haul.</p>
+the haul to determine age, index by q. Thus, the number of observed
+individuals of age <span class="math inline">\(q\)</span>, sex <span class="math inline">\(m\)</span>, length bin <span class="math inline">\(l\)</span>, taxon <span class="math inline">\(k\)</span>, station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> is <span class="math inline">\(v_{ijklmq}\)</span>. An age-length key
+characterizing the proportion of ages by taxon <span class="math inline">\(k\)</span>, length bin <span class="math inline">\(l\)</span>, and sex <span class="math inline">\(m\)</span> is created by pooling age-data across
+stations and strata within a given survey region (<span class="math inline">\(y_{klmq}\)</span>).</p>
 <p><span class="math display">\[y_{klmq} = \frac{v_{klmq}}
 {\sum\limits_{q=1}^Q v_{klmq}}\]</span></p>
 <p>where <span class="math inline">\(Q_{klm}\)</span> is the oldest age
-of taxon <span class="math inline">\(k\)</span> in length bin <span class="math inline">\(l\)</span> and sex <span class="math inline">\(m\)</span>.</p>
+of taxon <span class="math inline">\(k\)</span> in length bin <span class="math inline">\(l\)</span> and sex <span class="math inline">\(m\)</span>. The age-length key is used to
+transform the size compositions to age compositions, total number of
+individuals of age <span class="math inline">\(q\)</span>, sex <span class="math inline">\(m\)</span>, taxon <span class="math inline">\(k\)</span> and stratum <span class="math inline">\(i\)</span> <span class="math inline">\((\hat
+Y_{ikmq})\)</span>.</p>
 <p><span class="math display">\[\hat Y_{iklmq} = \hat
 P_{iklm}y_{klmq}\]</span></p>
-<!-- $\hat Y_{ikmq} = \sum\limits_{l=1}^L \hat P_{iklm}y_{klmq}$ -->
-<p>The mean length (mm) at age <span class="math inline">\(q\)</span>
-and sex <span class="math inline">\(m\)</span> for taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> <span class="math inline">\(D_{ikmq}\)</span> is a weighted average length
-using distribution of <span class="math inline">\(\hat
-Y_{iklmq}\)</span> across length bins as the weights.</p>
-<p><span class="math display">\[\bar d_{ikmq} = \sum\limits_{l=1}^L \hat
-Y_{iklmq}d_l\]</span></p>
-<p>where <span class="math inline">\(d_l\)</span> is the length (mm) of
-length bin <span class="math inline">\(l\)</span></p>
-<p>with weighted variance</p>
-<p><span class="math display">\[Var(\bar d_{ikmq}) = \sum\limits_{l=1}^L
-(\frac{Y_{iklmq}}{\sum\limits_{l=1}^L Y_{iklmq}} (d_l - \bar
-d_{ikmq})^2)\]</span></p>
+<p><span class="math display">\[\hat Y_{ikmq} = \sum\limits_{l =
+1}^{L_{ikm}}\hat Y_{iklmq}\]</span></p>
+<p>The estimated mean length (mm) at age <span class="math inline">\(q\)</span> and sex <span class="math inline">\(m\)</span> for taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> <span class="math inline">\((\bar
+d_{ikmq})\)</span> is a weighted average of length using distribution of
+<span class="math inline">\(\hat Y_{iklmq}\)</span> across length bins
+as the weights.</p>
+<p><span class="math display">\[\bar d_{ikmq} = \frac{\hat
+Y_{iklmq}d_l}{\sum\limits_{l=1}^{L_{ijkm}} \hat Y_{iklmq}}\]</span></p>
+<p>where <span class="math inline">\(d_l\)</span> is the length value
+associated with length bin <span class="math inline">\(l\)</span>, with
+estimated weighted variance:</p>
+<p><span class="math display">\[\hat {Var}(\bar d_{ikmq}) =
+\sum\limits_{l=1}^{L_{ijkm}} (\frac{\hat Y_{iklmq}}{\sum\limits_{l=1}^L
+\hat Y_{iklmq}} (d_l - \bar d_{ikmq})^2)\]</span></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
