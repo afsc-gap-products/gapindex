@@ -20,15 +20,15 @@ Fish. Comm. Bull. 44.
 
 ## Data Collection Process
 
-For each station $j$ contained in stratum $i$, the total catch weight
-and numbers are recorded for all fish and most invertebrate taxa for the
-estimation of total biomass and abundance. For a subset of fish and
+For each station (indexed by $j$) contained in stratum (indexed by $i$), the 
+total catch weight and numbers are recorded for all fish and most invertebrate 
+taxa for the estimation of total biomass and abundance. For a subset of fish and
 invertebrate taxa, the lengths of either all individuals or a subsample
 of representative individuals are recorded for estimation of size
-composition. Individuals from a second level of subsampling from the length
-subsample are aged for estimation of age composition. The sex of the 
-individuals are recorded for all subsampled individuals to decompose the 
-size and age composition by sex.
+composition. Individuals from a second level of subsampling below the length
+subsample are aged for the calculation of an age-length key, which is used to
+expand the length subsample to the complete length- and age-distribution of the
+sampled area.
 
 ## Catch Rates
 
@@ -77,11 +77,14 @@ $$\hat{Var}(\hat B_{ik}) = A_i^2 \hat{Var}(\bar R_{ik})$$
 $$\hat{Var} (\bar R_{ik}) = \frac{\sum\limits_{j=1}^{n_i} (R_{ijk} - \bar R_{ik})^2 }{n_i(n_i-1)}$$
 
 Since strata are independent, the total biomass and variance estimates across 
-a subarea or the entire survey region is the calculated by summing the
+a subarea or the entire survey region are calculated as the sum of the
 stratum-level estimates of total biomass and variance estimates, respectively,
-that are contained within the subarea or region.
+that are contained within the subarea or region. As an example, the total 
+estimated biomass for the entire survey area is:
 
 $$\hat B_{k} = \sum\limits_{i=1}^I \hat B_{ik}$$
+
+where $I$ is the total number of strata, with estimated variance:
 
 $$Var(\hat B_{k}) = \sum\limits_{i=1}^I Var(\hat B_{ik})$$
 
@@ -127,31 +130,32 @@ $$ \bar z_{iklm} = \frac{\sum\limits_{j=1}^{n_i} s_{ijklm}}{\sum\limits_{m=1}^{3
 
 ## Age Composition
 
-A second-set of subsamples are drawn from the length subsample from the
-haul to determine age, index by q. Thus, the number of observed individuals
-of age $q$, sex $m$, length bin $l$, taxon $k$, station $j$ in stratum $i$ is
-$v_{ijklmq}$. An age-length key characterizing the proportion of ages by 
-taxon $k$, length bin $l$, and sex $m$ is created by pooling age-data across
-stations and strata within a given survey region ($y_{klmq}$).
+Within each haul, a second subsample is drawn from the length subsample to 
+collect otoliths for determining individual age, indexed by $x$. The 
+number of observed individuals of age $x$, sex $m$, length bin $l$, taxon $k$,
+station $j$ in stratum $i$ is $v_{ijklmx}$. An age-length key characterizing 
+the proportion of ages by taxon $k$, length bin $l$, and sex $m$ is created by
+pooling age data across stations and strata within a given survey region
+($y_{klmx}$).
 
-$$y_{klmq} = \frac{v_{klmq}} {\sum\limits_{q=1}^Q v_{klmq}}$$
+$$y_{klmx} = \frac{v_{klmx}} {\sum\limits_{x=1}^X_{klm} v_{klmx}}$$
 
-where $Q_{klm}$ is the oldest age of taxon $k$ in length bin $l$ and sex
+where $X_{klm}$ is the oldest age of taxon $k$ in length bin $l$ and sex
 $m$. The age-length key is used to transform the size compositions to age 
-compositions, total number of individuals of age $q$, sex $m$, taxon $k$ and
-stratum $i$ $(\hat Y_{ikmq})$.
+compositions, total number of individuals of age $x$, sex $m$, taxon $k$ and
+stratum $i$ $(\hat Y_{ikmx})$.
 
-$$\hat Y_{iklmq} = \hat P_{iklm}y_{klmq}$$
+$$\hat Y_{iklmx} = \hat P_{iklm}y_{klmx}$$
 
-$$\hat Y_{ikmq} = \sum\limits_{l = 1}^{L_{ikm}}\hat Y_{iklmq}$$
+$$\hat Y_{ikmx} = \sum\limits_{l = 1}^{L_{ikm}}\hat Y_{iklmx}$$
 
-The estimated mean length (mm) at age $q$ and sex $m$ for taxon $k$ in stratum 
-$i$ $(\bar d_{ikmq})$ is a weighted average of length using distribution of
-$\hat Y_{iklmq}$ across length bins as the weights.
+The estimated mean length (mm) at age $x$ and sex $m$ for taxon $k$ in stratum 
+$i$ $(\bar d_{ikmx})$ is a weighted average of length using distribution of
+$\hat Y_{iklmx}$ across length bins as the weights.
 
-$$\bar d_{ikmq} = \frac{\hat Y_{iklmq}d_l}{\sum\limits_{l=1}^{L_{ijkm}} \hat Y_{iklmq}}$$
+$$\bar d_{ikmx} = \frac{\hat Y_{iklmx}d_l}{\sum\limits_{l=1}^{L_{ijkm}} \hat Y_{iklmx}}$$
 
 where $d_l$ is the length value associated with length bin $l$, with estimated
 weighted variance:
 
-$$\hat {Var}(\bar d_{ikmq}) = \sum\limits_{l=1}^{L_{ijkm}} (\frac{\hat Y_{iklmq}}{\sum\limits_{l=1}^L \hat Y_{iklmq}} (d_l - \bar d_{ikmq})^2)$$
+$$\hat {Var}(\bar d_{ikmx}) = \sum\limits_{l=1}^{L_{ijkm}} (\frac{\hat Y_{iklmx}}{\sum\limits_{l=1}^L \hat Y_{iklmx}} (d_l - \bar d_{ikmx})^2)$$
