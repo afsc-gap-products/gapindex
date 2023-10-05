@@ -85,16 +85,16 @@ Fish. Comm. Bull. 44.</p>
 <div class="section level2">
 <h2 id="data-collection-process">Data Collection Process<a class="anchor" aria-label="anchor" href="#data-collection-process"></a>
 </h2>
-<p>For each station <span class="math inline">\(j\)</span> contained in
-stratum <span class="math inline">\(i\)</span>, the total catch weight
-and numbers are recorded for all fish and most invertebrate taxa for the
-estimation of total biomass and abundance. For a subset of fish and
-invertebrate taxa, the lengths of either all individuals or a subsample
-of representative individuals are recorded for estimation of size
-composition. Individuals from a second level of subsampling from the
-length subsample are aged for estimation of age composition. The sex of
-the individuals are recorded for all subsampled individuals to decompose
-the size and age composition by sex.</p>
+<p>For each station (indexed by <span class="math inline">\(j\)</span>)
+contained in stratum (indexed by <span class="math inline">\(i\)</span>), the total catch weight and numbers
+are recorded for all fish and most invertebrate taxa for the estimation
+of total biomass and abundance. For a subset of fish and invertebrate
+taxa, the lengths of either all individuals or a subsample of
+representative individuals are recorded for estimation of size
+composition. Individuals from a second level of subsampling below the
+length subsample are aged for the calculation of an age-length key,
+which is used to expand the length subsample to the complete length- and
+age-distribution of the sampled area.</p>
 </div>
 <div class="section level2">
 <h2 id="catch-rates">Catch Rates<a class="anchor" aria-label="anchor" href="#catch-rates"></a>
@@ -144,12 +144,15 @@ R_{ijk}}{n_i}\]</span></p>
 \frac{\sum\limits_{j=1}^{n_i} (R_{ijk} - \bar R_{ik})^2
 }{n_i(n_i-1)}\]</span></p>
 <p>Since strata are independent, the total biomass and variance
-estimates across a subarea or the entire survey region is the calculated
-by summing the stratum-level estimates of total biomass and variance
+estimates across a subarea or the entire survey region are calculated as
+the sum of the stratum-level estimates of total biomass and variance
 estimates, respectively, that are contained within the subarea or
-region.</p>
+region. As an example, the total estimated biomass for the entire survey
+area is:</p>
 <p><span class="math display">\[\hat B_{k} = \sum\limits_{i=1}^I \hat
 B_{ik}\]</span></p>
+<p>where <span class="math inline">\(I\)</span> is the total number of
+strata, with estimated variance:</p>
 <p><span class="math display">\[Var(\hat B_{k}) = \sum\limits_{i=1}^I
 Var(\hat B_{ik})\]</span></p>
 <p>Total abundance (<span class="math inline">\(\hat P_{k}\)</span>) is
@@ -201,34 +204,35 @@ s_{ijklm}}\]</span></p>
 <div class="section level2">
 <h2 id="age-composition">Age Composition<a class="anchor" aria-label="anchor" href="#age-composition"></a>
 </h2>
-<p>A second-set of subsamples are drawn from the length subsample from
-the haul to determine age, index by q. Thus, the number of observed
-individuals of age <span class="math inline">\(q\)</span>, sex <span class="math inline">\(m\)</span>, length bin <span class="math inline">\(l\)</span>, taxon <span class="math inline">\(k\)</span>, station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> is <span class="math inline">\(v_{ijklmq}\)</span>. An age-length key
-characterizing the proportion of ages by taxon <span class="math inline">\(k\)</span>, length bin <span class="math inline">\(l\)</span>, and sex <span class="math inline">\(m\)</span> is created by pooling age-data across
-stations and strata within a given survey region (<span class="math inline">\(y_{klmq}\)</span>).</p>
-<p><span class="math display">\[y_{klmq} = \frac{v_{klmq}}
-{\sum\limits_{q=1}^Q v_{klmq}}\]</span></p>
-<p>where <span class="math inline">\(Q_{klm}\)</span> is the oldest age
+<p>Within each haul, a second subsample is drawn from the length
+subsample to collect otoliths for determining individual age, indexed by
+<span class="math inline">\(x\)</span>. The number of observed
+individuals of age <span class="math inline">\(x\)</span>, sex <span class="math inline">\(m\)</span>, length bin <span class="math inline">\(l\)</span>, taxon <span class="math inline">\(k\)</span>, station <span class="math inline">\(j\)</span> in stratum <span class="math inline">\(i\)</span> is <span class="math inline">\(v_{ijklmx}\)</span>. An age-length key
+characterizing the proportion of ages by taxon <span class="math inline">\(k\)</span>, length bin <span class="math inline">\(l\)</span>, and sex <span class="math inline">\(m\)</span> is created by pooling age data across
+stations and strata within a given survey region (<span class="math inline">\(y_{klmx}\)</span>).</p>
+<p><span class="math display">\[y_{klmx} = \frac{v_{klmx}}
+{\sum\limits_{x=1}^X_{klm} v_{klmx}}\]</span></p>
+<p>where <span class="math inline">\(X_{klm}\)</span> is the oldest age
 of taxon <span class="math inline">\(k\)</span> in length bin <span class="math inline">\(l\)</span> and sex <span class="math inline">\(m\)</span>. The age-length key is used to
 transform the size compositions to age compositions, total number of
-individuals of age <span class="math inline">\(q\)</span>, sex <span class="math inline">\(m\)</span>, taxon <span class="math inline">\(k\)</span> and stratum <span class="math inline">\(i\)</span> <span class="math inline">\((\hat
-Y_{ikmq})\)</span>.</p>
-<p><span class="math display">\[\hat Y_{iklmq} = \hat
-P_{iklm}y_{klmq}\]</span></p>
-<p><span class="math display">\[\hat Y_{ikmq} = \sum\limits_{l =
-1}^{L_{ikm}}\hat Y_{iklmq}\]</span></p>
-<p>The estimated mean length (mm) at age <span class="math inline">\(q\)</span> and sex <span class="math inline">\(m\)</span> for taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> <span class="math inline">\((\bar
-d_{ikmq})\)</span> is a weighted average of length using distribution of
-<span class="math inline">\(\hat Y_{iklmq}\)</span> across length bins
+individuals of age <span class="math inline">\(x\)</span>, sex <span class="math inline">\(m\)</span>, taxon <span class="math inline">\(k\)</span> and stratum <span class="math inline">\(i\)</span> <span class="math inline">\((\hat
+Y_{ikmx})\)</span>.</p>
+<p><span class="math display">\[\hat Y_{iklmx} = \hat
+P_{iklm}y_{klmx}\]</span></p>
+<p><span class="math display">\[\hat Y_{ikmx} = \sum\limits_{l =
+1}^{L_{ikm}}\hat Y_{iklmx}\]</span></p>
+<p>The estimated mean length (mm) at age <span class="math inline">\(x\)</span> and sex <span class="math inline">\(m\)</span> for taxon <span class="math inline">\(k\)</span> in stratum <span class="math inline">\(i\)</span> <span class="math inline">\((\bar
+d_{ikmx})\)</span> is a weighted average of length using distribution of
+<span class="math inline">\(\hat Y_{iklmx}\)</span> across length bins
 as the weights.</p>
-<p><span class="math display">\[\bar d_{ikmq} = \frac{\hat
-Y_{iklmq}d_l}{\sum\limits_{l=1}^{L_{ijkm}} \hat Y_{iklmq}}\]</span></p>
+<p><span class="math display">\[\bar d_{ikmx} = \frac{\hat
+Y_{iklmx}d_l}{\sum\limits_{l=1}^{L_{ijkm}} \hat Y_{iklmx}}\]</span></p>
 <p>where <span class="math inline">\(d_l\)</span> is the length value
 associated with length bin <span class="math inline">\(l\)</span>, with
 estimated weighted variance:</p>
-<p><span class="math display">\[\hat {Var}(\bar d_{ikmq}) =
-\sum\limits_{l=1}^{L_{ijkm}} (\frac{\hat Y_{iklmq}}{\sum\limits_{l=1}^L
-\hat Y_{iklmq}} (d_l - \bar d_{ikmq})^2)\]</span></p>
+<p><span class="math display">\[\hat {Var}(\bar d_{ikmx}) =
+\sum\limits_{l=1}^{L_{ijkm}} (\frac{\hat Y_{iklmx}}{\sum\limits_{l=1}^L
+\hat Y_{iklmx}} (d_l - \bar d_{ikmx})^2)\]</span></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
