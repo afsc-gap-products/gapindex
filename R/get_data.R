@@ -148,18 +148,18 @@ get_data <- function(year_set = c(1996, 1999),
                        WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
                        ELSE NULL
                        END AS SURVEY, ",
-                      "DESIGN_YEAR, AREA_ID, TYPE, AREA_KM2, DESCRIPTION, ",
+                      "DESIGN_YEAR, AREA_ID, AREA_TYPE, AREA_KM2, DESCRIPTION, ",
                       "AREA_NAME FROM GAP_PRODUCTS.AREA",
                       " WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec))
   
   ## Subset stratum info out of `area_info`
   stratum_data <- subset(x = area_info,
-                         subset = TYPE == "STRATUM" & 
+                         subset = AREA_TYPE == "STRATUM" & 
                            DESIGN_YEAR %in% survey_df$DESIGN_YEAR)
   
   ## Subset subarea info out of `area_info`
   subarea_data <- subset(x = area_info,
-                         subset = TYPE != "STRATUM" & 
+                         subset = AREA_TYPE != "STRATUM" & 
                            DESIGN_YEAR %in% survey_df$DESIGN_YEAR)
   
   ## Change "AREA_ID" column name to "STRATUM". 
@@ -172,7 +172,7 @@ get_data <- function(year_set = c(1996, 1999),
   
   subarea_data <- 
     subarea_data[order(subarea_data$SURVEY, subarea_data$AREA_ID),
-                 c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "TYPE",
+                 c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "AREA_TYPE",
                    "AREA_ID", "AREA_NAME", "DESCRIPTION")]
   
   

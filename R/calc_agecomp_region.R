@@ -48,7 +48,7 @@ calc_agecomp_region <- function(racebase_tables,
     subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
                          survey_designs$SURVEY_DEFINITION_ID[isurvey] &
-                         TYPE == "REGION" &
+                         AREA_TYPE == "REGION" &
                          DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
     
     for (iregion in 1:nrow(x = subareas)) { ## Loop over regions -- start

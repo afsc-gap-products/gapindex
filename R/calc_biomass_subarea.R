@@ -86,12 +86,23 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
           
           ## Sum the biomass and abundance across strata in isubarea
           subarea_summed_biomass <- 
-            stats::aggregate(cbind(BIOMASS_MT, 
-                                   POPULATION_COUNT) ~
+            stats::aggregate(BIOMASS_MT ~
                                SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum)
-          
+							 
+							         subarea_summed_population <- 
+          stats::aggregate(POPULATION_COUNT ~
+                             SPECIES_CODE + YEAR,
+                           data = subarea_biomass_by_stratrum,
+                           FUN = sum)
+        
+		## Merge Total Biomass and Population
+        subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                        y = subarea_summed_population,
+                                        by = c("SPECIES_CODE", "YEAR"),
+                                        all = TRUE) 
+										
           ## Sum the many types of variances across strata in isubarea
           subarea_summed_variance <- 
             stats::aggregate(cbind(CPUE_KGKM2_VAR, CPUE_NOKM2_VAR, 
