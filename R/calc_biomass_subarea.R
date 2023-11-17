@@ -77,47 +77,46 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
         
         if (nrow(x = subarea_biomass_by_stratrum) > 0) {
           
-          ## Sum the biomass and abundance across strata in isubarea
-          subarea_summed_hauls <- 
-            stats::aggregate(cbind(N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH) ~
-                               SPECIES_CODE + YEAR,
-                             data = subarea_biomass_by_stratrum,
-                             FUN = sum)
-          
-          ## Sum the biomass and abundance across strata in isubarea
+          ## Sum the total biomass across the strata in isubarea
           subarea_summed_biomass <- 
             stats::aggregate(BIOMASS_MT ~
                                SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum)
           
+          ## Sum the N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH across the
+          ## strata in isubarea.
+          subarea_summed_hauls <- 
+            stats::aggregate(cbind(N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH) ~
+                               SPECIES_CODE + YEAR,
+                             data = subarea_biomass_by_stratrum,
+                             FUN = sum)
+          
+          ## Sum the total abundance across the strata in isubarea
           subarea_summed_population <- 
             stats::aggregate(POPULATION_COUNT ~
                                SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum)
           
-          ## Merge Total Biomass and Population
-          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
-                                          y = subarea_summed_population,
-                                          by = c("SPECIES_CODE", "YEAR"),
-                                          all = TRUE) 
-          
-          ## Sum the many types of variances across strata in isubarea
+          ## Sum the variances associated with the total biomass across 
+          ## the strata in isubarea
           subarea_summed_biomass_variance <- 
-            stats::aggregate(cbind(CPUE_KGKM2_VAR, BIOMASS_VAR) ~
-                               SPECIES_CODE + YEAR,
+            stats::aggregate(BIOMASS_VAR ~ SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum,
                              na.rm = TRUE)
           
+          ## Sum the variances associated with the total abundance across
+          ## the strata in isubarea
           subarea_summed_population_variance <- 
-            stats::aggregate(cbind(CPUE_NOKM2_VAR, POPULATION_VAR) ~
-                               SPECIES_CODE + YEAR,
+            stats::aggregate(POPULATION_VAR ~ SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum,
                              na.rm = TRUE)
           
+          ## Calculate a weighted mean weight and numerical CPUE across the 
+          ## strata in isubarea using stratum area as the weightings.
           subarea_mean_cpue <- 
             do.call(what = rbind, 
                     args = lapply(
@@ -137,26 +136,42 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                                                           na.rm = TRUE),
                           stringsAsFactors = FALSE)} ))
           
+          ## Merge haul summary 
+          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                          y = subarea_summed_hauls,
+                                          by = c("SPECIES_CODE", "YEAR"))
+          
+          ## Merge Total Abundance 
+          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                          y = subarea_summed_population,
+                                          by = c("SPECIES_CODE", "YEAR"),
+                                          all = TRUE) 
+          
+          ## Merge mean numerical/weight CPUE
           subarea_summed_biomass <- merge(x = subarea_summed_biomass,
                                           y = subarea_mean_cpue,
                                           by = c("SPECIES_CODE", "YEAR"))
           
-          subarea_summed_biomass <- merge(y = subarea_summed_biomass_variance,
-                                          x = subarea_summed_biomass,
+          ## Merge biomass/mean weight CPUE variance 
+          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                          y = subarea_summed_biomass_variance,
                                           by = c("SPECIES_CODE", "YEAR"))
           
-          subarea_summed_biomass <- merge(y = subarea_summed_population_variance,
-                                          x = subarea_summed_biomass,
+          ## Merge Total abundance/mean numerical CPUE variance 
+          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                          y = subarea_summed_population_variance,
+                                          
                                           by = c("SPECIES_CODE", "YEAR"))
           
-          subarea_summed_biomass <- merge(y = subarea_summed_hauls,
-                                          x = subarea_summed_biomass,
-                                          by = c("SPECIES_CODE", "YEAR"))
           
+          ## Derive the variance associated with the mean weight CPUE from
+          ## the variance of the total biomass. 
           subarea_summed_biomass$CPUE_KGKM2_VAR <- 
             subarea_summed_biomass$BIOMASS_VAR / 
             subarea_summed_biomass$TOT_AREA^2 * 1e6
           
+          ## Derive the variance associated with the mean numerical CPUE from
+          ## the variance of the total abundance. 
           subarea_summed_biomass$CPUE_NOKM2_VAR <- 
             subarea_summed_biomass$POPULATION_VAR / 
             subarea_summed_biomass$TOT_AREA^2 
