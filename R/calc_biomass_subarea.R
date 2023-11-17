@@ -90,29 +90,33 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                                SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum)
-							 
-							         subarea_summed_population <- 
-          stats::aggregate(POPULATION_COUNT ~
-                             SPECIES_CODE + YEAR,
-                           data = subarea_biomass_by_stratrum,
-                           FUN = sum)
-        
-		## Merge Total Biomass and Population
-        subarea_summed_biomass <- merge(x = subarea_summed_biomass,
-                                        y = subarea_summed_population,
-                                        by = c("SPECIES_CODE", "YEAR"),
-                                        all = TRUE) 
-										
+          
+          subarea_summed_population <- 
+            stats::aggregate(POPULATION_COUNT ~
+                               SPECIES_CODE + YEAR,
+                             data = subarea_biomass_by_stratrum,
+                             FUN = sum)
+          
+          ## Merge Total Biomass and Population
+          subarea_summed_biomass <- merge(x = subarea_summed_biomass,
+                                          y = subarea_summed_population,
+                                          by = c("SPECIES_CODE", "YEAR"),
+                                          all = TRUE) 
+          
           ## Sum the many types of variances across strata in isubarea
-          subarea_summed_variance <- 
-            stats::aggregate(cbind(CPUE_KGKM2_VAR, CPUE_NOKM2_VAR, 
-                                   BIOMASS_VAR, POPULATION_VAR) ~
+          subarea_summed_biomass_variance <- 
+            stats::aggregate(cbind(CPUE_KGKM2_VAR, BIOMASS_VAR) ~
                                SPECIES_CODE + YEAR,
                              data = subarea_biomass_by_stratrum,
                              FUN = sum,
                              na.rm = TRUE)
           
-
+          subarea_summed_population_variance <- 
+            stats::aggregate(cbind(CPUE_NOKM2_VAR, POPULATION_VAR) ~
+                               SPECIES_CODE + YEAR,
+                             data = subarea_biomass_by_stratrum,
+                             FUN = sum,
+                             na.rm = TRUE)
           
           subarea_mean_cpue <- 
             do.call(what = rbind, 
@@ -122,20 +126,26 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                                      subarea_biomass_by_stratrum$YEAR)),
                       FUN = function(x) { 
                         data.frame(
-                          SPECIES_CODE = unique(x$SPECIES_CODE),
-                          YEAR = unique(x$YEAR),
+                          SPECIES_CODE = unique(x = x$SPECIES_CODE),
+                          YEAR = unique(x = x$YEAR),
                           TOT_AREA = sum(x$AREA_KM2),
                           CPUE_KGKM2_MEAN = weighted.mean(x = x$CPUE_KGKM2_MEAN, 
-                                                          w = x$AREA_KM2),
+                                                          w = x$AREA_KM2, 
+                                                          na.rm = TRUE),
                           CPUE_NOKM2_MEAN = weighted.mean(x = x$CPUE_NOKM2_MEAN, 
-                                                          w = x$AREA_KM2),
+                                                          w = x$AREA_KM2,
+                                                          na.rm = TRUE),
                           stringsAsFactors = FALSE)} ))
           
           subarea_summed_biomass <- merge(x = subarea_summed_biomass,
                                           y = subarea_mean_cpue,
                                           by = c("SPECIES_CODE", "YEAR"))
           
-          subarea_summed_biomass <- merge(y = subarea_summed_variance,
+          subarea_summed_biomass <- merge(y = subarea_summed_biomass_variance,
+                                          x = subarea_summed_biomass,
+                                          by = c("SPECIES_CODE", "YEAR"))
+          
+          subarea_summed_biomass <- merge(y = subarea_summed_population_variance,
                                           x = subarea_summed_biomass,
                                           by = c("SPECIES_CODE", "YEAR"))
           
@@ -187,11 +197,11 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
       these early years were removed.")
     
     subarea_biomass <- subset(x = subarea_biomass, 
-                            subset = !(SURVEY_DEFINITION_ID == 98 & 
-                                         YEAR < 1987 & 
-                                         AREA_ID %in% c(99900, 
-                                                        300, 200, 100, 
-                                                        8, 9)) )
+                              subset = !(SURVEY_DEFINITION_ID == 98 & 
+                                           YEAR < 1987 & 
+                                           AREA_ID %in% c(99900, 
+                                                          300, 200, 100, 
+                                                          8, 9)) )
   }
   
   return(subarea_biomass)
