@@ -47,7 +47,6 @@ get_data <- function(year_set = c(1996, 1999),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(x = sql_channel)) sql_channel <- gapindex::get_connected()
   
-  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   2) Get survey designs for the survey regions and years queried
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,17 +68,17 @@ get_data <- function(year_set = c(1996, 1999),
   survey_design <- 
     RODBC::sqlQuery(channel = sql_channel,
                     query = paste0(
-                      "SELECT SURVEY_DEFINITION_ID, ",
-                      "CASE 
+                      "SELECT SURVEY_DEFINITION_ID, 
+                       CASE 
                        WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
                        WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
                        WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
                        WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
                        WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
                        ELSE NULL
-                       END AS SURVEY, ",
-                      "YEAR, DESIGN_YEAR FROM GAP_PRODUCTS.SURVEY_DESIGN ",
-                      " WHERE SURVEY_DEFINITION_ID IN ", 
+                       END AS SURVEY,
+                      YEAR, DESIGN_YEAR FROM GAP_PRODUCTS.SURVEY_DESIGN 
+                      WHERE SURVEY_DEFINITION_ID IN ", 
                       survey_def_ids_vec, 
                       " AND YEAR IN ", year_vec) )
   
@@ -99,22 +98,22 @@ get_data <- function(year_set = c(1996, 1999),
     RODBC::sqlQuery(
       channel = sql_channel, 
       query = paste0(
-        "select distinct a.cruisejoin, b.cruise, floor(b.cruise/100) year, ",
-        "d.survey_definition_id, b.vessel_id, e.name vessel_name, ",
-        "CASE 
-         WHEN d.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
-         WHEN d.SURVEY_DEFINITION_ID = 98 THEN 'EBS'
-         WHEN d.SURVEY_DEFINITION_ID = 47 THEN 'GOA'
-         WHEN d.SURVEY_DEFINITION_ID = 52 THEN 'AI'
-         WHEN d.SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+        "select distinct a.cruisejoin, b.cruise, floor(b.cruise/100) year, 
+         d.survey_definition_id, b.vessel_id, e.name vessel_name, 
+         CASE 
+          WHEN d.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+          WHEN d.SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+          WHEN d.SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+          WHEN d.SURVEY_DEFINITION_ID = 52 THEN 'AI'
+          WHEN d.SURVEY_DEFINITION_ID = 78 THEN 'BSS'
          ELSE NULL
-         END AS SURVEY ",
-        "from racebase.haul a, race_data.cruises b, race_data.surveys c, ",
-        "race_data.survey_definitions d, race_data.vessels e ",
-        "where a.vessel = b.vessel_id and b.vessel_id = e.vessel_id ",
-        "and a.cruise = b.cruise and c.survey_id = b.survey_id ",
-        "and c.survey_definition_id = d.survey_definition_id ",
-        "and d.survey_definition_id in ", survey_def_ids_vec,
+         END AS SURVEY 
+        from racebase.haul a, race_data.cruises b, race_data.surveys c,
+        race_data.survey_definitions d, race_data.vessels e
+        where a.vessel = b.vessel_id and b.vessel_id = e.vessel_id
+        and a.cruise = b.cruise and c.survey_id = b.survey_id
+        and c.survey_definition_id = d.survey_definition_id
+        and d.survey_definition_id in ", survey_def_ids_vec,
         "and a.abundance_haul in ", gapindex::stitch_entries(abundance_haul),
         "and year in ", year_vec))
   
@@ -139,18 +138,18 @@ get_data <- function(year_set = c(1996, 1999),
   area_info <- 
     RODBC::sqlQuery(channel = sql_channel,
                     query = paste0(
-                      "SELECT SURVEY_DEFINITION_ID, ",
-                      "CASE 
-                       WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
-                       WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
-                       WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
-                       WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
-                       WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
-                       ELSE NULL
-                       END AS SURVEY, ",
-                      "DESIGN_YEAR, AREA_ID, AREA_TYPE, AREA_KM2, DESCRIPTION, ",
-                      "AREA_NAME FROM GAP_PRODUCTS.AREA",
-                      " WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec))
+                      "SELECT SURVEY_DEFINITION_ID, 
+                       CASE 
+                        WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+                        WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+                        WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+                        WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
+                        WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+                        ELSE NULL
+                       END AS SURVEY, 
+                       DESIGN_YEAR, AREA_ID, AREA_TYPE, AREA_KM2, DESCRIPTION,
+                       AREA_NAME FROM GAP_PRODUCTS.AREA
+                       WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec))
   
   ## Subset stratum info out of `area_info`
   stratum_data <- subset(x = area_info,
@@ -181,18 +180,18 @@ get_data <- function(year_set = c(1996, 1999),
   stratum_groups <-
     RODBC::sqlQuery(channel = sql_channel, 
                     query = paste0(
-                      "SELECT SURVEY_DEFINITION_ID, ", 
-                      "CASE 
-                       WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
-                       WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
-                       WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
-                       WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
-                       WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+                      "SELECT SURVEY_DEFINITION_ID,
+                       CASE 
+                        WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+                        WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+                        WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+                        WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
+                        WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
                        ELSE NULL
-                       END AS SURVEY, ", 
-                      "AREA_ID, DESIGN_YEAR, STRATUM ",
-                      "FROM GAP_PRODUCTS.STRATUM_GROUPS ", 
-                      "WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec, 
+                       END AS SURVEY,
+                       AREA_ID, DESIGN_YEAR, STRATUM
+                       FROM GAP_PRODUCTS.STRATUM_GROUPS
+                       WHERE SURVEY_DEFINITION_ID IN ", survey_def_ids_vec, 
                       "ORDER BY SURVEY, AREA_ID, STRATUM"))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -209,9 +208,11 @@ get_data <- function(year_set = c(1996, 1999),
   haul_data <- 
     RODBC::sqlQuery(channel = sql_channel, 
                     query = paste0(
-                      "SELECT * FROM RACEBASE.HAUL WHERE CRUISEJOIN IN ", 
-                      cruisejoin_vec, " AND HAUL_TYPE IN ", haultype_vec,
-                      " AND PERFORMANCE >= 0 AND ABUNDANCE_HAUL IN ",
+                      "SELECT * FROM RACEBASE.HAUL 
+                       WHERE CRUISEJOIN IN ", cruisejoin_vec, 
+                      " AND HAUL_TYPE IN ", haultype_vec,
+                      " AND PERFORMANCE >= 0 
+                      AND ABUNDANCE_HAUL IN ",
                       gapindex::stitch_entries(abundance_haul)))
   
   if (na_rm_strata)
@@ -256,13 +257,14 @@ get_data <- function(year_set = c(1996, 1999),
   cat("Pulling species data...\n")
   species_info <- RODBC::sqlQuery(
     channel = sql_channel, 
-    query = paste0("SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION ",
-                   "WHERE SURVEY_SPECIES = 1 ",
-                   "AND SPECIES_CODE IN ",
+    query = paste0("SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION
+                    WHERE SURVEY_SPECIES = 1
+                    AND SPECIES_CODE IN ",
                    ifelse(test = is.null(x = spp_codes$SPECIES_CODE),
-                          yes = paste0("(SELECT DISTINCT SPECIES_CODE ",
-                                       "FROM RACEBASE.CATCH where ",
-                                       "CRUISEJOIN in ", cruisejoin_vec, ")"),
+                          yes = paste0("(SELECT DISTINCT SPECIES_CODE
+                                       FROM RACEBASE.CATCH ",
+                                       "WHERE CRUISEJOIN IN ", 
+                                       cruisejoin_vec, ")"),
                           no = spp_codes_vec)))
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -381,7 +383,7 @@ get_data <- function(year_set = c(1996, 1999),
   ## Rename "GROUP" column 
   names(x = catch_data)[names(x = catch_data) == "GROUP"] <- "SPECIES_CODE"
   
-  if (pull_lengths) {
+  if (pull_lengths & !is.null(size_data)) {
     ## Merge "GROUP" column from `spp_codes` into `size_data` for scenraios
     ## where you are defining species complexes.
     size_data <- merge(x = size_data, 
