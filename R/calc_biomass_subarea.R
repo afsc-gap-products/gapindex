@@ -28,9 +28,8 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   ## Which survey designs to pull from
   subarea_biomass <- data.frame()
   survey_designs <- racebase_tables$survey_design
-  strata <- racebase_tables$strata
-  subareas <- racebase_tables$subarea
   unique_surveys <- racebase_tables$survey
+  strata <- racebase_tables$strata
   
   ## Attach "DESIGN_YEAR" from `survey_designs` to `biomass_strata` using 
   ## "SURVEY_DEFINITION_ID", "SURVEY", "YEAR" as a composite key.
@@ -47,16 +46,13 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
   
   for (isurvey in 1:nrow(x = unique_surveys)) { ## Loop over surveys -- start
     
-    ## Extract survey name of isurvey
-    subareas$SURVEY <- unique_surveys$SURVEY[isurvey]
-    
     ## Subset the set of subareas given the survey and design year. From 
     ## 2025-on the GOA time series will have two unique survey designs with 
     ## different design years. 
     subareas <- subset(x = racebase_tables$subarea,
                        subset = SURVEY_DEFINITION_ID == 
-                         survey_designs$SURVEY_DEFINITION_ID[isurvey] &
-                         DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
+                         unique_surveys$SURVEY_DEFINITION_ID[isurvey] &
+                         DESIGN_YEAR == unique_surveys$DESIGN_YEAR[isurvey])
     
     for (isubarea in 1:nrow(x = subareas)) { ## Loop over subareas -- start
       
