@@ -222,6 +222,7 @@ calc_alk <- function(racebase_tables = NULL,
   }
   
   p_yklm$AGE_FRAC[is.na(x = p_yklm$AGE_FRAC)] <- 0
+  row.names(x = p_yklm) <- NULL
   return(p_yklm)
 }
 
