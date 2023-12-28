@@ -133,7 +133,8 @@ get_data <- function(year_set = c(1996, 1999),
   ## Error Check: stop if there are no cruise data for the 
   ## queried year and region.
   if (nrow(x = cruise_data) == 0) {
-    stop("No data exist for survey area '", survey_set, 
+    stop("No data exist for survey area '", 
+         gapindex::stitch_entries(survey_set), 
          "' for the choosen set of years ", year_vec, ".")
   }
   
@@ -305,7 +306,8 @@ get_data <- function(year_set = c(1996, 1999),
   ## Error Check: stop if there are no species data for the given query.
   if (!is.data.frame(x = catch_data) | nrow(x = catch_data) == 0)
     stop("There are no catch records for any of the species codes in argument
-         spp_codes for survey area '", survey_set, "' in the chosen years ",
+         spp_codes for survey area '", gapindex::stitch_entries(survey_set),
+         "' in the chosen years ",
          year_vec)
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -336,7 +338,8 @@ get_data <- function(year_set = c(1996, 1999),
     ## Error Query: send out a warning if there are no lengths in the dataset
     if (nrow(x = size_data) == 0) {
       warning("There are no length data for any of the species_codes for 
-              survey area '", survey_set, "' in the chosen years ", year_vec)
+              survey area(s) '", gapindex::stitch_entries(survey_set),
+              "' in the chosen years ", year_vec)
       size_data <- NULL
     }
   }
@@ -371,7 +374,8 @@ get_data <- function(year_set = c(1996, 1999),
     ## Error Query: send out a warning if there are no ages in the dataset
     if (nrow(x = speclist) == 0) {
       warning("There are no age data for any the species_codes for 
-            survey area '", survey_set, "' in the chosen years ", year_vec)
+            survey area(s) '", gapindex::stitch_entries(survey_set), 
+              "' in the chosen years ", year_vec)
       speclist <- NULL
     }
   }
