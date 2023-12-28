@@ -171,8 +171,11 @@ calc_agecomp_region <- function(racebase_tables,
                                            AREA_ID == 99900) )
   }
   
-  return(region_age_comp_df[with(region_age_comp_df, 
-                                 order(SURVEY_DEFINITION_ID, AREA_ID,
-                                       SPECIES_CODE, YEAR, SEX, AGE)), ])
+  region_age_comp_df <-
+    region_age_comp_df[with(region_age_comp_df, 
+                            order(SURVEY_DEFINITION_ID, AREA_ID,
+                                  SPECIES_CODE, YEAR, SEX, AGE)), ]
+  
+  return(region_age_comp_df)
 }
 
