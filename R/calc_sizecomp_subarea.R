@@ -87,11 +87,16 @@ calc_sizecomp_subarea <- function(racebase_tables,
            select = c(SURVEY_DEFINITION_ID, YEAR, AREA_ID,
                       SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT))
   
-  return(subarea_size_comp_df[order(subarea_size_comp_df$SURVEY_DEFINITION_ID,
-                                    subarea_size_comp_df$AREA_ID,
-                                    subarea_size_comp_df$SPECIES_CODE,
-                                    subarea_size_comp_df$YEAR,
-                                    subarea_size_comp_df$SEX,
-                                    subarea_size_comp_df$LENGTH_MM), ])
+  subarea_size_comp_df <-
+    subarea_size_comp_df[order(subarea_size_comp_df$SURVEY_DEFINITION_ID,
+                               subarea_size_comp_df$AREA_ID,
+                               subarea_size_comp_df$SPECIES_CODE,
+                               subarea_size_comp_df$YEAR,
+                               subarea_size_comp_df$SEX,
+                               subarea_size_comp_df$LENGTH_MM), ]
+  
+  row.names(x = subarea_size_comp_df) <- NULL
+  
+  return(subarea_size_comp_df)
 }
 

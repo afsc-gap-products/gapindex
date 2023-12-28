@@ -298,7 +298,9 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
                   y = racebase_tables$survey, 
                   by = "SURVEY")
   
-  return(subset(x = S_iklm,
-                select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
-                           SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT)))
+  S_iklm <- subset(x = S_iklm,
+                   select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
+                              SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT))
+  
+  return(S_iklm)
 }

@@ -158,5 +158,7 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
                                          STRATUM %in% c(82, 90)) )
   }
   
+  row.names(x = stratum_stats) <- NULL
+  
   return(stratum_stats)
 }
