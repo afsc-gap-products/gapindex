@@ -26,10 +26,10 @@ calc_cpue <- function(racebase_tables = NULL) {
   catch <- racebase_tables$catch
   species <- racebase_tables$species
   
-  ## remove species with no catch records, output warning
+  ## Remove species with no catch records, output warning
   omitted_species <- 
     species$GROUP[!species$GROUP %in% 
-                           racebase_tables$catch$SPECIES_CODE]
+                    racebase_tables$catch$SPECIES_CODE]
   species <- subset(x = racebase_tables$species,
                     subset = GROUP %in% unique(catch$SPECIES_CODE))
   
@@ -46,10 +46,10 @@ calc_cpue <- function(racebase_tables = NULL) {
   ## For abundance index calculations, the haul df should only have records 
   ## where haul$ABUNDANCE_HAUL == "Y". This check is just a warning to the user.
   if (any(haul$ABUNDANCE_HAUL == "N")) {
-    warning(paste0("`haul` dataframe in argument `racebase_tables`` contains ",
-                   "records where haul$abundance_haul == 'N'. Standard ",
-                   "abundance index calculations only include records where ",
-                   "haul$abundance_haul == 'Y'. "))
+    warning(paste("The `haul` dataframe in argument `racebase_tables``",
+                  "contains records where haul$abundance_haul == 'N'.",
+                  "Standard abundance index calculations only include records",
+                  "where haul$abundance_haul == 'Y'. "))
   }
   
   ## Merge "SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR" columns from 
@@ -65,14 +65,14 @@ calc_cpue <- function(racebase_tables = NULL) {
                             SPECIES_CODE = sort(x = unique(x = species$GROUP)),
                             stringsAsFactors = F)
   
-  ## Then merge the haul data in `dat` to `all_combos` using "HAULJOIN"
+  ## Then left join the haul data in `dat` to `all_combos` using "HAULJOIN"
   ## as the key.
   dat <- merge(x = all_combos, 
                y = dat, 
                by = "HAULJOIN", 
                all.x = TRUE)
   
-  ## Merge `catch` with `dat` using the "HAULJOIN" AND "SPECIES_CODE" 
+  ## Left Join `catch` with `dat` using the "HAULJOIN" AND "SPECIES_CODE" 
   ## as a composite key
   dat <- merge(x = dat,
                y = catch[, c("HAULJOIN", "SPECIES_CODE", 
@@ -88,10 +88,8 @@ calc_cpue <- function(racebase_tables = NULL) {
   dat$NUMBER_FISH[is.na(dat$NUMBER_FISH)] <- 0  
   dat$NUMBER_FISH[dat$NUMBER_FISH == -1] <- NA
   
-  sum(is.na(dat$NUMBER_FISH))
-  
   ## Any record with no weight or count data (NA) are replaced with a zero
-  dat$WEIGHT[is.na(dat$WEIGHT)] <- 0
+  dat$WEIGHT[is.na(x = dat$WEIGHT)] <- 0
   
   ## reorder columns, rename some
   dat <- with(dat,
