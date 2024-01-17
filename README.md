@@ -1,3 +1,5 @@
+# gapindex <a href='https://github.com/afsc-gap-products/gapindex'><img src='man/figures/logo.png' align="right" style="height:139px;"/></a>
+
 ## Welcome 
 
 This R package generates the standard design-based indices of biomass, 
