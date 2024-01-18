@@ -11,8 +11,8 @@
 
 get_connected <- function(schema = "AFSC") {
   
-  username <- getPass::getPass(msg = "Enter your ORACLE Username: ")
-  password <- getPass::getPass(msg = "Enter your ORACLE Password: ")
+  username <- getPass::getPass(msg = "Enter your AFSC Oracle Database Username: ")
+  password <- getPass::getPass(msg = "Enter your AFSC Oracle Database Password: ")
   
   suppressWarnings(channel <- RODBC::odbcConnect(dsn = paste(schema), 
                                                  uid = paste(username), 
