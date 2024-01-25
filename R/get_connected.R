@@ -11,9 +11,6 @@
 
 get_connected <- function(schema = "AFSC") {
   
-  username <- getPass::getPass(msg = "Enter your AFSC Oracle Database Username: ")
-  password <- getPass::getPass(msg = "Enter your AFSC Oracle Database Password: ")
-
    # check if database name is stored in keyring, if not request user/pwd
   if(!(db %in% keyring::key_list()[,1])) {
     username <- getPass::getPass(msg = "Enter your AFSC Oracle Database Username: ")
