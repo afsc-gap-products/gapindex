@@ -6,6 +6,8 @@
 \alias{gapindex-package}
 \title{gapindex: Standard AFSC GAP Product Calculations}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 This package contains functions to calculate standard data products (CPUE, Biomass, Size Composition, and Age Composition) resulting from the NOAA AFSC GAP summer groundfish bottom trawl survey.
 }
 \author{
