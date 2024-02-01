@@ -138,7 +138,7 @@ the proportion of ages by taxon $k$, length bin $l$, and sex $m$ is created by
 pooling age data across stations and strata within a given survey region
 ($y_{klmx}$).
 
-$$y_{klmx} = \frac{v_{klmx}} {\sum\limits_{x=1}^X_{klm} v_{klmx}}$$
+$$y_{klmx} = \frac{v_{klmx}}{\sum\limits_{x=1}^{X_{klm}} v_{klmx}}$$
 
 where $X_{klm}$ is the oldest age of taxon $k$ in length bin $l$ and sex
 $m$. The age-length key is used to transform the size compositions to age 
