@@ -20,6 +20,11 @@
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls and "N" are 
 #'                       other hauls.
+#' @param taxonomic_source character string. Table used to source taxonomic
+#'                         information. One of two options: "RACEBASE.SPECIES" 
+#'                         (default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
+#'                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
+#'                         provisional table is an option for testing only. 
 #' @param na_rm_strata boolean. Remove hauls with NA stratum information. 
 #' Defaults to FALSE. 
 #' @param sql_channel connection created via gapindex::get_connected()
@@ -273,6 +278,11 @@ get_data <- function(year_set = c(1996, 1999),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Pulling species data...\n")
 
+  if (!(taxonomic_source %in% c("RACEBASE.SPECIES", 
+        "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")) ) 
+    stop("Argument `taxonomic_source` must be one of two choices: 
+         'RACEBASE.SPECIES' or 'GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION'")
+  
   if (taxonomic_source == "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION") {
     species_info <- RODBC::sqlQuery(
       channel = sql_channel,
