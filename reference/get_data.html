@@ -62,6 +62,7 @@ region, years, and species of interest.</p>
 <span>  spp_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">21720</span>, <span class="fl">30060</span>, <span class="fl">10110</span><span class="op">)</span>,</span>
 <span>  haul_type <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  abundance_haul <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"N"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>  taxonomic_source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"RACEBASE.SPECIES"</span>, <span class="st">"GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
 <span>  na_rm_strata <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sql_channel <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pull_lengths <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -100,6 +101,14 @@ sample (preprogrammed station) used for biomass estimation</p></dd>
 <dt>abundance_haul</dt>
 <dd><p>character string. "Y" are abundance hauls and "N" are
 other hauls.</p></dd>
+
+
+<dt>taxonomic_source</dt>
+<dd><p>character string. Table used to source taxonomic
+information. One of two options: "RACEBASE.SPECIES"
+(default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
+"GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
+provisional table is an option for testing only.</p></dd>
 
 
 <dt>na_rm_strata</dt>

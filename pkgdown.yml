@@ -1,4 +1,4 @@
-pandoc: 2.19.2
+pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
@@ -7,5 +7,5 @@ articles:
   ex_goa_modsquad: ex_goa_modsquad.html
   ex_species_complex: ex_species_complex.html
   ex_workflow: ex_workflow.html
-last_built: 2024-02-20T14:07Z
+last_built: 2024-02-28T03:04Z
 
