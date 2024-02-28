@@ -7,7 +7,7 @@
 get_connected(db = "AFSC", check_access = TRUE)
 }
 \arguments{
-\item{db}{string. A registered data source name, in this case "AFSC" by default. This argument is passed to the  the \code{dsn} argument in \code{RODBC::odbcConnect()}}
+\item{db}{string. A registered data source name, in this case "AFSC" by default. This argument is passed to the \code{dsn} argument in \code{RODBC::odbcConnect()}}
 
 \item{check_access}{boolean. If TRUE (by default), checks whether you have the specific tables in GAP_PRODUCTS, RACEBASE and RACE_DATA used in the gapindex package. Outputs an error if the user does not have access to these tables with a message of the point of contact information for access.}
 }

@@ -20,6 +20,11 @@
 #'                  sample (preprogrammed station) used for biomass estimation
 #' @param abundance_haul character string. "Y" are abundance hauls and "N" are 
 #'                       other hauls.
+#' @param taxonomic_source character string. Table used to source taxonomic
+#'                         information. One of two options: "RACEBASE.SPECIES" 
+#'                         (default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
+#'                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
+#'                         provisional table is an option for testing only. 
 #' @param na_rm_strata boolean. Remove hauls with NA stratum information. 
 #' Defaults to FALSE. 
 #' @param sql_channel connection created via gapindex::get_connected()
@@ -38,6 +43,8 @@ get_data <- function(year_set = c(1996, 1999),
                      spp_codes = c(21720, 30060, 10110),
                      haul_type = 3,
                      abundance_haul = c("Y", "N")[1],
+                     taxonomic_source = c("RACEBASE.SPECIES", 
+                                          "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
                      na_rm_strata = FALSE,
                      sql_channel = NULL,
                      pull_lengths = FALSE) {
@@ -270,18 +277,49 @@ get_data <- function(year_set = c(1996, 1999),
   ##   7) Query species information
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Pulling species data...\n")
-  species_info <- RODBC::sqlQuery(
-    channel = sql_channel, 
-    query = paste("SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION
-                   WHERE SURVEY_SPECIES = 1
-                   AND SPECIES_CODE IN",
-                  ifelse(test = is.null(x = spp_codes$SPECIES_CODE),
-                         yes = paste("(SELECT DISTINCT SPECIES_CODE
-                                       FROM RACEBASE.CATCH",
-                                     "WHERE CRUISEJOIN IN", 
-                                     cruisejoin_vec, ")"),
-                         no = spp_codes_vec)))
+
+  if (!(taxonomic_source %in% c("RACEBASE.SPECIES", 
+        "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")) ) 
+    stop("Argument `taxonomic_source` must be one of two choices: 
+         'RACEBASE.SPECIES' or 'GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION'")
   
+  if (taxonomic_source == "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION") {
+    species_info <- RODBC::sqlQuery(
+      channel = sql_channel,
+      query = paste("SELECT * FROM GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION
+                     WHERE SURVEY_SPECIES = 1
+                     AND SPECIES_CODE IN",
+                    ifelse(test = is.null(x = spp_codes$SPECIES_CODE),
+                           yes = paste("(SELECT DISTINCT SPECIES_CODE
+                                         FROM RACEBASE.CATCH",
+                                       "WHERE CRUISEJOIN IN",
+                                       cruisejoin_vec, ")"),
+                           no = spp_codes_vec)))
+  }
+
+  if (taxonomic_source == "RACEBASE.SPECIES") {
+    species_info <- RODBC::sqlQuery(
+      channel = sql_channel, 
+      query = paste("SELECT * FROM RACEBASE.SPECIES 
+                   WHERE SPECIES_CODE IN",
+                    ifelse(test = is.null(x = spp_codes$SPECIES_CODE),
+                           yes = paste("(SELECT DISTINCT SPECIES_CODE
+                                       FROM RACEBASE.CATCH",
+                                       "WHERE CRUISEJOIN IN", 
+                                       cruisejoin_vec, ")"),
+                           no = spp_codes_vec)))
+    
+    ## Merge the taxonomic classification from RACEBASE.SPECIES_CLASSIFICATION
+    ## using "HAULJOIN" AS THE 
+    species_info <- merge(x = species_info,
+                          y = RODBC::sqlQuery(
+                            channel = sql_channel,
+                            query = "SELECT * 
+                            FROM RACEBASE.SPECIES_CLASSIFICATION"),
+                          all.x = TRUE, 
+                          by = "SPECIES_CODE")
+  }
+
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   8) Query catch data based `cruisejoin_vec` and `spp_codes_vec`
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -430,6 +468,8 @@ get_data <- function(year_set = c(1996, 1999),
   species_info <- merge(x = species_info, 
                         y = spp_codes,
                         by = "SPECIES_CODE")
+  
+  missing_species <- spp_codes$SPECIES_CODE[species_info$SPECIES_CODE %in% spp_codes$SPECIES_CODE]
   
   cat("Finished.\n")
   
