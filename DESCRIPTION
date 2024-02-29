@@ -1,6 +1,6 @@
 Package: gapindex
 Title: Standard AFSC GAP Product Calculations
-Version: 2.1.3
+Version: 2.2.0
 Authors@R: 
     person("Zack", "Oyafuso", , "zack.oyafuso@noaa.gov", role = c("aut", "cre"))
 Description: This package contains functions to calculate standard data products (CPUE, Biomass, Size Composition, and Age Composition) resulting from the NOAA AFSC GAP summer groundfish bottom trawl survey.
