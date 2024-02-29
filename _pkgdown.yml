@@ -24,6 +24,8 @@ navbar:
       text: Background
       href: articles/background_equations.html
     news:
+     text: Release Notes
+     menu:
       - text: "gapindex 2.2.0"
         href: "https://github.com/afsc-gap-products/gapindex/releases/tag/v2.2.0"   
       - text: "gapindex 2.1.3"
