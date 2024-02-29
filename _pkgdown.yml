@@ -6,7 +6,7 @@ template:
     
 navbar:
   structure:
-    left: [reference, vignettes, articles, citation]
+    left: [reference, vignettes, articles, citation, news]
   components:
     reference:
       text: Functions
