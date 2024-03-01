@@ -36,7 +36,7 @@ get_connected <- function(db = "AFSC", check_access = TRUE) {
   if (class(channel) == "RODBC") {
     cat("Successfully connected to Oracle.\n")
     
-    if (check_access) {
+    if (check_access & db == "AFSC") {
       cat("Checking that you have access to the tables queried in the gapindex package.\n")
       tables_to_check <- 
         data.frame(table_name = c(
