@@ -15,8 +15,10 @@ get_connected <- function(db = "AFSC", check_access = TRUE) {
   
    # check if database name is stored in keyring, if not request user/pwd
   if(!(db %in% keyring::key_list()[,1])) {
-    username <- getPass::getPass(msg = "Enter your AFSC Oracle Database Username: ")
-    password <- getPass::getPass(msg = "Enter your AFSC Oracle Database Password: ")
+    username <- getPass::getPass(msg = paste("Enter your", db, 
+                                             "Oracle Database Username: "))
+    password <- getPass::getPass(msg = paste("Enter your", db, 
+                                             "Oracle Database Password: "))
   } else {
     username <- keyring::key_list(db)$username
     password <-  keyring::key_get(db, keyring::key_list(db)$username)
@@ -75,6 +77,6 @@ get_connected <- function(db = "AFSC", check_access = TRUE) {
              "\n\nPlease contact nmfs.afsc.gap.metadata@noaa.gov for access to these tables and then try connecting again.")
       )
       
-    }
+    } else(return(channel))
   }
 }
