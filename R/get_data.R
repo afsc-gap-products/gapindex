@@ -306,7 +306,8 @@ get_data <- function(year_set = c(1996, 1999),
                            yes = paste("(SELECT DISTINCT SPECIES_CODE
                                        FROM RACEBASE.CATCH",
                                        "WHERE CRUISEJOIN IN", 
-                                       cruisejoin_vec, ")"),
+                                       cruisejoin_vec,
+                                       "AND SPECIES_CODE IN (SELECT SPECIES_CODE FROM GAP_PRODUCTS.TAXON_GROUPS WHERE GROUP_CODE IS NOT NULL)",")"),
                            no = spp_codes_vec)))
     
     ## Merge the taxonomic classification from RACEBASE.SPECIES_CLASSIFICATION
