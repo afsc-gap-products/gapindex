@@ -28,10 +28,10 @@ calc_cpue <- function(racebase_tables = NULL) {
   
   ## Remove species with no catch records, output warning
   omitted_species <- 
-    species$GROUP[!species$GROUP %in% 
+    species$GROUP_CODE[!species$GROUP_CODE %in% 
                     racebase_tables$catch$SPECIES_CODE]
   species <- subset(x = racebase_tables$species,
-                    subset = GROUP %in% unique(catch$SPECIES_CODE))
+                    subset = GROUP_CODE %in% unique(catch$SPECIES_CODE))
   
   if (length(x = omitted_species) > 0) 
     warning(paste0("No catch records found for species codes: ", 
@@ -62,7 +62,7 @@ calc_cpue <- function(racebase_tables = NULL) {
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table called `all_combos` of "HAULJOIN" and "SPECIES_CODE"
   all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
-                            SPECIES_CODE = sort(x = unique(x = species$GROUP)),
+                            SPECIES_CODE = sort(x = unique(x = species$GROUP_CODE)),
                             stringsAsFactors = F)
   
   ## Then left join the haul data in `dat` to `all_combos` using "HAULJOIN"
