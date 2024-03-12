@@ -25,78 +25,52 @@ calc_sizecomp_subarea <- function(racebase_tables,
          gapindex::calc_sizecomp_stratum().")
   
   ## Which survey designs to pull from
-  subarea_size_comp_df <- data.frame()
+  subarea_size_comp_df <- data.table::data.table()
   survey_designs <- racebase_tables$survey
+  unique_surveys <- racebase_tables$survey
+  stratum_groups <- racebase_tables$stratum_groups
   
-  for (isurvey in 1:nrow(x = survey_designs)) { ## Loop over surveys -- start
-    
-    ## Subset the set of subareas given the survey and design year. From 
-    ## 2025-on the GOA time series will have two unique survey designs with 
-    ## different design years.
-    subareas <- subset(x = racebase_tables$subarea,
-                       subset = SURVEY_DEFINITION_ID == 
-                         survey_designs$SURVEY_DEFINITION_ID[isurvey] &
-                         DESIGN_YEAR == survey_designs$DESIGN_YEAR[isurvey])
-    
-    for (isubarea in 1:nrow(x = subareas)) { ## Loop over subareas -- start
-      
-      ## Extract the strata (AREA_ID) that are contained within isubarea
-      strata_in_subarea <- 
-        subset(x = racebase_tables$stratum_groups,
-               subset = AREA_ID %in% subareas$AREA_ID[isubarea])
-      
-      if (nrow(x = strata_in_subarea) > 0) {
-        
-        ## Subset size comps for only the strata in isubarea
-        subarea_size_comp <- 
-          subset(x = size_comps,
-                 subset = SURVEY_DEFINITION_ID == 
-                   subareas$SURVEY_DEFINITION_ID[isubarea] &
-                   STRATUM %in% strata_in_subarea$STRATUM)
-        
-        if (nrow(x = subarea_size_comp) == 0) next
-        
-        ## Aggregate size comps within the isubarea
-        subarea_summed_sizecomp <- 
-          stats::aggregate(POPULATION_COUNT ~ 
-                             YEAR + SPECIES_CODE + SEX + LENGTH_MM,
-                           data = subarea_size_comp,
-                           FUN = sum)
-        
-        ## append to result df
-        subarea_size_comp_df <- 
-          rbind( 
-            subarea_size_comp_df,
-            cbind(
-              data.frame(
-                AREA_ID = subareas$AREA_ID[isubarea],
-                SURVEY_DEFINITION_ID = subareas$SURVEY_DEFINITION_ID[isubarea]),
-              subarea_summed_sizecomp[, c("SPECIES_CODE", "YEAR", 
-                                          "SEX", "LENGTH_MM", 
-                                          "POPULATION_COUNT")]
-            )
-          )
-      }
-      
-    } ## Loop over subareas -- end
-  } ## Loop over surveys -- end
+  ## Add DESIGN_YEAR to size_comps
+  size_comps <- unique_surveys[size_comps,
+                 on = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR")]
   
-  ## Reorder columns, sort, and return
-  subarea_size_comp_df <- 
-    subset(x = subarea_size_comp_df,
-           select = c(SURVEY_DEFINITION_ID, YEAR, AREA_ID,
-                      SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT))
+  ## Create ## Subset the set of subareas given the survey and design year. From 
+  ## 2025-on the GOA time series will have two unique survey designs with 
+  ## different design years.
+  subarea_size_comp <- data.table::data.table()
+  for (irow in 1:nrow(x = unique_surveys))
+    subarea_size_comp <- 
+    rbind(subarea_size_comp,
+          cbind(YEAR = unique_surveys$YEAR[irow],
+                stratum_groups[
+                  SURVEY_DEFINITION_ID == 
+                    unique_surveys$SURVEY_DEFINITION_ID[irow] &
+                    SURVEY == 
+                    unique_surveys$SURVEY[irow] &
+                    DESIGN_YEAR == 
+                    unique_surveys$DESIGN_YEAR[irow]]))
   
-  subarea_size_comp_df <-
-    subarea_size_comp_df[order(subarea_size_comp_df$SURVEY_DEFINITION_ID,
-                               subarea_size_comp_df$AREA_ID,
-                               subarea_size_comp_df$SPECIES_CODE,
-                               subarea_size_comp_df$YEAR,
-                               subarea_size_comp_df$SEX,
-                               subarea_size_comp_df$LENGTH_MM), ]
+  subarea_size_comp <- 
+    subarea_size_comp[size_comps,
+                    on = c("SURVEY_DEFINITION_ID", "SURVEY", 
+                           "DESIGN_YEAR", "YEAR ", "STRATUM"),
+                    allow.cartesian = TRUE]
   
-  row.names(x = subarea_size_comp_df) <- NULL
+  ## Aggregate size comps
+  subarea_size_comp <- 
+    subarea_size_comp[,
+                      .(POPULATION_COUNT = sum(POPULATION_COUNT)),
+                      by = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR",
+                             "AREA_ID", "YEAR", "SPECIES_CODE", 
+                             "SEX", "LENGTH_MM")]
   
-  return(subarea_size_comp_df)
+ ## Reorder columns, sort, and return
+  subarea_size_comp <- 
+    subarea_size_comp[
+      order(SURVEY_DEFINITION_ID, AREA_ID, SPECIES_CODE, YEAR, SEX, LENGTH_MM),
+      c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE", 
+        "LENGTH_MM", "SEX", "POPULATION_COUNT")]
+  
+  return(subarea_size_comp)
 }
 

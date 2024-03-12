@@ -74,21 +74,28 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   
   ## Only subset to species with size data
   racebase_stratum_popn <- 
-    subset(x = racebase_stratum_popn,
-           subset = SPECIES_CODE %in% unique(x = size$SPECIES_CODE))
+    racebase_stratum_popn[SPECIES_CODE %in% unique(x = size$SPECIES_CODE)]
   
   ## Attach "YEAR" and "SURVEY" columns from `haul` to `size` using column
   ## "CRUISEJOIN" as the key.
-  haul <- merge(x = haul, 
-                y = cruise[, c("CRUISEJOIN", "SURVEY", "YEAR")],
-                by = "CRUISEJOIN")
+  haul <- cruise[, c("CRUISEJOIN", "SURVEY", "YEAR")][haul, 
+                                                      on = "CRUISEJOIN"]
+  # haul <- merge(x = haul, 
+  #               y = cruise[, c("CRUISEJOIN", "SURVEY", "YEAR")],
+  #               by = "CRUISEJOIN")
   
   ## Attach "YEAR", "SURVEY", and "STRATUM" information from `haul` to `size` 
   ## using "HAULJOIN" as the key.
-  size <- merge(x = size[, c("HAULJOIN",  "SPECIES_CODE", "LENGTH",
-                             "FREQUENCY", "SEX")], 
-                y = haul[, c("HAULJOIN", "SURVEY", "YEAR", "STRATUM")],
-                by = "HAULJOIN")
+  size <- haul[, c("HAULJOIN", "SURVEY", "YEAR", "STRATUM")][
+    size[, c("HAULJOIN",  "SPECIES_CODE", "LENGTH",
+             "FREQUENCY", "SEX")],
+    on = "HAULJOIN"
+  ]
+  
+  # size <- merge(x = size[, c("HAULJOIN",  "SPECIES_CODE", "LENGTH",
+  #                            "FREQUENCY", "SEX")], 
+  #               y = haul[, c("HAULJOIN", "SURVEY", "YEAR", "STRATUM")],
+  #               by = "HAULJOIN")
   
   ##############################################
   ## Wakabayashi et al. 1985 Equation 16: 
@@ -112,22 +119,35 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   ##     via the "HAULJOIN" and "SPECIES_CODE" as a composite key
   ##     so that calculations can be vectorized easily.
   
-  s_ijk <- stats::aggregate(
-    FREQUENCY ~ SURVEY + YEAR + HAULJOIN + SPECIES_CODE,
-    data = size,
-    FUN = sum)
-  names(x = s_ijk)[names(x = s_ijk) == "FREQUENCY"] <- "s_ijk"
+  s_ijk <- size[, 
+                .("s_ijk" = sum(FREQUENCY, na.rm = T)), 
+                by = c("SURVEY", "YEAR", "HAULJOIN", "SPECIES_CODE")]
+  
+  # s_ijk2 <- stats::aggregate(
+  #   FREQUENCY ~ SURVEY + YEAR + HAULJOIN + SPECIES_CODE,
+  #   data = size,
+  #   FUN = sum)
+  # names(x = s_ijk)[names(x = s_ijk) == "FREQUENCY"] <- "s_ijk"
   
   ## Merge the "s_ijk" column from `s_ijk` to `size` using "SPECIES_CODE"
   ## and "HAULJOIN" as a composite key. 
-  size <- merge(x = size, 
-                y = s_ijk[, c("SPECIES_CODE", "HAULJOIN", "s_ijk")],
-                by = c("SPECIES_CODE", "HAULJOIN"))
+  size <- s_ijk[, c("SPECIES_CODE", "HAULJOIN", "s_ijk")][
+    size,
+    on = c("SPECIES_CODE", "HAULJOIN")
+  ]
+  # size <- merge(x = size, 
+  #               y = s_ijk[, c("SPECIES_CODE", "HAULJOIN", "s_ijk")],
+  #               by = c("SPECIES_CODE", "HAULJOIN"))
   ## Merge the "CPUE_NOKM2" column from `cpue` to `size` using "SPECIES_CODE"
   ## and "HAULJOIN" as a composite key. 
-  size <- merge(x = size, 
-                y = cpue[, c("HAULJOIN", "SPECIES_CODE", "CPUE_NOKM2")],
-                by = c("HAULJOIN", "SPECIES_CODE"))
+  size <- cpue[, c("HAULJOIN", "SPECIES_CODE", "CPUE_NOKM2")][
+    size,
+    on = c("HAULJOIN", "SPECIES_CODE")
+  ]
+  
+  # size <- merge(x = size, 
+  #               y = cpue[, c("HAULJOIN", "SPECIES_CODE", "CPUE_NOKM2")],
+  #               by = c("HAULJOIN", "SPECIES_CODE"))
   
   ## The size CPUE (S_ijklm)
   size$S_ijklm <- size$FREQUENCY / size$s_ijk * size$CPUE_NOKM2
@@ -140,16 +160,15 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     ## Query hauls with positive counts but have no records in `size`
     missing_hauljoins <- data.frame()
     
-    for (ispp in racebase_tables$species$SPECIES_CODE) 
+    for (ispp in sort(x = unique(x = racebase_tables$size$SPECIES_CODE)) ) 
     { ## Loop over species -- start
       temp_hauljoins <- unique(x = size$HAULJOIN[size$SPECIES_CODE == ispp])
       
       missing_hauljoins <- 
         rbind(missing_hauljoins,
-              subset(x = cpue,
-                     subset = CPUE_NOKM2 > 0 & 
-                       SPECIES_CODE == ispp &
-                       !HAULJOIN %in% temp_hauljoins))
+              cpue[CPUE_NOKM2 > 0 & 
+                     SPECIES_CODE == ispp &
+                     !HAULJOIN %in% temp_hauljoins])
     } ## Loop over species -- end
     
     ## Calculate mean S_ijklm of individuals of species-k with sex-m and 
@@ -158,34 +177,50 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     size$p_ijklm <- with(size, FREQUENCY / s_ijk)
     
     ## First we sum all the proportions within a stratum...
-    imputted_size <- 
-      stats::aggregate(p_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE + 
-                         SEX + LENGTH,
-                       data = size,
-                       FUN = sum)
+    imputted_size <- size[,
+                          .(p_ijklm = sum(p_ijklm)),
+                          by = c("SURVEY", "YEAR", "STRATUM", 
+                                 "SPECIES_CODE", "SEX", "LENGTH")]
+    # imputted_size <- 
+    #   stats::aggregate(p_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE + 
+    #                      SEX + LENGTH,
+    #                    data = size,
+    #                    FUN = sum)
     
     ## Then we calculate the total number of unique hauls within a stratum...
     hauls_w_length_by_stratum <-
-      stats::aggregate(HAULJOIN ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
-                       data = size,
-                       FUN = function(x) length(x = unique(x = x)))
-    names(hauls_w_length_by_stratum)[
-      names(hauls_w_length_by_stratum) == "HAULJOIN"
-    ] <- "HAULJOIN_TOTAL"
+      size[,
+           .(HAULJOIN_TOTAL = (function(x) length(x = unique(x = x)))(.SD)),
+           by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE")]
+    # hauls_w_length_by_stratum <-
+    #   stats::aggregate(HAULJOIN ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
+    #                    data = size,
+    #                    FUN = function(x) length(x = unique(x = x)))
+    # names(hauls_w_length_by_stratum)[
+    #   names(hauls_w_length_by_stratum) == "HAULJOIN"
+    # ] <- "HAULJOIN_TOTAL"
     
     ## Then we calculate the average proportion. Merge the "HAULJOIN_TOTAL"
     ## column from `hauls_w_length_by_stratum` to imputted_size using
     ## "SURVEY", "YEAR", "STRATUM", "SPECIES_CODE" as a composite key.
-    imputted_size <- merge(x = imputted_size,
-                           y = hauls_w_length_by_stratum,
-                           by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"))
+    imputted_size <- 
+      hauls_w_length_by_stratum[imputted_size,
+                                on = c("SURVEY", "YEAR", 
+                                       "STRATUM", "SPECIES_CODE")]
+    # imputted_size <- merge(x = imputted_size,
+    #                        y = hauls_w_length_by_stratum,
+    #                        by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"))
     imputted_size$p_ijklm <- with(imputted_size, p_ijklm / HAULJOIN_TOTAL)
     
     ## Merge this mean S_hat_iklm to `missing_hauljoins` using column 
     ## "SURVEY", "YEAR", "STRATUM", "SPECIES_CODE" as a composite key.
-    imputted_size <- merge(x = missing_hauljoins,
-                           y = imputted_size,
-                           by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"))
+    imputted_size <- 
+      imputted_size[missing_hauljoins,
+                    on = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE")]
+    
+    # imputted_size <- merge(x = missing_hauljoins,
+    #                        y = imputted_size,
+    #                        by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"))
     
     ## Recalculate S_ijklm using the imputted size composition. 
     imputted_size$S_ijklm <- with(imputted_size, p_ijklm * CPUE_NOKM2)
@@ -229,33 +264,53 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ## Aggregate S_ijklm across stratum and species_code
-  S_ik <- stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
-                           data = size,
-                           FUN = sum)
-  names(S_ik)[names(S_ik) == "S_ijklm"] <- "S_ik"
+  S_ik <- 
+    size[, 
+         .("S_ik" = sum(S_ijklm)), 
+         by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE")]
+  # S_ik <- stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
+  #                          data = size,
+  #                          FUN = sum)
+  # names(S_ik)[names(S_ik) == "S_ijklm"] <- "S_ik"
   
   ## Aggregate S_ijklm across stratum, species_code, length bin, and sex
   S_iklm <- 
-    stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE + 
-                       LENGTH + SEX,
-                     data = size,
-                     FUN = sum)
-  names(S_iklm)[names(S_iklm) == "S_ijklm"] <- "S_iklm" 
+    size[,
+         .("S_iklm" = sum(S_ijklm)),
+         by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE", "LENGTH", "SEX")]
+  
+  # S_iklm <- 
+  # stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE + 
+  #                    LENGTH + SEX,
+  #                  data = size,
+  #                  FUN = sum)
+  # names(S_iklm)[names(S_iklm) == "S_ijklm"] <- "S_iklm" 
   
   ## Merge the "S_ik" column from `S_ik` to `S_iklm` using "SURVEY", "YEAR", 
   ## 'STRATUM', "SPECIES_CODE" as a composite key.
-  S_iklm <- merge(x = S_iklm,
-                  y = S_ik,
-                  by = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE"))
+  S_iklm <- 
+    S_ik[S_iklm,
+         on = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE")]
+  
+  # S_iklm <- merge(x = S_iklm,
+  #                 y = S_ik,
+  #                 by = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE"))
   
   ## Merge "POPULATION_COUNT" column from `racebase_stratum_popn` to `S_iklm`
   ## using "SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE" as a composite key. 
   S_iklm <- merge(x = S_iklm,
-                  y = racebase_stratum_popn[, c("SURVEY", "YEAR", 'STRATUM', 
-                                              "SPECIES_CODE", 
-                                              "POPULATION_COUNT")],
+                  y = racebase_stratum_popn[, c("SURVEY", "YEAR", 'STRATUM',
+                                                "SPECIES_CODE",
+                                                "POPULATION_COUNT")],
                   by = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE"),
                   all = TRUE)
+  
+  # S_iklm2 <- merge(x = S_iklm,
+  #                 y = racebase_stratum_popn[, c("SURVEY", "YEAR", 'STRATUM',
+  #                                               "SPECIES_CODE",
+  #                                               "POPULATION_COUNT")],
+  #                 by = c("SURVEY", "YEAR", 'STRATUM', "SPECIES_CODE"),
+  #                 all = TRUE)
   
   ## There are some strata with no length data. In these cases, the length
   ## is coded as -9 and sex = 3. S_ik and S_ik are set to 1 to ease calculations
@@ -274,8 +329,8 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     S_iklm$LENGTH[is.na(x = S_iklm$LENGTH)] <- -9 ## dummy variable
     S_iklm$SEX[is.na(x = S_iklm$SEX)] <- 3 
-    S_iklm[is.na(x = S_iklm$S_iklm), 
-           c("S_iklm", "S_ik")] <- 1 #to ease calculation
+    # S_iklm[is.na(x = "S_iklm"), 
+    #        c("S_iklm", "S_ik")] <- 1 #to ease calculation
   }
   
   ## Stratum-level population calculation
@@ -294,9 +349,8 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   names(x = S_iklm)[names(x = S_iklm) == "LENGTH"] <- "LENGTH_MM"
   
   ## Add SURVEY_DEFINITION_ID to output
-  S_iklm <- merge(x = S_iklm, 
-                  y = racebase_tables$survey, 
-                  by = "SURVEY")
+  S_iklm <- racebase_tables$survey_design[S_iklm,
+                                          on = "SURVEY"]
   
   S_iklm <- subset(x = S_iklm,
                    select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,

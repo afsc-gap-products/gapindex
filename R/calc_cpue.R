@@ -14,7 +14,6 @@
 #' 
 
 calc_cpue <- function(racebase_tables = NULL) {
-  
   ## Input check
   if (is.null(x = racebase_tables))
     stop("Must provide argument `racebase_tables` a named list from 
@@ -29,19 +28,12 @@ calc_cpue <- function(racebase_tables = NULL) {
   ## Remove species with no catch records, output warning
   omitted_species <- 
     species$GROUP_CODE[!species$GROUP_CODE %in% 
-                    racebase_tables$catch$SPECIES_CODE]
-  species <- subset(x = racebase_tables$species,
-                    subset = GROUP_CODE %in% unique(catch$SPECIES_CODE))
+                         racebase_tables$catch$SPECIES_CODE]
+  species <- species[GROUP_CODE %in% unique(catch$SPECIES_CODE)]
   
   if (length(x = omitted_species) > 0) 
     warning(paste0("No catch records found for species codes: ", 
                    gapindex::stitch_entries(omitted_species)))
-  
-  ## Attach "YEAR" column to `haul` from `cruisedat` using "CRUISEJOIN" as the 
-  ## key.
-  haul <- merge(x = haul, 
-                y = cruisedat[, c("CRUISEJOIN", "YEAR")],
-                by = "CRUISEJOIN")
   
   ## For abundance index calculations, the haul df should only have records 
   ## where haul$ABUNDANCE_HAUL == "Y". This check is just a warning to the user.
@@ -52,18 +44,16 @@ calc_cpue <- function(racebase_tables = NULL) {
                   "where haul$abundance_haul == 'Y'. "))
   }
   
-  ## Merge "SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR" columns from 
-  ## `cruisedat` to `haul` using "CRUISEJOIN" as the key.
-  dat <- merge(x = haul,
-               y = cruisedat[, c("CRUISEJOIN", "SURVEY", 
-                                 "SURVEY_DEFINITION_ID", "DESIGN_YEAR")],
-               by = "CRUISEJOIN")
+  ## Merge "SURVEY", "SURVEY_DEFINITION_ID", "DESIGN_YEAR", and "YEAR" columns 
+  ## from `cruisedat` to `haul` using "CRUISEJOIN" as the key.
+  dat <- cruisedat[, c("CRUISEJOIN", "SURVEY", "SURVEY_DEFINITION_ID", 
+                       "DESIGN_YEAR", "YEAR")][haul, on = "CRUISEJOIN"]
   
   ##  `dat` only has non-zero records. To fill in zero-weight records, we 
   ## first create a table called `all_combos` of "HAULJOIN" and "SPECIES_CODE"
-  all_combos <- expand.grid(HAULJOIN = dat$HAULJOIN, 
-                            SPECIES_CODE = sort(x = unique(x = species$GROUP_CODE)),
-                            stringsAsFactors = F)
+  all_combos <- 
+    data.table::CJ(HAULJOIN = dat$HAULJOIN, 
+                   SPECIES_CODE = sort(x = unique(x = catch$SPECIES_CODE)))
   
   ## Then left join the haul data in `dat` to `all_combos` using "HAULJOIN"
   ## as the key.
@@ -75,8 +65,7 @@ calc_cpue <- function(racebase_tables = NULL) {
   ## Left Join `catch` with `dat` using the "HAULJOIN" AND "SPECIES_CODE" 
   ## as a composite key
   dat <- merge(x = dat,
-               y = catch[, c("HAULJOIN", "SPECIES_CODE", 
-                             "WEIGHT", "NUMBER_FISH")], 
+               y = catch, 
                by = c("HAULJOIN", "SPECIES_CODE"), 
                all.x = TRUE)
   
@@ -84,32 +73,34 @@ calc_cpue <- function(racebase_tables = NULL) {
   ## These records perhaps erroneously have a zero. These "zero" counts are
   ## not included in the numbers per area swept calculation, so we need to 
   ## NA these values and put zero counts for hauls with zero weights
-  dat$NUMBER_FISH[dat$NUMBER_FISH == 0] <- -1
-  dat$NUMBER_FISH[is.na(dat$NUMBER_FISH)] <- 0  
-  dat$NUMBER_FISH[dat$NUMBER_FISH == -1] <- NA
+  dat$NUMBER_FISH[dat$WEIGHT > 0 & dat$NUMBER_FISH == 0] <- NA
   
   ## Any record with no weight or count data (NA) are replaced with a zero
-  dat$WEIGHT[is.na(x = dat$WEIGHT)] <- 0
+  dat[is.na(x = dat$WEIGHT) & is.na(x = dat$NUMBER_FISH), 
+      c("WEIGHT", "NUMBER_FISH")] <- 0
   
   ## reorder columns, rename some
   dat <- with(dat,
-              data.frame(SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
-                         HAULJOIN, STRATUM, DESIGN_YEAR,
-                         LATITUDE_DD_START = START_LATITUDE, 
-                         LATITUDE_DD_END = END_LATITUDE, 
-                         LONGITUDE_DD_START = START_LONGITUDE, 
-                         LONGITUDE_DD_END = END_LONGITUDE,
-                         DEPTH_M = BOTTOM_DEPTH,
-                         BOTTOM_TEMPERATURE_C = GEAR_TEMPERATURE,
-                         SPECIES_CODE,
-                         WEIGHT_KG = WEIGHT,
-                         COUNT = NUMBER_FISH,
-                         AREA_SWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
+              data.table::data.table(
+                SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
+                HAULJOIN, STRATUM, DESIGN_YEAR,
+                LATITUDE_DD_START = START_LATITUDE, 
+                LATITUDE_DD_END = END_LATITUDE, 
+                LONGITUDE_DD_START = START_LONGITUDE, 
+                LONGITUDE_DD_END = END_LONGITUDE,
+                DEPTH_M = BOTTOM_DEPTH,
+                BOTTOM_TEMPERATURE_C = GEAR_TEMPERATURE,
+                SPECIES_CODE,
+                WEIGHT_KG = WEIGHT,
+                COUNT = NUMBER_FISH,
+                AREA_SWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
   
   ## CPUE calculations
-  dat <- cbind(dat,
-               with(dat, data.frame(CPUE_KGKM2 = WEIGHT_KG / AREA_SWEPT_KM2,
-                                    CPUE_NOKM2 = COUNT / AREA_SWEPT_KM2)))
+  dat <- cbind(dat, 
+               with(dat, data.table::data.table(
+                 CPUE_KGKM2 = WEIGHT_KG / AREA_SWEPT_KM2,
+                 CPUE_NOKM2 = COUNT / AREA_SWEPT_KM2))
+  )
   
   return(dat)
 }

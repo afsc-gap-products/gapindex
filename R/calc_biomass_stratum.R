@@ -29,65 +29,57 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   ## number of hauls with positive weights. For strata with only one station, 
   ## the variance is not defined (coded as NA).
   wgt_stats <- 
-    stats::aggregate(
-      CPUE_KGKM2 ~ SPECIES_CODE + STRATUM + YEAR + 
-        SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR, 
-      data = cpue, 
-      FUN = function(x) 
-        c("CPUE_KGKM2_MEAN" = mean(x, na.rm = TRUE), 
-          "CPUE_KGKM2_VAR" = ifelse(test = length(stats::na.omit(x)) < 2, 
-                                    yes = NA, 
-                                    no = stats::var(x, na.rm = TRUE) / 
-                                      length(stats::na.omit(x))),
-          "N_HAUL" = length(x = x),
-          "N_WEIGHT" = length(x = stats::na.omit(x[x > 0]))
-        ))
+    cpue[, 
+         list(
+           "CPUE_KGKM2_MEAN" = mean(x = CPUE_KGKM2, na.rm = TRUE),
+           "CPUE_KGKM2_VAR" = ifelse(
+             test = length(stats::na.omit(CPUE_KGKM2)) < 2,
+             yes = NA_real_,
+             no = stats::var(CPUE_KGKM2, na.rm = TRUE) /
+               length(stats::na.omit(CPUE_KGKM2))),
+           "N_HAUL" = length(x = CPUE_KGKM2),
+           "N_WEIGHT" = length(x = stats::na.omit(CPUE_KGKM2[CPUE_KGKM2 > 0])) 
+         ), 
+         by = c("SPECIES_CODE", "STRATUM", "YEAR", "SURVEY", 
+                "SURVEY_DEFINITION_ID", "DESIGN_YEAR")]
   
   ## Calculate mean and variance stratum numerical CPUE, and number of hauls 
   ## with count data. For strata with only one station, the variance is not 
   ## defined (coded as NA).
   num_stats <- 
-    stats::aggregate(
-      CPUE_NOKM2 ~ SPECIES_CODE + STRATUM + YEAR + 
-        SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR, 
-      data = cpue,
-      na.action = NULL,
-      FUN = function(x) 
-        c("CPUE_NOKM2_MEAN" = ifelse(test = length(stats::na.omit(x)) == 0,
-                                     yes = NA,
-                                     no = mean(x, na.rm = TRUE)), 
-          "CPUE_NOKM2_VAR" = ifelse(test = length(stats::na.omit(x)) < 2, 
-                                    yes = NA, 
-                                    no = stats::var(x, na.rm = TRUE) / 
-                                      length(stats::na.omit(x))),
-          "N_COUNT" =  length(x = stats::na.omit(x[x > 0]))
-        ))
+    cpue[, 
+         list(
+           "CPUE_NOKM2_MEAN" = ifelse(
+             test = length(x = stats::na.omit(CPUE_NOKM2)) == 0,
+             yes = NA_real_,
+             no = mean(CPUE_NOKM2, na.rm = TRUE)), 
+           "CPUE_NOKM2_VAR" = ifelse(
+             test = length(stats::na.omit(CPUE_NOKM2)) < 2, 
+             yes = NA_real_, 
+             no = stats::var(CPUE_NOKM2, na.rm = TRUE) / 
+               length(stats::na.omit(CPUE_NOKM2))),
+           "N_COUNT" = length(x = stats::na.omit(CPUE_NOKM2[CPUE_NOKM2 > 0])) 
+         ), 
+         by = c("SPECIES_CODE", "STRATUM", "YEAR", "SURVEY", 
+                "SURVEY_DEFINITION_ID", "DESIGN_YEAR")]
   
   if (!is.null(x = racebase_tables$size)) {
-    ## Attach "STRATUM" column from `haul` to the size table using "HAULJOIN"
-    ## as the key
-    size <- merge(x = racebase_tables$size,
-                  y = haul[, c("HAULJOIN", "STRATUM")],
-                  by = "HAULJOIN")
     
-    ## Attach "CRUISEJOIN" column from the cruise data to the `size` 
-    ## table using "CRUISEJOIN" as the key
-    size <- merge(x = size, 
-                  y = racebase_tables$cruise,
-                  by = "CRUISEJOIN")
+    ## Merge the cruise df into haul using "CRUISEJOIN" as the key, then
+    ## merge that resultant df into racebase_tables$size using "HAULJOIN"
+    ## as the key
+    size <- racebase_tables$size[cruise[haul, 
+                                        on = "CRUISEJOIN"], 
+                                 on = "HAULJOIN"]
     
     ## Calculate the number of hauls with size data
-    size_stats <- 
-      aggregate(HAULJOIN ~ SPECIES_CODE + STRATUM + YEAR + 
-                  SURVEY + SURVEY_DEFINITION_ID + DESIGN_YEAR,
-                data = size,
-                FUN = function(x) length(x = unique(x = x)))
-    names(x = size_stats)[names(x = size_stats) == "HAULJOIN"] <- "N_LENGTH"
+    size_stats <- size[, .("N_LENGTH" = length(x = unique(x = HAULJOIN))), 
+                       by = c("SPECIES_CODE", "STRATUM", "YEAR", "SURVEY",
+                              "SURVEY_DEFINITION_ID", "DESIGN_YEAR")]
+    
   } else { # If there are no size data, the number of hauls with size data is 0
-    size_stats <- subset(x = num_stats, 
-                         select = c("SPECIES_CODE", "STRATUM", "YEAR", 
-                                    "SURVEY", "SURVEY_DEFINITION_ID", 
-                                    "DESIGN_YEAR"))
+    size_stats <- num_stats[, c("SPECIES_CODE", "STRATUM", "YEAR", "SURVEY",
+                                "SURVEY_DEFINITION_ID", "DESIGN_YEAR")]
     size_stats$N_LENGTH <- 0
     
     warning(paste0("Size data are not present in argument `racebase_tables`. ",
@@ -101,48 +93,45 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
   stratum_stats <- cbind(
     wgt_stats[, c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
                   "SURVEY", "SURVEY_DEFINITION_ID")],
-    wgt_stats$CPUE_KGKM2,
-    num_stats$CPUE_NOKM2)
+    wgt_stats[, c("CPUE_KGKM2_MEAN", "CPUE_KGKM2_VAR", "N_HAUL", "N_WEIGHT")],
+    num_stats[, c("CPUE_NOKM2_MEAN", "CPUE_NOKM2_VAR", "N_COUNT")])
   
   ## Merge N_LENGTH column from `size_stats` into stratum_stats using 
   ## "SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", "SURVEY", and 
   ## "SURVEY_DEFINITION_ID" as a composite key
   stratum_stats <- 
-    merge(x = stratum_stats,
-          y = size_stats,
-          by = c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
-                 "SURVEY", "SURVEY_DEFINITION_ID"),
-          all.x = TRUE)
-  stratum_stats$N_LENGTH[is.na(stratum_stats$N_LENGTH)] <- 0
+    size_stats[stratum_stats, 
+               on = c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
+                      "SURVEY", "SURVEY_DEFINITION_ID")]
+  stratum_stats[is.na(x = stratum_stats$N_LENGTH), N_LENGTH := 0]
   
   ## Attach stratum data to stratum_stats
-  stratum_stats <- merge(
-    x = stratum_stats,
-    y = racebase_tables$strata[, c("SURVEY_DEFINITION_ID", "STRATUM", 
-                                   "DESIGN_YEAR", "AREA_KM2")],
-    by = c("SURVEY_DEFINITION_ID", "DESIGN_YEAR", "STRATUM"))
+  stratum_stats <- 
+    racebase_tables$strata[, c("SURVEY_DEFINITION_ID", "STRATUM", 
+                               "DESIGN_YEAR", "AREA_KM2")][
+                                 stratum_stats, 
+                                 on = c("SURVEY_DEFINITION_ID", 
+                                        "DESIGN_YEAR", "STRATUM")]
   
   ## Calculate design-based estimate and variance of biomass and abundance
   stratum_stats[, c("BIOMASS_MT", "BIOMASS_VAR", 
                     "POPULATION_COUNT", "POPULATION_VAR")] <-
     with(stratum_stats, 
-         data.frame(BIOMASS_MT = AREA_KM2 * CPUE_KGKM2_MEAN * 0.001,
-                    BIOMASS_VAR = AREA_KM2^2 * CPUE_KGKM2_VAR * 1e-6,
-                    POPULATION_COUNT = AREA_KM2 * CPUE_NOKM2_MEAN,
-                    POPULATION_VAR = AREA_KM2^2 * CPUE_NOKM2_VAR))
+         data.table::data.table(
+           BIOMASS_MT = AREA_KM2 * CPUE_KGKM2_MEAN * 0.001,
+           BIOMASS_VAR = AREA_KM2^2 * CPUE_KGKM2_VAR * 1e-6,
+           POPULATION_COUNT = AREA_KM2 * CPUE_NOKM2_MEAN,
+           POPULATION_VAR = AREA_KM2^2 * CPUE_NOKM2_VAR))
   
   ## Reorder fields, sort
-  stratum_stats <- subset(x = stratum_stats,
-                          select = c(SURVEY_DEFINITION_ID, SURVEY,
-                                     STRATUM, SPECIES_CODE, YEAR,
-                                     N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH,
-                                     CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
-                                     CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
-                                     BIOMASS_MT, BIOMASS_VAR, 
-                                     POPULATION_COUNT, POPULATION_VAR))
-  stratum_stats <- stratum_stats[with(stratum_stats,
-                                      order(YEAR, SURVEY_DEFINITION_ID,
-                                            STRATUM, SPECIES_CODE)), ]
+  stratum_stats <-
+    stratum_stats[order(YEAR, SURVEY_DEFINITION_ID, STRATUM, SPECIES_CODE),
+                  .(SURVEY_DEFINITION_ID, SURVEY, STRATUM, SPECIES_CODE, YEAR,
+                    N_HAUL, N_WEIGHT, N_COUNT, N_LENGTH,
+                    CPUE_KGKM2_MEAN, CPUE_KGKM2_VAR, 
+                    CPUE_NOKM2_MEAN, CPUE_NOKM2_VAR,
+                    BIOMASS_MT, BIOMASS_VAR, 
+                    POPULATION_COUNT, POPULATION_VAR)]
   
   ## Remove EBS + NW strata pre-1987 as these aren't used
   if (any(stratum_stats$YEAR < 1987 & stratum_stats$SURVEY == "EBS")) {
@@ -152,13 +141,10 @@ calc_biomass_stratum <- function(racebase_tables = NULL,
       were sampled during those years. Biomass/Abundance estimates for 
       these early years were removed.")
     
-    stratum_stats <- subset(x = stratum_stats, 
-                            subset = !(SURVEY_DEFINITION_ID == 98 & 
-                                         YEAR < 1987 & 
-                                         STRATUM %in% c(82, 90)) )
+    stratum_stats <- stratum_stats[!(SURVEY_DEFINITION_ID == 98 &
+                                       YEAR < 1987 & 
+                                       STRATUM %in% c(82, 90)) ]
   }
-  
-  row.names(x = stratum_stats) <- NULL
   
   return(stratum_stats)
 }
