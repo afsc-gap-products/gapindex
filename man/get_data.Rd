@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_data.R
 \name{get_data}
 \alias{get_data}
-\title{Pull data from RACEBASE}
+\title{Pull AFSC GAP BTS survey data}
 \usage{
 get_data(
   year_set = c(1996, 1999),
@@ -10,9 +10,9 @@ get_data(
   spp_codes = c(21720, 30060, 10110),
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
-  taxonomic_source = c("RACEBASE.SPECIES", "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
-  na_rm_strata = FALSE,
-  sql_channel = NULL,
+  remove_na_strata = FALSE,
+  channel = NULL,
+  sql_channel = deprecated(),
   pull_lengths = FALSE
 )
 }
@@ -21,44 +21,48 @@ get_data(
 
 \item{survey_set}{character string. One of c("GOA", "AI", "EBS", "NBS", "BSS").}
 
-\item{spp_codes}{two-column dataframe of species codes (column name
-SPECIES_CODE) and GROUP name (column name GROUP).
-For single-species, the GROUP and species codes can be the
+\item{spp_codes}{two-column data.frame of species codes (column name
+SPECIES_CODE) and GROUP_CODE name (column name GROUP_CODE).
+For single-species, the GROUP_CODE and species codes can be the
 same. Examples:
-1) data.frame("SPECIES_CODE" = c(21720, 21220,
-21230, 21232),
-"GROUP" = c(21720, "Grenadiers", "Grenadiers",
-"Grenadiers")) # for taxon groups
-2) c(21720, 21740, 10110) # for single taxa
-3) NULL # for all species present in within the combination
-of survey_set and year_set}
+1) For a mixture of individual taxa and taxon groups:
+data.frame("SPECIES_CODE" = c(21720, 21220, 21230, 21232),
+"GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
+2) For single taxa: c(21720, 21740, 10110)
+3) FOR PRODUCTION PURPOSES: a NULL value by default uses
+GAP_PRODUCTS.TAXON_GROUPS from the AFSC Oracle database.}
 
-\item{haul_type}{integer. Defaults to haul type "3" for Standard bottom
-sample (preprogrammed station) used for biomass estimation}
+\item{haul_type}{integer. Defaults to haul type "3" for "standard bottom
+sample (preprogrammed station)" used for production purposes.}
 
-\item{abundance_haul}{character string. "Y" are abundance hauls and "N" are
-other hauls.}
+\item{abundance_haul}{character string. "Y" are standardized hauls used in
+production and "N" are non-standard hauls due to
+bad performance, different gear, etc.}
 
-\item{taxonomic_source}{character string. Table used to source taxonomic
-information. One of two options: "RACEBASE.SPECIES"
-(default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
-"GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
-provisional table is an option for testing only.}
-
-\item{na_rm_strata}{boolean. Remove hauls with NA stratum information.
+\item{remove_na_strata}{boolean. Remove hauls with NA stratum information.
 Defaults to FALSE.}
 
-\item{sql_channel}{connection created via gapindex::get_connected()}
+\item{channel}{connection to Oracle created via
+gapindex::get_connected() or RODBC::odbcConnect().}
 
-\item{pull_lengths}{boolean T/F. Should lengths and specimen data be pulled?
+\item{sql_channel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the \code{channel}
+argument instead.}
+
+\item{pull_lengths}{boolean T/F. Should length and specimen data be pulled?
 Defaults to FALSE for speed.}
+
+\item{na_rm_strata}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{remove_na_strata} argument instead.}
 }
 \value{
-a named list containing survey, cruise, haul, catch, specimen (if
-pull_lengths == TRUE), length (if pull_lengths == TRUE), species,
-stratum information for the survey, years, and species of interest.
+a named list containing survey_design, survey, cruise, haul, catch,
+size (if pull_lengths == TRUE), specimen (if pull_lengths == TRUE),
+species, stratum, subarea, and stratum_groups information for the
+survey, years, and species of interest.
 }
 \description{
-Pulls cruise, haul, catch, and stratum information for the
-region, years, and species of interest.
+Pulls survey, cruise, haul, catch, size, specimen (age),
+stratum, subarea, stratum grouping information for the
+region, years, and species of interest from the RACEBASE,
+RACE_DATA, and GAP_PRODUCTS schemata in the AFSC Oracle database.
 }
