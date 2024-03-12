@@ -60,7 +60,7 @@ get_data <- function(year_set = c(1996, 1999),
                      remove_na_strata = FALSE,
                      channel = NULL,
                      sql_channel = deprecated(),
-					 na_rm_strata = deprecated() {
+					 na_rm_strata = deprecated()) {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if channel = NULL
