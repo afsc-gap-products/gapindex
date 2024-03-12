@@ -20,11 +20,11 @@ Here is an EBS example of how you would calculate design-based indices for a spe
 library(gapindex)
 
 ## Connect to Oracle. Make sure you are on the NOAA internal network or VPN
-sql_channel <- gapindex::get_connected()
+channel <- gapindex::get_connected()
 
 ## Skate SPECIES_CODE values excluding SPECIES_CODE values for egg cases
 skate_unid <- RODBC::sqlQuery(
-  channel = sql_channel, 
+  channel = channel, 
   query = "SELECT SPECIES_CODE
   FROM GAP_PRODUCTS.TEST_SPECIES_CLASSIFICATION 
   WHERE SURVEY_SPECIES = 1 
@@ -55,7 +55,7 @@ production_data <- get_data(
   pull_lengths = TRUE, 
   haul_type = 3, 
   abundance_haul = "Y",
-  sql_channel = sql_channel)
+  channel = channel)
 
 ## Zero-fill and calculate CPUE
 production_cpue <- calc_cpue(racebase_tables = production_data)

@@ -20,14 +20,14 @@ Example data pulling in the format of a [VAST](https://github.com/James-Thorson-
 library(gapindex)
 
 ## Connect to Oracle. Make sure you are on the NOAA internal network or VPN
-sql_channel <- gapindex::get_connected()
+channel <- gapindex::get_connected()
 
 ## Pull Pacific cod GOA data from 1993:2023
 gapindex_data <- gapindex::get_data(survey_set = "GOA",
                                     year_set = 1993:2023,
                                     spp_codes = 21720,
                                     pull_lengths = FALSE,
-                                    sql_channel = sql_channel)
+                                    channel = sql_channel)
 
 ## Calculate and zero-fill CPUE using gapindex
 gapindex_cpue <- gapindex::calc_cpue(racebase_tables = gapindex_data)

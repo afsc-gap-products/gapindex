@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 library(gapindex)
 
 ## Connect to Oracle
-sql_channel <- gapindex::get_connected()
+channel <- gapindex::get_connected()
 
 ## Pull data.
 gapindex_data <- gapindex::get_data(
@@ -29,7 +29,7 @@ gapindex_data <- gapindex::get_data(
   haul_type = 3,
   abundance_haul = "Y",
   pull_lengths = T,
-  sql_channel = sql_channel)
+  channel = sql_channel)
 
 ## Fill in zeros and calculate CPUE
 cpue <- gapindex::calc_cpue(racebase_tables = gapindex_data)
