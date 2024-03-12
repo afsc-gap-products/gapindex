@@ -56,10 +56,11 @@ get_data <- function(year_set = c(1996, 1999),
                      spp_codes = c(21720, 30060, 10110),
                      haul_type = 3,
                      abundance_haul = c("Y", "N")[1],
+					 pull_lengths = FALSE,
                      remove_na_strata = FALSE,
                      channel = NULL,
                      sql_channel = deprecated(),
-                     pull_lengths = FALSE) {
+					 na_rm_strata = deprecated() {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if channel = NULL
@@ -71,6 +72,13 @@ get_data <- function(year_set = c(1996, 1999),
                               "get_data(channel)")
     channel <- sql_channel
   }
+    if (lifecycle::is_present(na_rm_strata)) {
+    lifecycle::deprecate_warn("2.2.0", 
+                              "get_data(na_rm_strata)", 
+                              "get_data(remove_na_strata)")
+    remove_na_strata <- na_rm_strata
+  }
+  
   if (is.null(x = channel)) channel <- gapindex::get_connected()
   
   for (itable in c("AVAIL_SPP", "CATCH", "CRUISE", "HAUL", "INPUT_SPP", 
