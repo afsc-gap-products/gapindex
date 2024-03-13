@@ -190,7 +190,7 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     ## Then we calculate the total number of unique hauls within a stratum...
     hauls_w_length_by_stratum <-
       size[,
-           .(HAULJOIN_TOTAL = (function(x) length(x = unique(x = x)))(.SD)),
+           .(HAULJOIN_TOTAL = (function(x) length(x = unique(x = x$HAULJOIN)))(.SD)),
            by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE")]
     # hauls_w_length_by_stratum <-
     #   stats::aggregate(HAULJOIN ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
