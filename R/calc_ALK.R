@@ -274,6 +274,8 @@ calc_alk <- function(racebase_tables = NULL,
   }
   
   p_yklm$AGE_FRAC[is.na(x = p_yklm$AGE_FRAC)] <- 0
+  p_yklm <- racebase_tables$survey_design[p_yklm, on = "SURVEY"]
+  
   return(unique(p_yklm))
 }
 
