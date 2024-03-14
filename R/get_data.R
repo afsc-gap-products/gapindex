@@ -409,9 +409,10 @@ ORDER BY SPECIES_CODE"
     
     RODBC::sqlSave(channel = channel, dat = spp_codes, 
                    tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY", 
-                   rownames = F, append = F, 
-                   varTypes = c("SPECIES_CODE" = "NUMBER(5,0)", 
-                                "GROUP_CODE" = "NUMBER(5,0)"))
+                   rownames = F, append = F#, 
+                   # varTypes = c("SPECIES_CODE" = "NUMBER(5,0)", 
+                                # "GROUP_CODE" = "NUMBER(5,0)")
+                   )
     
     species_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
 SELECT * 
