@@ -164,9 +164,11 @@ calc_alk <- function(racebase_tables = NULL,
                             "SEX", "LENGTH_MM", "AGE"), ]
     
     missing_lengths <-
-      unique(every_combo_of_lengths[!p_yklm[!is.na(x = AGE_FRAC)],
-                                    on = c("SURVEY", "YEAR", "SPECIES_CODE", 
-                                           "SEX", "LENGTH_MM", "AGE"), ][, -"AGE"])
+      p_yklm[,
+             .("NUM_AGES" = sum(AGE_FRAC, na.rm = TRUE)),
+             by = c("SURVEY", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM") ][
+               NUM_AGES == 0, -"NUM_AGES"
+             ]
     
     # p_yklm <- merge(x = every_combo_of_lengths,
     #                 y = p_yklm,
@@ -222,11 +224,11 @@ calc_alk <- function(racebase_tables = NULL,
     
     p_klm <-
       s_klm[, 
-             (function(df) {
-               df$AGE_FRAC <- df$FREQ / sum(df$FREQ)
-               return(df[, -"FREQ"]) 
-             })(.SD), 
-             by = c("SURVEY", "SPECIES_CODE", "SEX", "LENGTH_MM")]
+            (function(df) {
+              df$AGE_FRAC <- df$FREQ / sum(df$FREQ)
+              return(df[, -"FREQ"]) 
+            })(.SD), 
+            by = c("SURVEY", "SPECIES_CODE", "SEX", "LENGTH_MM")]
     
     # p_klm <- 
     #   do.call(what = rbind, 
@@ -244,7 +246,8 @@ calc_alk <- function(racebase_tables = NULL,
     ## from `p_klm` for that length bin. 
     filled_in_lengths <- p_klm[missing_lengths,
                                on = c("SURVEY", "SPECIES_CODE", 
-                                      "SEX", "LENGTH_MM")]
+                                      "SEX", "LENGTH_MM"),
+                               allow.cartesian = T]
     
     # filled_in_lengths <- 
     #   merge(x = missing_lengths,
@@ -260,8 +263,8 @@ calc_alk <- function(racebase_tables = NULL,
                                         SEX, LENGTH_MM, AGE, AGE_FRAC)])
     
     p_yklm <- p_yklm[every_combo_of_lengths,
-           on = c("SURVEY", "YEAR", "SPECIES_CODE", 
-                  "SEX", "LENGTH_MM", "AGE")]
+                     on = c("SURVEY", "YEAR", "SPECIES_CODE", 
+                            "SEX", "LENGTH_MM", "AGE")]
     
     # p_yklm <- merge(x = every_combo_of_lengths,
     #                 y = p_yklm,
