@@ -266,25 +266,25 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
   ## Aggregate S_ijklm across stratum and species_code
   S_ik <- 
     size[, 
-         .("S_ik" = sum(S_ijklm)), 
+         .("S_ik" = sum(S_ijklm, na.rm = TRUE)), 
          by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE")]
-  # S_ik <- stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
+  # S_ik2 <- stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE,
   #                          data = size,
   #                          FUN = sum)
-  # names(S_ik)[names(S_ik) == "S_ijklm"] <- "S_ik"
+  # names(S_ik2)[names(S_ik2) == "S_ijklm"] <- "S_ik"
   
   ## Aggregate S_ijklm across stratum, species_code, length bin, and sex
   S_iklm <- 
     size[,
-         .("S_iklm" = sum(S_ijklm)),
+         .("S_iklm" = sum(S_ijklm, na.rm = TRUE)),
          by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE", "LENGTH", "SEX")]
   
-  # S_iklm <- 
-  # stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE + 
+  # S_iklm <-
+  # stats::aggregate(S_ijklm ~ SURVEY + YEAR + STRATUM + SPECIES_CODE +
   #                    LENGTH + SEX,
   #                  data = size,
   #                  FUN = sum)
-  # names(S_iklm)[names(S_iklm) == "S_ijklm"] <- "S_iklm" 
+  # names(S_iklm)[names(S_iklm) == "S_ijklm"] <- "S_iklm"
   
   ## Merge the "S_ik" column from `S_ik` to `S_iklm` using "SURVEY", "YEAR", 
   ## 'STRATUM', "SPECIES_CODE" as a composite key.
