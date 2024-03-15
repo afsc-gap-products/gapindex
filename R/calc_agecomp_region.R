@@ -31,11 +31,13 @@ calc_agecomp_region <- function(racebase_tables,
   
   ## Extract objects within function arguments
   survey_designs <- unique_surveys <- racebase_tables$survey
-  stratum_groups <- racebase_tables$stratum_groups
+  subareas <- racebase_tables$subarea[AREA_TYPE == 'REGION']
+  stratum_groups <- 
+    racebase_tables$stratum_groups[AREA_ID %in% subareas$AREA_ID]
   strata <- racebase_tables$strata
   age_comps <- survey_designs[age_comps_stratum$age_comp,
                               on = c("SURVEY_DEFINITION_ID", "YEAR")]
-  count_length_age <- age_comps_stratum$length_at_age
+  
   
   ## Empty dataframe to append region-specific age composition
   # region_age_comp_df <- data.frame()
