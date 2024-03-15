@@ -56,11 +56,11 @@ get_data <- function(year_set = c(1996, 1999),
                      spp_codes = c(21720, 30060, 10110),
                      haul_type = 3,
                      abundance_haul = c("Y", "N")[1],
-					 pull_lengths = FALSE,
+                     pull_lengths = FALSE,
                      remove_na_strata = FALSE,
                      channel = NULL,
                      sql_channel = deprecated(),
-					 na_rm_strata = deprecated()) {
+                     na_rm_strata = deprecated()) {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if channel = NULL
@@ -72,11 +72,20 @@ get_data <- function(year_set = c(1996, 1999),
                               "get_data(channel)")
     channel <- sql_channel
   }
-    if (lifecycle::is_present(na_rm_strata)) {
+  if (lifecycle::is_present(na_rm_strata)) {
     lifecycle::deprecate_warn("2.2.0", 
                               "get_data(na_rm_strata)", 
                               "get_data(remove_na_strata)")
     remove_na_strata <- na_rm_strata
+  }
+  if (is.data.frame(x = spp_codes) &
+      ("GROUP" %in% names(x = spp_codes)) & 
+      !("GROUP_CODE" %in% names(x = spp_codes))){
+   warning("In argument `spp_code` the field name 'GROUP' is deprecated because it is masked by the SQL GROUP command. 
+Please use the field name 'GROUP_CODE' when preparing the `spp_code` argument instead.")
+    data.table::setnames(x = spp_codes, 
+                         old = "GROUP",
+                         new = "GROUP_CODE")
   }
   
   if (is.null(x = channel)) channel <- gapindex::get_connected()
@@ -131,7 +140,7 @@ get_data <- function(year_set = c(1996, 1999),
   ##      strata to use or when querying GOA years before and after the 2025 
   ##      restratified survey design. 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+  
   cat("Pulling survey table...\n")
   
   survey_sql <- 
@@ -397,7 +406,7 @@ ORDER BY SPECIES_CODE"
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   11) Format user-inputted species and taxon group information
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+  
   ## Check that spp_codes can either be:
   ## 1) dataframe with columns "GROUP_CODE" and "SPECIES_CODE" for instances 
   ##    where species complexes are defined (e.g., rock soles).
@@ -411,8 +420,8 @@ ORDER BY SPECIES_CODE"
                    tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY", 
                    rownames = F, append = F#, 
                    # varTypes = c("SPECIES_CODE" = "NUMBER(5,0)", 
-                                # "GROUP_CODE" = "NUMBER(5,0)")
-                   )
+                   # "GROUP_CODE" = "NUMBER(5,0)")
+    )
     
     species_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
 SELECT * 
@@ -433,7 +442,7 @@ JOIN RACEBASE.SPECIES_CLASSIFICATION USING (SPECIES_CODE)"
   
   ## 2) a vector with SPECIES_CODES for single taxa. 
   if (is.numeric(x = spp_codes)) {
-
+    
     spp_codes <- data.table(SPECIES_CODE = spp_codes, GROUP_CODE = spp_codes)
     RODBC::sqlSave(channel = channel, dat = spp_codes, 
                    tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY", 
@@ -480,11 +489,11 @@ JOIN RACEBASE.SPECIES_CLASSIFICATION USING (SPECIES_CODE)"
                       WHERE GROUP_CODE IS NOT NULL"))
     
     attributes(species_info)$sql_query <- 
-    "SELECT * 
+      "SELECT * 
 FROM GAP_PRODUCTS.TAXON_GROUPS
 WHERE GROUP_CODE IS NOT NULL"
-  
-    }
+    
+  }
   
   ## Error check if there are no data for the user-inputted species_code values
   if (!is.data.frame(x = species_info) | nrow(x = species_info) == 0)
@@ -497,22 +506,22 @@ WHERE GROUP_CODE IS NOT NULL"
   ##   based on the queried HAULJOIN values queried thus far, e.g., an English
   ##   sole in Bering Slope data.  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    cat("Identifying any unavailable taxa...\n")
-    unavailable_spp_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY AS
+  cat("Identifying any unavailable taxa...\n")
+  unavailable_spp_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY AS
 SELECT *
 FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
 WHERE SPECIES_CODE NOT IN (
       SELECT SPECIES_CODE
       FROM GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY
 )"
-    RODBC::sqlQuery(channel = channel, query = unavailable_spp_sql)
-    unavail_species_info <- data.table::data.table(
-      RODBC::sqlQuery(channel = channel,
-                      query = "SELECT *
+  RODBC::sqlQuery(channel = channel, query = unavailable_spp_sql)
+  unavail_species_info <- data.table::data.table(
+    RODBC::sqlQuery(channel = channel,
+                    query = "SELECT *
                       FROM GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY")
-    )
-    attributes(unavail_species_info)$sql_query <- unavailable_spp_sql
-    
+  )
+  attributes(unavail_species_info)$sql_query <- unavailable_spp_sql
+  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   13) Query catch data: This table reports the catch in weight and numbers
   ##   for each available user-inputted species code from the HAULJOIN values
