@@ -216,7 +216,8 @@ calc_sizecomp_stratum <- function(racebase_tables = NULL,
     ## "SURVEY", "YEAR", "STRATUM", "SPECIES_CODE" as a composite key.
     imputted_size <- 
       imputted_size[missing_hauljoins,
-                    on = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE")]
+                    on = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"), 
+                    allow.cartesian = TRUE]
     
     # imputted_size <- merge(x = missing_hauljoins,
     #                        y = imputted_size,
