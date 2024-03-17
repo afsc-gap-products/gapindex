@@ -22,6 +22,12 @@
 #' @param abundance_haul character string. "Y" are standardized hauls used in 
 #'                       production and "N" are non-standard hauls due to 
 #'                       bad performance, different gear, etc.
+#' @param taxonomic_source  character string. Table used to source taxonomic
+#'                         information. One of two options: "RACEBASE.SPECIES" 
+#'                         (default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
+#'                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
+#'                         provisional table is an option for testing only. 
+#'                         
 #' @param na_rm_strata `r lifecycle::badge("deprecated")` Use the 
 #'                     `remove_na_strata` argument instead. 
 #' @param remove_na_strata boolean. Remove hauls with NA stratum information.
@@ -41,26 +47,36 @@
 #' @export
 #'  
 
-# library(data.table)
-# year_set = c(1996, 1999)
-# survey_set = c("GOA")
-# spp_codes = c(21720, 30060, 10110)
-# haul_type = 3
-# abundance_haul = c("Y", "N")[1]
-# remove_na_strata = FALSE
-# channel = gapindex::get_connected(check_access = F)
-# pull_lengths = T
+library(data.table)
+year_set = c(1990:2023)
+survey_set = c("GOA")
+spp_codes = c(21720, 21740, 10110) 
+# spp_codes = data.frame(
+#   "SPECIES_CODE" = c(21720, 21220, 21230, 21232), 
+#   "GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
+haul_type = 3
+abundance_haul = c("Y", "N")[1]
+taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION", 
+                     "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[2]
+remove_na_strata = FALSE
+channel = gapindex::get_connected(check_access = F)
+pull_lengths = T
 
-get_data <- function(year_set = c(1996, 1999),
-                     survey_set = c("GOA"),
-                     spp_codes = c(21720, 30060, 10110),
-                     haul_type = 3,
-                     abundance_haul = c("Y", "N")[1],
-                     pull_lengths = FALSE,
-                     remove_na_strata = FALSE,
-                     channel = NULL,
-                     sql_channel = deprecated(),
-                     na_rm_strata = deprecated()) {
+get_data <- function(
+    year_set = c(1996, 1999),
+    survey_set = c("GOA"),
+    spp_codes = c(21720, 30060, 10110),
+    haul_type = 3,
+    abundance_haul = c("Y", "N")[1],
+    pull_lengths = FALSE,
+    taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
+                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
+    remove_na_strata = FALSE,
+    channel = NULL,
+    sql_channel = deprecated(),
+    na_rm_strata = deprecated()
+)
+{
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Set up channel if channel = NULL
@@ -81,7 +97,7 @@ get_data <- function(year_set = c(1996, 1999),
   if (is.data.frame(x = spp_codes) &
       ("GROUP" %in% names(x = spp_codes)) & 
       !("GROUP_CODE" %in% names(x = spp_codes))){
-   warning("In argument `spp_code` the field name 'GROUP' is deprecated because it is masked by the SQL GROUP command. 
+    warning("In argument `spp_code` the field name 'GROUP' is deprecated because it is masked by the SQL GROUP command. 
 Please use the field name 'GROUP_CODE' when preparing the `spp_code` argument instead.")
     data.table::setnames(x = spp_codes, 
                          old = "GROUP",
@@ -388,6 +404,7 @@ AND ABUNDANCE_HAUL IN", gapindex::stitch_entries(abundance_haul),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Pulling available species...\n")
   ## Query available species given the surveys queried
+  
   avail_spp_sql <-
     "CREATE TABLE GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY AS
 SELECT DISTINCT SPECIES_CODE
@@ -418,17 +435,19 @@ ORDER BY SPECIES_CODE"
     
     RODBC::sqlSave(channel = channel, dat = spp_codes, 
                    tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY", 
-                   rownames = F, append = F#, 
-                   # varTypes = c("SPECIES_CODE" = "NUMBER(5,0)", 
-                   # "GROUP_CODE" = "NUMBER(5,0)")
-    )
+                   rownames = F, append = F)
     
-    species_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+    species_sql <- 
+      paste("CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
 SELECT * 
 FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
 JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
-JOIN RACEBASE.SPECIES USING (SPECIES_CODE)
-JOIN RACEBASE.SPECIES_CLASSIFICATION USING (SPECIES_CODE)"
+JOIN", taxonomic_source, "USING (SPECIES_CODE)",
+            switch(taxonomic_source,
+                   "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"= "
+WHERE SURVEY_SPECIES = 1",
+                   "RACEBASE.SPECIES_CLASSIFICATION" = "")
+      )
     
     RODBC::sqlQuery(channel = channel, query = species_sql)
     species_info <- data.table::data.table(
@@ -450,12 +469,16 @@ JOIN RACEBASE.SPECIES_CLASSIFICATION USING (SPECIES_CODE)"
                    varTypes = c("SPECIES_CODE" = "NUMBER(5,0)", 
                                 "GROUP_CODE" = "NUMBER(5,0)"))
     
-    species_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+    species_sql <- 
+      paste("CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
 SELECT * 
 FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
 JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
-JOIN RACEBASE.SPECIES USING (SPECIES_CODE)
-JOIN RACEBASE.SPECIES_CLASSIFICATION USING (SPECIES_CODE)"
+JOIN", taxonomic_source, "USING (SPECIES_CODE)",
+            switch(taxonomic_source,
+                   "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"= "
+WHERE SURVEY_SPECIES = 1",
+                   "RACEBASE.SPECIES_CLASSIFICATION" = ""))
     
     RODBC::sqlQuery(channel = channel, query = species_sql)
     species_info <- data.table::data.table(
