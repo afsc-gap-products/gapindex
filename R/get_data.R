@@ -47,20 +47,20 @@
 #' @export
 #'  
 
-library(data.table)
-year_set = c(1990:2023)
-survey_set = c("GOA")
-spp_codes = c(21720, 21740, 10110) 
-# spp_codes = data.frame(
-#   "SPECIES_CODE" = c(21720, 21220, 21230, 21232), 
-#   "GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
-haul_type = 3
-abundance_haul = c("Y", "N")[1]
-taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION", 
-                     "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[2]
-remove_na_strata = FALSE
-channel = gapindex::get_connected(check_access = F)
-pull_lengths = T
+# library(data.table)
+# year_set = c(1990:2023)
+# survey_set = c("GOA")
+# spp_codes = c(21720, 21740, 10110) 
+# # spp_codes = data.frame(
+# #   "SPECIES_CODE" = c(21720, 21220, 21230, 21232), 
+# #   "GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
+# haul_type = 3
+# abundance_haul = c("Y", "N")[1]
+# taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION", 
+#                      "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[2]
+# remove_na_strata = FALSE
+# channel = gapindex::get_connected(check_access = F)
+# pull_lengths = T
 
 get_data <- function(
     year_set = c(1996, 1999),
