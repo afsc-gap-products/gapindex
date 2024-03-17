@@ -10,10 +10,13 @@ get_data(
   spp_codes = c(21720, 30060, 10110),
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
+  pull_lengths = FALSE,
+  taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
+    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
   remove_na_strata = FALSE,
   channel = NULL,
   sql_channel = deprecated(),
-  pull_lengths = FALSE
+  na_rm_strata = deprecated()
 )
 }
 \arguments{
@@ -39,6 +42,15 @@ sample (preprogrammed station)" used for production purposes.}
 production and "N" are non-standard hauls due to
 bad performance, different gear, etc.}
 
+\item{pull_lengths}{boolean T/F. Should length and specimen data be pulled?
+Defaults to FALSE for speed.}
+
+\item{taxonomic_source}{character string. Table used to source taxonomic
+information. One of two options: "RACEBASE.SPECIES"
+(default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
+"GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
+provisional table is an option for testing only.}
+
 \item{remove_na_strata}{boolean. Remove hauls with NA stratum information.
 Defaults to FALSE.}
 
@@ -47,9 +59,6 @@ gapindex::get_connected() or RODBC::odbcConnect().}
 
 \item{sql_channel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the \code{channel}
 argument instead.}
-
-\item{pull_lengths}{boolean T/F. Should length and specimen data be pulled?
-Defaults to FALSE for speed.}
 
 \item{na_rm_strata}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
 \code{remove_na_strata} argument instead.}
