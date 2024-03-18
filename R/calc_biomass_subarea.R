@@ -84,9 +84,9 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
         N_WEIGHT = sum(x$N_WEIGHT), 
         N_COUNT = sum(x$N_COUNT), 
         N_LENGTH = sum(x$N_LENGTH),
-        BIOMASS_MT = sum(x$BIOMASS_MT),
+        BIOMASS_MT = sum(x$BIOMASS_MT, na.rm = TRUE),
         BIOMASS_VAR = sum(x$BIOMASS_VAR, na.rm = TRUE),
-        POPULATION_COUNT = round(x = sum(x$POPULATION_COUNT), 
+        POPULATION_COUNT = round(x = sum(x$POPULATION_COUNT, na.rm = TRUE), 
                                  digits = 0),
         POPULATION_VAR = sum(x$POPULATION_VAR, na.rm = TRUE))
     
