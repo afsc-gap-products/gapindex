@@ -82,7 +82,7 @@ calc_biomass_subarea <- function(racebase_tables = deprecated(),
     merge(x = biomass_stratum,
           y = biomass_subarea,
           by = c("SURVEY_DEFINITION_ID", "SURVEY", 
-                 "DESIGN_YEAR", "YEAR ", "STRATUM"),
+                 "DESIGN_YEAR", "YEAR", "STRATUM"),
           all = TRUE)
   
   ## Create a function `weighted_cpue` that calculates combines weighted, 

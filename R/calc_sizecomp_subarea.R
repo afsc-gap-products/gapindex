@@ -70,7 +70,7 @@ calc_sizecomp_subarea <- function(gapdata = NULL,
   sizecomp_subarea <- merge(x = sizecomp_stratum,
                             y = sizecomp_subarea,
                             by = c("SURVEY_DEFINITION_ID", "SURVEY", 
-                                   "DESIGN_YEAR", "YEAR ", "STRATUM"),
+                                   "DESIGN_YEAR", "YEAR", "STRATUM"),
                             all = TRUE)
   
   ## Aggregate size comps
