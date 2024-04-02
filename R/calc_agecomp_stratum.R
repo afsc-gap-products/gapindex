@@ -48,16 +48,16 @@ calc_agecomp_stratum <- function(gapdata = NULL,
   ## Merge age distribution proportions and population numbers
   ## 
   ## Merge the age distribution proportions in `p_yklm` to the 
-  ## numbers at length information in `size_comp` using 
+  ## numbers at length information in `sizecomp_stratum` using 
   ## "SURVEY", "YEAR", "SPECIES_CODE", "SEX", and "LENGTH_MM" 
   ## as a composite key. all.x = TRUE will include sizes classes that 
   ## do not have observed age information. These AGES are coded as -9. 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   age_comp <-
-    merge(x = subset(x = size_comp,
+    merge(x = subset(x = sizecomp_stratum,
                      subset = SPECIES_CODE %in% unique(x = alk$SPECIES_CODE)),
           y = alk,
-          by = c("SURVEY", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
+          by = c("SURVEY", "SURVEY_DEFINITION_ID", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
           all.x = TRUE)
   age_comp$AGE[is.na(x = age_comp$AGE)] <- -9
   age_comp$AGE_FRAC[is.na(x = age_comp$AGE_FRAC)] <- 1

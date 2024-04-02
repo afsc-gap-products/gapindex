@@ -21,7 +21,6 @@
 
 calc_agecomp_region <- function(gapdata = NULL,
                                 racebase_tables = lifecycle::deprecated(),
-                                alk = NULL,
                                 agecomp_stratum = NULL,
                                 age_comps_stratum = lifecycle::deprecated()) {
   
@@ -70,7 +69,8 @@ calc_agecomp_region <- function(gapdata = NULL,
   ## to the `subarea_age_comp` df
   subarea_age_comp <- merge(x = subarea_age_comp,
                             y = agecomp_stratum$length_at_age,
-                            by = c("SURVEY_DEFINITION_ID", "YEAR", "STRATUM"),
+                            by = c("SURVEY_DEFINITION_ID", "SURVEY", 
+                                   "YEAR", "STRATUM"),
                             all = TRUE)
   
   ## Aggregate age composition and mean/sd length @ age across region
