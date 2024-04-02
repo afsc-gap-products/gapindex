@@ -6,7 +6,7 @@
 \usage{
 get_data(
   year_set = c(1996, 1999),
-  survey_set = c("GOA"),
+  survey_set = c("GOA", "AI", "EBS", "NBS", "BSS")[1],
   spp_codes = c(21720, 30060, 10110),
   haul_type = 3,
   abundance_haul = c("Y", "N")[1],
@@ -14,9 +14,9 @@ get_data(
   taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
     "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
   remove_na_strata = FALSE,
+  na_rm_strata = lifecycle::deprecated(),
   channel = NULL,
-  sql_channel = deprecated(),
-  na_rm_strata = deprecated()
+  sql_channel = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -54,14 +54,14 @@ provisional table is an option for testing only.}
 \item{remove_na_strata}{boolean. Remove hauls with NA stratum information.
 Defaults to FALSE.}
 
+\item{na_rm_strata}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{remove_na_strata} argument instead.}
+
 \item{channel}{connection to Oracle created via
 gapindex::get_connected() or RODBC::odbcConnect().}
 
 \item{sql_channel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the \code{channel}
 argument instead.}
-
-\item{na_rm_strata}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
-\code{remove_na_strata} argument instead.}
 }
 \value{
 a named list containing survey_design, survey, cruise, haul, catch,

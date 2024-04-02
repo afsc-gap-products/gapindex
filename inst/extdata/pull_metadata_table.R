@@ -15,7 +15,7 @@ library(devtools)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Connect to Oracle and pull GAP_PRODUCTS.METADATA_COLUMN
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sql_channel <- gapindex::get_connected()
+sql_channel <- gapindex::get_connected(check_access = FALSE)
 
 metadata_column <- 
   RODBC::sqlQuery(channel = sql_channel, 

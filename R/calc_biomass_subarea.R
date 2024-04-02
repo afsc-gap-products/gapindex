@@ -1,8 +1,12 @@
 #' Calculate index of total biomass across aggregated subareas
 #'
-#' @param racebase_tables data object created from `gapindex::get_data()``
-#' @param biomass_strata a dataframe of stratum biomass, result object from 
+#' @param racebase_tables `r lifecycle::badge("deprecated")` Use the 
+#'                        `gapdata` argument instead. 
+#' @param gapdata data object created from `gapindex::get_data()`
+#' @param biomass_stratum a dataframe of stratum biomass, result object from 
 #'                       `gapindex::calc_biomass_stratum()`
+#' @param biomass_strata  `r lifecycle::badge("deprecated")` Use the 
+#'                        `biomass_stratum` argument instead. 
 #'
 #' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
 #' select = c("SURVEY_DEFINITION_ID", "SURVEY", "AREA_ID", "SPECIES_CODE" ,
@@ -13,44 +17,58 @@
 #' @export
 #' 
 
-calc_biomass_subarea <- function(racebase_tables = NULL,
-                                 biomass_strata = NULL) {
+calc_biomass_subarea <- function(racebase_tables = deprecated(),
+                                 gapdata = NULL,
+                                 biomass_strata = deprecated(),
+                                 biomass_stratum = NULL) {
   
-  ## Argument checks
-  if (is.null(x = racebase_tables))
-    stop("Must provide argument `racebase_tables` a named list from 
-         gapindex::get_data().")
+  ## Input checks
+  if (lifecycle::is_present(racebase_tables)) {
+    lifecycle::deprecate_warn("2.2.0", 
+                              "calc_biomass_subarea(racebase_tables)", 
+                              "calc_biomass_subarea(gapdata)")
+    gapdata <- racebase_tables
+  }
   
-  if (is.null(x = biomass_strata))
-    stop("Must provide argument `biomass_strata` dataframe from
-         gapindex::calc_biomass_stratum().")
+  if (lifecycle::is_present(biomass_strata)) {
+    lifecycle::deprecate_warn("2.2.0", 
+                              "calc_biomass_subarea(biomass_strata)", 
+                              "calc_biomass_subarea(biomass_stratum)")
+    biomass_stratum <- biomass_strata
+  }
+
+  for (iarg in c("gapdata", "biomass_stratum"))
+    if (is.null(x = get(x = iarg)))
+      stop(paste0("Must provide argument `", iarg, "`. ",
+                  "See ?gapindex::calc_biomass_subarea for more information"))
   
   ## Which survey designs to pull from
-  survey_designs <- racebase_tables$survey_design
-  unique_surveys <- racebase_tables$survey
-  strata <- racebase_tables$strata
-  stratum_groups <- racebase_tables$stratum_groups
+  survey_designs <- gapdata$survey_design
+  unique_surveys <- gapdata$survey
+  strata <- gapdata$strata
+  stratum_groups <- gapdata$stratum_groups
   
-  ## Attach "DESIGN_YEAR" from `survey_designs` to `biomass_strata` using 
+  ## Attach "DESIGN_YEAR" from `survey_designs` to `biomass_stratum` using 
   ## "SURVEY_DEFINITION_ID", "SURVEY", "YEAR" as a composite key.
-  biomass_strata <- 
-    unique_surveys[biomass_strata,
-                   on = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR")]
+  biomass_stratum <- 
+    merge(x =  biomass_stratum,
+          y = unique_surveys,
+          by = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR"))
   
-  ## Attach "AREA_KM2" from `strata` to `biomass_strata` using 
+  ## Attach "AREA_KM2" from `strata` to `biomass_stratum` using 
   ## "SURVEY_DEFINITION_ID", "SURVEY", "STRATUM" as a composite key.
-  biomass_strata <-
-    strata[, c("SURVEY_DEFINITION_ID", "SURVEY", 
-               "STRATUM", "AREA_KM2")
-    ][
-      biomass_strata,
-      on = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM")]
+  biomass_stratum <- merge(x = biomass_stratum,
+                           y = strata[, c("SURVEY_DEFINITION_ID", "SURVEY", 
+                                          "STRATUM", "AREA_KM2")],
+                           by = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM"))
   
-  ## Create 
-  subarea_biomass <- data.table::data.table()
+  ## Create set of subareas given the different surveys and design years. From 
+  ## 2025-on the GOA time series will have two unique survey designs with 
+  ## different design years.
+  biomass_subarea <- data.table::data.table()
   for (irow in 1:nrow(x = unique_surveys))
-    subarea_biomass <- 
-    rbind(subarea_biomass,
+    biomass_subarea <- 
+    rbind(biomass_subarea,
           cbind(YEAR = unique_surveys$YEAR[irow],
                 stratum_groups[
                   SURVEY_DEFINITION_ID == 
@@ -60,13 +78,15 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
                     DESIGN_YEAR == 
                     unique_surveys$DESIGN_YEAR[irow]]))
   
-  subarea_biomass <- 
-    subarea_biomass[biomass_strata,
-                    on = c("SURVEY_DEFINITION_ID", "SURVEY", 
-                           "DESIGN_YEAR", "YEAR ", "STRATUM"),
-                    allow.cartesian = TRUE]
+  biomass_subarea <- 
+    merge(x = biomass_stratum,
+          y = biomass_subarea,
+          by = c("SURVEY_DEFINITION_ID", "SURVEY", 
+                 "DESIGN_YEAR", "YEAR ", "STRATUM"),
+          all = TRUE)
   
-  
+  ## Create a function `weighted_cpue` that calculates combines weighted, 
+  ## stratum-level estimates to the subarea level.
   weighted_cpue <- function(x) {
     result_df <- 
       data.table::data.table(
@@ -101,34 +121,36 @@ calc_biomass_subarea <- function(racebase_tables = NULL,
     return(result_df)
   }
   
-  subarea_biomass <- 
-    subarea_biomass[, 
+  ## Perform the weighted_cpue across subareas
+  biomass_subarea <- 
+    biomass_subarea[, 
                     weighted_cpue(.SD), 
                     by = c("SURVEY_DEFINITION_ID", "SURVEY", 
                            "DESIGN_YEAR", "YEAR", "SPECIES_CODE", "AREA_ID")]
   
   ## Warning Messages
-  if ( 47 %in% subarea_biomass$SURVEY_DEFINITION_ID & 
-       2025 %in% subarea_biomass$YEAR) {
+  if ( 47 %in% biomass_subarea$SURVEY_DEFINITION_ID & 
+       2025 %in% biomass_subarea$YEAR) {
     warning("The GOA total biomass across INPFC area and across depth zones
               only includes years 1987-2023. Starting from 2025, only total 
               biomass across NMFS areas will be reported.")
   }
   
   ## Remove EBS + NW subarea estimates prior to 1987
-  if (any(subarea_biomass$YEAR < 1987 & subarea_biomass$AREA_ID == 99900)) {
+  if (any(biomass_subarea$YEAR < 1987 & biomass_subarea$AREA_ID == 99900)) {
     warning("The (EBS + NW) output only includes years 1987-present.
       Years 1982-1986 are NOT included for the (EBS + NW) output because
       essentially no stations within strata 82 & 90 (subarea 8 & 9)
       were sampled during those years. Biomass/Abundance estimates for 
       these early years were removed.")
     
-    subarea_biomass <- subarea_biomass[!(SURVEY_DEFINITION_ID == 98 & 
+    biomass_subarea <- subset(x = biomass_subarea,
+                              subset = !(SURVEY_DEFINITION_ID == 98 & 
                                            YEAR < 1987 & 
                                            AREA_ID %in% c(99900, 
                                                           300, 200, 100, 
-                                                          8, 9))] 
+                                                          8, 9)))
   }
   
-  return(subarea_biomass[, -c("TOT_AREA", "DESIGN_YEAR")])
+  return(biomass_subarea[, -c("TOT_AREA", "DESIGN_YEAR")])
 }

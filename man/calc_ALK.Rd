@@ -4,10 +4,18 @@
 \alias{calc_alk}
 \title{Calculate age-length key (alk)}
 \usage{
-calc_alk(racebase_tables = NULL, unsex = c("all", "unsex")[2], global = TRUE)
+calc_alk(
+  gapdata = NULL,
+  racebase_tables = lifecycle::deprecated(),
+  unsex = c("all", "unsex")[2],
+  global = TRUE
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{gapindex::get_data()}.}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
+
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
 
 \item{unsex}{string, option to determine how unsexed individuals are
 treated. Option "all" means that unsexed alks are determined

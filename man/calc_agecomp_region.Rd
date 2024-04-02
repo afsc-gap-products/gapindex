@@ -4,14 +4,26 @@
 \alias{calc_agecomp_region}
 \title{Calculate region-level age composition and mean/std.dev length at age}
 \usage{
-calc_agecomp_region(racebase_tables, age_comps_stratum)
+calc_agecomp_region(
+  gapdata = NULL,
+  racebase_tables = lifecycle::deprecated(),
+  alk = NULL,
+  agecomp_stratum = NULL,
+  age_comps_stratum = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from `gapindex::get_data()``}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
 
-\item{age_comps_stratum}{a named list of stratum age comps and numbers by
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
+
+\item{agecomp_stratum}{a named list of stratum age comps and numbers by
 survey/year/stratum/sex/length, a result object
 from \code{gapindex::calc_agecomp_stratum()}.}
+
+\item{age_comps_stratum}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{agecomp_stratum} argument instead.}
 }
 \value{
 dataframe of age composition and mean/standard deviation of length
@@ -27,7 +39,6 @@ LENGTH_MM_SD         \tab Variance of mean length estimated in age comp estimate
 POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                           \cr
 SEX                  \tab Sex of a specimen where "1" = "Male", "2" = "Female", "3" = Unsexed.                                                                                                                                                                                                                                                       \cr
 SPECIES_CODE         \tab The species code of the organism associated with the 'common_name' and 'scientific_name' columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                      \cr
-SURVEY               \tab Name and description of survey. The column 'survey' is associated with the 'srvy' and 'survey_id' columns.                                                                                                                                                                                                                 \cr
 SURVEY_DEFINITION_ID \tab This number uniquely identifies a survey. Name and description of survey. The column 'survey_id' is associated with the 'srvy' and 'survey' columns. For a complete list of surveys, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.
 }
 }

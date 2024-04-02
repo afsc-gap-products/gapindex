@@ -4,10 +4,17 @@
 \alias{calc_biomass_stratum}
 \title{Calculate index of total biomass per stratum}
 \usage{
-calc_biomass_stratum(racebase_tables = NULL, cpue = NULL)
+calc_biomass_stratum(
+  gapdata = NULL,
+  racebase_tables = lifecycle::deprecated(),
+  cpue = NULL
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{gapindex::get_data()}}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
+
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
 
 \item{cpue}{object created from \code{gapindex::calc_cpue()}.}
 }

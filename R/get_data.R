@@ -47,24 +47,9 @@
 #' @export
 #'  
 
-# library(data.table)
-# year_set = c(1990:2023)
-# survey_set = c("GOA")
-# spp_codes = c(21720, 21740, 10110) 
-# # spp_codes = data.frame(
-# #   "SPECIES_CODE" = c(21720, 21220, 21230, 21232), 
-# #   "GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
-# haul_type = 3
-# abundance_haul = c("Y", "N")[1]
-# taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION", 
-#                      "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[2]
-# remove_na_strata = FALSE
-# channel = gapindex::get_connected(check_access = F)
-# pull_lengths = T
-
 get_data <- function(
     year_set = c(1996, 1999),
-    survey_set = c("GOA"),
+    survey_set = c("GOA", "AI", "EBS", "NBS", "BSS")[1],
     spp_codes = c(21720, 30060, 10110),
     haul_type = 3,
     abundance_haul = c("Y", "N")[1],
@@ -72,14 +57,15 @@ get_data <- function(
     taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
                          "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
     remove_na_strata = FALSE,
+    na_rm_strata = lifecycle::deprecated(),
     channel = NULL,
-    sql_channel = deprecated(),
-    na_rm_strata = deprecated()
+    sql_channel = lifecycle::deprecated()
 )
 {
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   1) Set up channel if channel = NULL
+  ##   1) Repair any deprecated arguments
+  ##      Set up channel if channel = NULL
   ##      Clear schema of temporary tables created in this function if present 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (lifecycle::is_present(sql_channel)) {
@@ -94,11 +80,15 @@ get_data <- function(
                               "get_data(remove_na_strata)")
     remove_na_strata <- na_rm_strata
   }
+  
   if (is.data.frame(x = spp_codes) &
       ("GROUP" %in% names(x = spp_codes)) & 
       !("GROUP_CODE" %in% names(x = spp_codes))){
-    warning("In argument `spp_code` the field name 'GROUP' is deprecated because it is masked by the SQL GROUP command. 
-Please use the field name 'GROUP_CODE' when preparing the `spp_code` argument instead.")
+    warning(paste("In argument `spp_code`, the field name 'GROUP' is",
+                  "deprecated because it is masked by the SQL GROUP command.",
+                  "Please use the field name 'GROUP_CODE' when preparing the",
+                  "`spp_code` argument."))
+    
     data.table::setnames(x = spp_codes, 
                          old = "GROUP",
                          new = "GROUP_CODE")
@@ -117,26 +107,30 @@ Please use the field name 'GROUP_CODE' when preparing the `spp_code` argument in
                                    FROM user_tables
                                    WHERE TABLE_NAME = 'GAPINDEX_TEMPORARY_",  
                                                 itable, "_QUERY'"))) != 0)
-      
       ## ...drop the table
       RODBC::sqlQuery(channel = channel, 
                       query = paste0("DROP TABLE ", "GAPINDEX_TEMPORARY_", 
                                      itable, "_QUERY"))
-    
   }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ##   2) Get survey designs for the survey regions and years queried
-  ##      Format survey_def_ids, year)set, haul_type vectors into a format used
+  ##   2)  Format survey_def_ids, year_set, haul_type vectors into a format used
   ##      in SQL queries.
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Error Query: check that argument survey_set is one the correct options.
   if (is.null(x = survey_set) | 
       !all(survey_set %in% c("GOA", "AI", "EBS", "NBS", "BSS"))) {
-    stop(paste0("arg survey_set must contain one or more of these options",
-                " (case-sensitive): 
-                'GOA', 'AI', 'EBS', 'BSS', or 'NBS'."))
+    stop(paste0("argument `survey_set` must contain one or more of these options",
+                " (case-sensitive): 'GOA', 'AI', 'EBS', 'BSS', or 'NBS'."))
   }
+  
+  ## Issue a warning when choosing multiple surveys
+  if (length(x = survey_set) > 1)
+    warning(paste("The gapindex package has only been tested when querying",
+                  "only one survey region. Use caution when querying", 
+                  "multiple survey regions until further testing has been done.",
+                  "If you come across an issue, be sure to post it on",
+                  "github.com/afsc-gap-products/gapindex/issues"))
   
   ## re-concatenate survey_set for use in a SQL query
   survey_def_ids <- c("AI" = 52, "GOA" = 47, "EBS" = 98, 
@@ -180,7 +174,7 @@ AND YEAR IN", year_vec)
   survey_df <- data.table::data.table(
     RODBC::sqlQuery(channel = channel,
                     query = "SELECT * FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"))
-  attributes(survey_df)$sql_query <- (survey_sql)
+  attributes(x = survey_df)$sql_query <- survey_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   4) Query Survey Design table. This table reports which survey designs 
@@ -190,7 +184,9 @@ AND YEAR IN", year_vec)
   cat("Pulling survey design table...\n")
   survey_design_sql <- 
     "CREATE TABLE GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY AS
+  
 SELECT DISTINCT SURVEY_DEFINITION_ID, SURVEY, DESIGN_YEAR 
+
 FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"
   
   RODBC::sqlQuery(channel = channel, query = survey_design_sql)
@@ -199,8 +195,7 @@ FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"
     RODBC::sqlQuery(channel = channel,
                     query = "SELECT * 
                     FROM GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY"))
-  attributes(survey_design)$sql_query <- survey_design_sql
-  
+  attributes(x = survey_design)$sql_query <- survey_design_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   5) Query Cruise data: This table reports the cruise information for the 
@@ -245,7 +240,7 @@ AND FLOOR(B.CRUISE/100) IN", year_vec)
     RODBC::sqlQuery(channel = channel, 
                     query = "SELECT * FROM GAPINDEX_TEMPORARY_CRUISE_QUERY")
   )
-  attributes(cruise_data)$sql_query <- cruise_sql
+  attributes(x = cruise_data)$sql_query <- cruise_sql
   
   ## Error Check: stop if there are no cruise data for the 
   ## queried year and region.
@@ -263,6 +258,7 @@ AND FLOOR(B.CRUISE/100) IN", year_vec)
   
   stratum_sql <- paste(
     "CREATE TABLE GAPINDEX_TEMPORARY_STRATUM_QUERY AS
+
 SELECT AREA.SURVEY_DEFINITION_ID, 
 CASE 
  WHEN AREA.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
@@ -273,13 +269,17 @@ CASE
  ELSE NULL
 END AS SURVEY, AREA.DESIGN_YEAR, AREA.AREA_ID AS STRATUM, AREA.AREA_KM2, 
 AREA.DESCRIPTION, AREA.AREA_NAME 
+
 FROM GAP_PRODUCTS.AREA AREA, 
 GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY SURVEY_DESIGN
+
 WHERE AREA_TYPE = 'STRATUM'
 AND SURVEY_DESIGN.SURVEY_DEFINITION_ID = AREA.SURVEY_DEFINITION_ID
 AND SURVEY_DESIGN.DESIGN_YEAR = AREA.DESIGN_YEAR
 AND AREA.SURVEY_DEFINITION_ID IN", survey_def_ids_vec,
-    "ORDER BY SURVEY_DEFINITION_ID, DESIGN_YEAR, STRATUM"
+    "
+
+ORDER BY SURVEY_DEFINITION_ID, DESIGN_YEAR, STRATUM"
   )
   
   RODBC::sqlQuery(channel = channel, query = stratum_sql)
@@ -288,7 +288,7 @@ AND AREA.SURVEY_DEFINITION_ID IN", survey_def_ids_vec,
     RODBC::sqlQuery(channel = channel,
                     query = "SELECT * FROM GAPINDEX_TEMPORARY_STRATUM_QUERY")
   )
-  attributes(stratum_data)$sql_query <- stratum_sql
+  attributes(x = stratum_data)$sql_query <- stratum_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   7) Query Stratum data: This table reports the various strata and 
@@ -298,6 +298,7 @@ AND AREA.SURVEY_DEFINITION_ID IN", survey_def_ids_vec,
   
   subarea_sql <- paste(
     "CREATE TABLE GAPINDEX_TEMPORARY_SUBAREA_QUERY AS
+    
 SELECT AREA.SURVEY_DEFINITION_ID, 
 CASE 
  WHEN AREA.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
@@ -308,13 +309,17 @@ CASE
  ELSE NULL
 END AS SURVEY, AREA.DESIGN_YEAR, AREA.AREA_TYPE, AREA.AREA_ID, AREA.AREA_KM2, 
 AREA.DESCRIPTION, AREA.AREA_NAME 
+
 FROM GAP_PRODUCTS.AREA AREA, 
 GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY SURVEY_DESIGN
+
 WHERE AREA_TYPE != 'STRATUM'
 AND SURVEY_DESIGN.SURVEY_DEFINITION_ID = AREA.SURVEY_DEFINITION_ID
 AND SURVEY_DESIGN.DESIGN_YEAR = AREA.DESIGN_YEAR
 AND AREA.SURVEY_DEFINITION_ID IN", survey_def_ids_vec,
-    "ORDER BY SURVEY_DEFINITION_ID, DESIGN_YEAR, AREA_ID"
+    "
+
+ORDER BY SURVEY_DEFINITION_ID, DESIGN_YEAR, AREA_ID"
   )
   
   RODBC::sqlQuery(channel = channel, query = subarea_sql)
@@ -323,7 +328,7 @@ AND AREA.SURVEY_DEFINITION_ID IN", survey_def_ids_vec,
     RODBC::sqlQuery(channel = channel,
                     query = "SELECT * FROM GAPINDEX_TEMPORARY_SUBAREA_QUERY")
   )
-  attributes(subarea_data)$sql_query <- subarea_sql
+  attributes(x = subarea_data)$sql_query <- subarea_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   8) Query Stratum Groups data: This table reports the strata that are
@@ -361,7 +366,7 @@ ORDER BY DESIGN_YEAR, SURVEY, AREA_ID, STRATUM")
                     query = "SELECT * 
                      FROM GAPINDEX_TEMPORARY_STRATUM_GROUPS_QUERY")
   )
-  attributes(stratum_groups)$sql_query <- stratum_groups_sql
+  attributes(x = stratum_groups)$sql_query <- stratum_groups_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## 9) Query Haul data. This table reports hauls based on the CRUISEJOIN 
@@ -397,7 +402,7 @@ AND ABUNDANCE_HAUL IN", gapindex::stitch_entries(abundance_haul),
     RODBC::sqlQuery(channel = channel, 
                     query = "SELECT * FROM GAPINDEX_TEMPORARY_HAUL_QUERY")
   )
-  attributes(haul_data)$sql_query <- haul_sql
+  attributes(x = haul_data)$sql_query <- haul_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   10) Query available species based on the HAULJOINs queried so far
@@ -407,9 +412,13 @@ AND ABUNDANCE_HAUL IN", gapindex::stitch_entries(abundance_haul),
   
   avail_spp_sql <-
     "CREATE TABLE GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY AS
+    
 SELECT DISTINCT SPECIES_CODE
+
 FROM RACEBASE.CATCH
+
 JOIN GAPINDEX_TEMPORARY_HAUL_QUERY USING (HAULJOIN)
+
 ORDER BY SPECIES_CODE"
   
   RODBC::sqlQuery(channel = channel, query = avail_spp_sql)
@@ -418,7 +427,7 @@ ORDER BY SPECIES_CODE"
     RODBC::sqlQuery(channel = channel, 
                     query = "SELECT * FROM GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY")
   )
-  attributes(avail_spp)$sql_query <- avail_spp_sql
+  attributes(x = avail_spp)$sql_query <- avail_spp_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   11) Format user-inputted species and taxon group information
@@ -439,12 +448,17 @@ ORDER BY SPECIES_CODE"
     
     species_sql <- 
       paste("CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+      
 SELECT * 
+
 FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
+
 JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
+
 JOIN", taxonomic_source, "USING (SPECIES_CODE)",
             switch(taxonomic_source,
                    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"= "
+                   
 WHERE SURVEY_SPECIES = 1",
                    "RACEBASE.SPECIES_CLASSIFICATION" = "")
       )
@@ -456,7 +470,7 @@ WHERE SURVEY_SPECIES = 1",
                     FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
     )
     
-    attributes(species_info)$sql_query <- species_sql
+    attributes(x = species_info)$sql_query <- species_sql
   }
   
   ## 2) a vector with SPECIES_CODES for single taxa. 
@@ -471,12 +485,17 @@ WHERE SURVEY_SPECIES = 1",
     
     species_sql <- 
       paste("CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+      
 SELECT * 
+
 FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
+
 JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
+
 JOIN", taxonomic_source, "USING (SPECIES_CODE)",
             switch(taxonomic_source,
                    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"= "
+                   
 WHERE SURVEY_SPECIES = 1",
                    "RACEBASE.SPECIES_CLASSIFICATION" = ""))
     
@@ -487,7 +506,7 @@ WHERE SURVEY_SPECIES = 1",
                     FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
     )
     
-    attributes(species_info)$sql_query <- species_sql
+    attributes(x = species_info)$sql_query <- species_sql
   }
   
   ## 3) NULL: usually for production purposes
@@ -511,7 +530,7 @@ WHERE SURVEY_SPECIES = 1",
                     FROM GAP_PRODUCTS.TAXON_GROUPS
                       WHERE GROUP_CODE IS NOT NULL"))
     
-    attributes(species_info)$sql_query <- 
+    attributes(x = species_info)$sql_query <- 
       "SELECT * 
 FROM GAP_PRODUCTS.TAXON_GROUPS
 WHERE GROUP_CODE IS NOT NULL"
@@ -531,8 +550,11 @@ WHERE GROUP_CODE IS NOT NULL"
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cat("Identifying any unavailable taxa...\n")
   unavailable_spp_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY AS
+  
 SELECT *
+
 FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
+
 WHERE SPECIES_CODE NOT IN (
       SELECT SPECIES_CODE
       FROM GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY
@@ -543,7 +565,7 @@ WHERE SPECIES_CODE NOT IN (
                     query = "SELECT *
                       FROM GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY")
   )
-  attributes(unavail_species_info)$sql_query <- unavailable_spp_sql
+  attributes(x = unavail_species_info)$sql_query <- unavailable_spp_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   13) Query catch data: This table reports the catch in weight and numbers
@@ -587,7 +609,7 @@ GROUP BY (HAULJOIN, GROUP_CODE)
       channel = channel,
       query = "SELECT * FROM GAPINDEX_TEMPORARY_CATCH_QUERY")
   )
-  attributes(catch_data)$sql_query <- catch_sql
+  attributes(x = catch_data)$sql_query <- catch_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   14) Query Size data (if pull_lengths == TRUE): This table reports the 
@@ -637,7 +659,7 @@ ORDER BY CRUISEJOIN, HAULJOIN, SPECIES_CODE, LENGTH, SEX")
                                GAPINDEX_TEMPORARY_SIZE_QUERY")
     )
     
-    attributes(size_data)$sql_query <- size_sql
+    attributes(x = size_data)$sql_query <- size_sql
     
     ## Error Query: send out a warning if there are no lengths in the dataset
     if (nrow(x = size_data) == 0) {
@@ -684,7 +706,7 @@ ORDER BY HAULJOIN, SPECIES_CODE, AGE, LENGTH"
                       query = "SELECT * FROM 
                                GAPINDEX_TEMPORARY_SPECIMEN_QUERY"))
     
-    attributes(speclist)$sql_query <- specimen_sql
+    attributes(x = speclist)$sql_query <- specimen_sql
     
     ## Warning Query: send out a warning if there are no ages in the dataset
     if (nrow(x = speclist) == 0) {

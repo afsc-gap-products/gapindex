@@ -5,19 +5,31 @@
 \title{Calculate numerical CPUE at length by haul}
 \usage{
 calc_sizecomp_stratum(
-  racebase_tables = NULL,
-  racebase_cpue = NULL,
-  racebase_stratum_popn = NULL,
+  racebase_tables = deprecated(),
+  gapdata = NULL,
+  racebase_cpue = deprecated(),
+  cpue = NULL,
+  racebase_stratum_popn = deprecated(),
+  abundance_stratum = NULL,
   spatial_level = c("stratum", "haul")[1],
   fill_NA_method = c("AIGOA", "BS")[1]
 )
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{gapindex::get_data()}.}
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
 
-\item{racebase_cpue}{object created from \code{gapindex::calc_cpue()}.}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
 
-\item{racebase_stratum_popn}{object created from
+\item{racebase_cpue}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{cpue} argument instead.}
+
+\item{cpue}{catch per unit effort object created from \code{gapindex::calc_cpue()}.}
+
+\item{racebase_stratum_popn}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{abundance_stratum} argument instead.}
+
+\item{abundance_stratum}{biomass/abundance by stratum object created from
 \code{gapindex::calc_biomass_stratum()}}
 
 \item{spatial_level}{string, one of c("stratum", "haul"). Should size

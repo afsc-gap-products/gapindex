@@ -4,12 +4,23 @@
 \alias{calc_biomass_subarea}
 \title{Calculate index of total biomass across aggregated subareas}
 \usage{
-calc_biomass_subarea(racebase_tables = NULL, biomass_strata = NULL)
+calc_biomass_subarea(
+  racebase_tables = deprecated(),
+  gapdata = NULL,
+  biomass_strata = deprecated(),
+  biomass_stratum = NULL
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from `gapindex::get_data()``}
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
 
-\item{biomass_strata}{a dataframe of stratum biomass, result object from
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
+
+\item{biomass_strata}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{biomass_stratum} argument instead.}
+
+\item{biomass_stratum}{a dataframe of stratum biomass, result object from
 \code{gapindex::calc_biomass_stratum()}}
 }
 \value{

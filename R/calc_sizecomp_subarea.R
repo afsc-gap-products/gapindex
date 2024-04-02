@@ -1,7 +1,11 @@
 #' Calculate size composition across aggregated subareas
 #'
-#' @param racebase_tables data object created from `gapindex::get_data()``
-#' @param size_comps  a dataframe of stratum biomass, result object from either
+#' @param racebase_tables `r lifecycle::badge("deprecated")` Use the 
+#'                     `gapdata` argument instead. 
+#' @param gapdata data object created from `gapindex::get_data()`
+#' @param size_comps  `r lifecycle::badge("deprecated")` Use the 
+#'                    `sizecomp_stratum` argument instead. 
+#' @param sizecomp_stratum a dataframe of stratum biomass, result object from either
 #'                       `gapindex::calc_sizecomp_aigoa_stratum()` or 
 #'                       `gapindex::calc_sizecomp_bs_stratum()`
 #'
@@ -12,65 +16,78 @@
 #' @export
 #'
 
-calc_sizecomp_subarea <- function(racebase_tables, 
-                                  size_comps) {
+calc_sizecomp_subarea <- function(gapdata = NULL,
+                                  racebase_tables = lifecycle::deprecated(), 
+                                  sizecomp_stratum = NULL,
+                                  size_comps = lifecycle::deprecated()) {
+  ## Input check
+  if (lifecycle::is_present(racebase_tables)) {
+    lifecycle::deprecate_warn("2.2.0", 
+                              "calc_sizecomp_subarea(racebase_tables)", 
+                              "calc_sizecomp_subarea(gapdata)")
+    gapdata <- racebase_tables
+  }
+  if (lifecycle::is_present(size_comps)) {
+    lifecycle::deprecate_warn("2.2.0", 
+                              "calc_sizecomp_subarea(size_comps)", 
+                              "calc_sizecomp_subarea(sizecomp_stratum)")
+    sizecomp_stratum <- size_comps
+  }
   
-  ## Error Check on function arguments
-  if (is.null(x = racebase_tables))
-    stop("Must provide argument `racebase_tables` a named list from 
-         gapindex::get_data().")
-  
-  if (is.null(x = size_comps))
-    stop("Must provide argument `size_comps` a named list from 
-         gapindex::calc_sizecomp_stratum().")
+  for (iarg in c("gapdata", "sizecomp_stratum"))
+    if (is.null(x = get(x = iarg)))
+      stop(paste0("Must provide argument `", iarg, "`. ",
+                  "See ?gapindex::calc_sizecomp_subarea for more information"))
   
   ## Which survey designs to pull from
-  subarea_size_comp_df <- data.table::data.table()
-  survey_designs <- racebase_tables$survey
-  unique_surveys <- racebase_tables$survey
-  stratum_groups <- racebase_tables$stratum_groups
+  survey_designs <- gapdata$survey
+  unique_surveys <- gapdata$survey
+  stratum_groups <- gapdata$stratum_groups
   
-  ## Add DESIGN_YEAR to size_comps
-  size_comps <- unique_surveys[size_comps,
-                 on = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR")]
+  ## Add DESIGN_YEAR to sizecomp_stratum
+  sizecomp_stratum <- merge(x = sizecomp_stratum,
+                            y = unique_surveys,
+                            by = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR"))
   
-  ## Create ## Subset the set of subareas given the survey and design year. From 
+  ## Create set of subareas given the different surveys and design years. From 
   ## 2025-on the GOA time series will have two unique survey designs with 
   ## different design years.
-  subarea_size_comp <- data.table::data.table()
+  sizecomp_subarea <- data.table::data.table()
   for (irow in 1:nrow(x = unique_surveys))
-    subarea_size_comp <- 
-    rbind(subarea_size_comp,
-          cbind(YEAR = unique_surveys$YEAR[irow],
-                stratum_groups[
-                  SURVEY_DEFINITION_ID == 
-                    unique_surveys$SURVEY_DEFINITION_ID[irow] &
-                    SURVEY == 
-                    unique_surveys$SURVEY[irow] &
-                    DESIGN_YEAR == 
-                    unique_surveys$DESIGN_YEAR[irow]]))
+    sizecomp_subarea <- 
+    rbind(sizecomp_subarea,
+          cbind(
+            YEAR = unique_surveys$YEAR[irow],
+            stratum_groups[
+              SURVEY_DEFINITION_ID == 
+                unique_surveys$SURVEY_DEFINITION_ID[irow] &
+                SURVEY == 
+                unique_surveys$SURVEY[irow] &
+                DESIGN_YEAR == 
+                unique_surveys$DESIGN_YEAR[irow]]))
   
-  subarea_size_comp <- 
-    subarea_size_comp[size_comps,
-                    on = c("SURVEY_DEFINITION_ID", "SURVEY", 
-                           "DESIGN_YEAR", "YEAR ", "STRATUM"),
-                    allow.cartesian = TRUE]
+  ## Merge the stratum size comps to the newly created sizecomp_subarea table
+  sizecomp_subarea <- merge(x = sizecomp_stratum,
+                            y = sizecomp_subarea,
+                            by = c("SURVEY_DEFINITION_ID", "SURVEY", 
+                                   "DESIGN_YEAR", "YEAR ", "STRATUM"),
+                            all = TRUE)
   
   ## Aggregate size comps
-  subarea_size_comp <- 
-    subarea_size_comp[,
-                      .(POPULATION_COUNT = sum(POPULATION_COUNT)),
-                      by = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR",
-                             "AREA_ID", "YEAR", "SPECIES_CODE", 
-                             "SEX", "LENGTH_MM")]
+  sizecomp_subarea <- 
+    sizecomp_subarea[,
+                     .(POPULATION_COUNT = sum(POPULATION_COUNT)),
+                     by = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR",
+                            "AREA_ID", "YEAR", "SPECIES_CODE", 
+                            "SEX", "LENGTH_MM")]
   
- ## Reorder columns, sort, and return
-  subarea_size_comp <- 
-    subarea_size_comp[
+  ## Reorder columns, sort, and return
+  sizecomp_subarea <- 
+    sizecomp_subarea[
       order(SURVEY_DEFINITION_ID, AREA_ID, SPECIES_CODE, YEAR, SEX, LENGTH_MM),
       c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE", 
         "LENGTH_MM", "SEX", "POPULATION_COUNT")]
   
-  return(subarea_size_comp)
+  return(sizecomp_subarea)
 }
 

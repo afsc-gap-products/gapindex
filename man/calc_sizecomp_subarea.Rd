@@ -4,14 +4,25 @@
 \alias{calc_sizecomp_subarea}
 \title{Calculate size composition across aggregated subareas}
 \usage{
-calc_sizecomp_subarea(racebase_tables, size_comps)
+calc_sizecomp_subarea(
+  gapdata = NULL,
+  racebase_tables = lifecycle::deprecated(),
+  sizecomp_stratum = NULL,
+  size_comps = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from `gapindex::get_data()``}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
 
-\item{size_comps}{a dataframe of stratum biomass, result object from either
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
+
+\item{sizecomp_stratum}{a dataframe of stratum biomass, result object from either
 \code{gapindex::calc_sizecomp_aigoa_stratum()} or
 \code{gapindex::calc_sizecomp_bs_stratum()}}
+
+\item{size_comps}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{sizecomp_stratum} argument instead.}
 }
 \value{
 \tabular{ll}{
