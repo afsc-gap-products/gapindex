@@ -125,7 +125,8 @@ calc_biomass_stratum <- function(gapdata = NULL,
     merge(x = stratum_stats,
           y = size_stats,
           by = c("SPECIES_CODE", "STRATUM", "YEAR", "DESIGN_YEAR", 
-                 "SURVEY", "SURVEY_DEFINITION_ID"))
+                 "SURVEY", "SURVEY_DEFINITION_ID"),
+          all.x = TRUE)
   
   ## Any remaining records with an NA for N_LENGTH is assigned a value of 0
   stratum_stats[is.na(x = stratum_stats$N_LENGTH), N_LENGTH := 0]

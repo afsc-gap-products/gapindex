@@ -71,7 +71,7 @@ calc_sizecomp_subarea <- function(gapdata = NULL,
                             y = sizecomp_subarea,
                             by = c("SURVEY_DEFINITION_ID", "SURVEY", 
                                    "DESIGN_YEAR", "YEAR", "STRATUM"),
-                            all = TRUE)
+                            all = TRUE, allow.cartesian = TRUE)
   
   ## Aggregate size comps
   sizecomp_subarea <- 

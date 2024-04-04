@@ -58,7 +58,7 @@ calc_agecomp_stratum <- function(gapdata = NULL,
                      subset = SPECIES_CODE %in% unique(x = alk$SPECIES_CODE)),
           y = alk,
           by = c("SURVEY", "SURVEY_DEFINITION_ID", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
-          all.x = TRUE)
+          all.x = TRUE, allow.cartesian = TRUE)
   age_comp$AGE[is.na(x = age_comp$AGE)] <- -9
   age_comp$AGE_FRAC[is.na(x = age_comp$AGE_FRAC)] <- 1
   

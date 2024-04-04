@@ -79,11 +79,14 @@ calc_biomass_subarea <- function(racebase_tables = deprecated(),
                     unique_surveys$DESIGN_YEAR[irow]]))
   
   biomass_subarea <- 
-    merge(x = biomass_stratum,
-          y = biomass_subarea,
+    merge(x = biomass_subarea,
+          y = biomass_stratum,
           by = c("SURVEY_DEFINITION_ID", "SURVEY", 
-                 "DESIGN_YEAR", "YEAR", "STRATUM"),
-          all = TRUE)
+                 "DESIGN_YEAR", "YEAR", "STRATUM"), 
+          allow.cartesian = TRUE)
+  
+  ## Remove NAs
+  
   
   ## Create a function `weighted_cpue` that calculates combines weighted, 
   ## stratum-level estimates to the subarea level.

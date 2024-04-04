@@ -71,7 +71,7 @@ calc_agecomp_region <- function(gapdata = NULL,
                             y = agecomp_stratum$length_at_age,
                             by = c("SURVEY_DEFINITION_ID", "SURVEY", 
                                    "YEAR", "STRATUM"),
-                            all = TRUE)
+                            all = TRUE, allow.cartesian = TRUE)
   
   ## Aggregate age composition and mean/sd length @ age across region
   subarea_age_comp <-
