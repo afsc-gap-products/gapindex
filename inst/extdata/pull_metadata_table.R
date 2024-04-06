@@ -24,8 +24,8 @@ metadata_column <-
 names(x = metadata_column) <- c("Field", "Description")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##   Write to data-raw folder
+##   Write to inst/extdata/ folder
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 utils::write.csv(x = metadata_column,
-                 file = "data-raw/metadata.csv",
+                 file = "inst/extdata/metadata.csv",
                  row.names = FALSE)
