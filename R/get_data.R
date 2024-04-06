@@ -467,7 +467,7 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
+                    FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY")
     )
     
     attributes(x = species_info)$sql_query <- species_sql
@@ -503,7 +503,7 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
+                    FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY")
     )
     
     attributes(x = species_info)$sql_query <- species_sql
