@@ -476,7 +476,7 @@ WHERE SURVEY_SPECIES = 1",
   ## 2) a vector with SPECIES_CODES for single taxa. 
   if (is.numeric(x = spp_codes)) {
     
-    spp_codes <- data.table(SPECIES_CODE = spp_codes, GROUP_CODE = spp_codes)
+    spp_codes <- data.table::data.table(SPECIES_CODE = spp_codes, GROUP_CODE = spp_codes)
     RODBC::sqlSave(channel = channel, dat = spp_codes, 
                    tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY", 
                    rownames = F, append = F, 
