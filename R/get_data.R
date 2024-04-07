@@ -467,7 +467,7 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY")
+                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
     )
     
     attributes(x = species_info)$sql_query <- species_sql
@@ -503,7 +503,7 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY")
+                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
     )
     
     attributes(x = species_info)$sql_query <- species_sql
@@ -683,7 +683,7 @@ ORDER BY CRUISEJOIN, HAULJOIN, SPECIES_CODE, LENGTH, SEX")
     
     specimen_sql <- "CREATE TABLE GAPINDEX_TEMPORARY_SPECIMEN_QUERY AS
     
-SELECT CRUISEJOIN, HAULJOIN, SPECIES_CODE, LENGTH, SEX, WEIGHT, AGE
+SELECT CRUISEJOIN, HAULJOIN, GROUP_CODE AS SPECIES_CODE, LENGTH, SEX, WEIGHT, AGE
 
 FROM RACEBASE.SPECIMEN
   
@@ -694,6 +694,8 @@ JOIN (SELECT SPECIES_CODE
 JOIN (SELECT HAULJOIN 
       FROM GAPINDEX_TEMPORARY_HAUL_QUERY) 
       USING (HAULJOIN)
+
+JOIN (SELECT * FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY) USING (SPECIES_CODE)
 
 WHERE AGE IS NOT NULL
 
