@@ -106,7 +106,9 @@ calc_cpue <- function(gapdata = NULL,
                 SPECIES_CODE,
                 WEIGHT_KG = WEIGHT,
                 COUNT = NUMBER_FISH,
-                AREA_SWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH)))
+                AREA_SWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH),
+                key = c("HAULJOIN", "SPECIES_CODE"))
+  )
   
   ## CPUE calculations
   dat <- cbind(dat, 

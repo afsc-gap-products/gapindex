@@ -69,23 +69,23 @@ calc_agecomp_region <- function(gapdata = NULL,
   ## to the `subarea_age_comp` df
   subarea_age_comp <- merge(x = subarea_age_comp,
                             y = agecomp_stratum$length_at_age,
-                            by = c("SURVEY_DEFINITION_ID", "SURVEY", 
+                            by = c("SURVEY_DEFINITION_ID", 
                                    "YEAR", "STRATUM"),
                             all = TRUE, allow.cartesian = TRUE)
   
   ## Aggregate age composition and mean/sd length @ age across region
   subarea_age_comp <-
     subarea_age_comp[
-      AGEPOP > 0
+      POPULATION_COUNT > 0
       ,
-      .(POPULATION_COUNT = round(x = sum(AGEPOP), digits = 0), 
+      .(POPULATION_COUNT = round(x = sum(POPULATION_COUNT), digits = 0), 
         LENGTH_MM_MEAN = round(x = stats::weighted.mean(x = LENGTH_MM, 
-                                                        w = AGEPOP), 
+                                                        w = POPULATION_COUNT), 
                                digits = 2),
         LENGTH_MM_SD = round(x = sqrt(
-          x = sum(AGEPOP/sum(AGEPOP) * 
+          x = sum(POPULATION_COUNT/sum(POPULATION_COUNT) * 
                     (LENGTH_MM - stats::weighted.mean(x = LENGTH_MM, 
-                                                      w = AGEPOP))^2)
+                                                      w = POPULATION_COUNT))^2)
         ), 
         digits = 2) ),
       by = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", "AREA_ID", 
@@ -106,7 +106,13 @@ calc_agecomp_region <- function(gapdata = NULL,
                                             YEAR < 1987 & AREA_ID == 99900))
   }
   
-  return(subarea_age_comp[order(SURVEY_DEFINITION_ID, AREA_ID, 
-                                SPECIES_CODE, YEAR, SEX, AGE),
-                          -"SURVEY"])
+  return(
+    data.table::data.table(
+      subarea_age_comp[order(SURVEY_DEFINITION_ID, AREA_ID, SPECIES_CODE, YEAR,
+                             SEX, AGE),
+                       -"SURVEY"],
+      key = c("SURVEY_DEFINITION_ID", "AREA_ID", "SPECIES_CODE", "YEAR", 
+              "SEX", "AGE")
+    )
+  )
 }

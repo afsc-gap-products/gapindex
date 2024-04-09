@@ -173,7 +173,8 @@ AND YEAR IN", year_vec)
   
   survey_df <- data.table::data.table(
     RODBC::sqlQuery(channel = channel,
-                    query = "SELECT * FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"))
+                    query = "SELECT * FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"),
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", "DESIGN_YEAR"))
   attributes(x = survey_df)$sql_query <- survey_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -194,7 +195,8 @@ FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"
   survey_design <- data.table::data.table(
     RODBC::sqlQuery(channel = channel,
                     query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY"))
+                    FROM GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY"),
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR"))
   attributes(x = survey_design)$sql_query <- survey_design_sql
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,7 +240,8 @@ AND FLOOR(B.CRUISE/100) IN", year_vec)
   
   cruise_data <- data.table::data.table(
     RODBC::sqlQuery(channel = channel, 
-                    query = "SELECT * FROM GAPINDEX_TEMPORARY_CRUISE_QUERY")
+                    query = "SELECT * FROM GAPINDEX_TEMPORARY_CRUISE_QUERY"),
+    key = c("CRUISEJOIN")
   )
   attributes(x = cruise_data)$sql_query <- cruise_sql
   
@@ -286,7 +289,8 @@ ORDER BY SURVEY_DEFINITION_ID, DESIGN_YEAR, STRATUM"
   
   stratum_data <- data.table::data.table(
     RODBC::sqlQuery(channel = channel,
-                    query = "SELECT * FROM GAPINDEX_TEMPORARY_STRATUM_QUERY")
+                    query = "SELECT * FROM GAPINDEX_TEMPORARY_STRATUM_QUERY"),
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", "STRATUM")
   )
   attributes(x = stratum_data)$sql_query <- stratum_sql
   
@@ -326,7 +330,9 @@ ORDER BY SURVEY_DEFINITION_ID, DESIGN_YEAR, AREA_ID"
   
   subarea_data <- data.table::data.table(
     RODBC::sqlQuery(channel = channel,
-                    query = "SELECT * FROM GAPINDEX_TEMPORARY_SUBAREA_QUERY")
+                    query = "SELECT * FROM GAPINDEX_TEMPORARY_SUBAREA_QUERY"),
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", 
+            "AREA_ID", "AREA_TYPE")
   )
   attributes(x = subarea_data)$sql_query <- subarea_sql
   
@@ -364,7 +370,9 @@ ORDER BY DESIGN_YEAR, SURVEY, AREA_ID, STRATUM")
   stratum_groups <- data.table::data.table(
     RODBC::sqlQuery(channel = channel, 
                     query = "SELECT * 
-                     FROM GAPINDEX_TEMPORARY_STRATUM_GROUPS_QUERY")
+                     FROM GAPINDEX_TEMPORARY_STRATUM_GROUPS_QUERY"),
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR", 
+            "AREA_ID", "STRATUM")
   )
   attributes(x = stratum_groups)$sql_query <- stratum_groups_sql
   
@@ -400,7 +408,8 @@ AND ABUNDANCE_HAUL IN", gapindex::stitch_entries(abundance_haul),
   
   haul_data <- data.table::data.table(
     RODBC::sqlQuery(channel = channel, 
-                    query = "SELECT * FROM GAPINDEX_TEMPORARY_HAUL_QUERY")
+                    query = "SELECT * FROM GAPINDEX_TEMPORARY_HAUL_QUERY"),
+    key = "HAULJOIN"
   )
   attributes(x = haul_data)$sql_query <- haul_sql
   
@@ -425,7 +434,8 @@ ORDER BY SPECIES_CODE"
   
   avail_spp <- data.table::data.table(
     RODBC::sqlQuery(channel = channel, 
-                    query = "SELECT * FROM GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY")
+                    query = "SELECT * FROM GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY"),
+    key = "SPECIES_CODE"
   )
   attributes(x = avail_spp)$sql_query <- avail_spp_sql
   
@@ -467,7 +477,8 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
+                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY"),
+      key = "SPECIES_CODE"
     )
     
     attributes(x = species_info)$sql_query <- species_sql
@@ -503,7 +514,8 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY")
+                    FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY"),
+      key = "SPECIES_CODE"
     )
     
     attributes(x = species_info)$sql_query <- species_sql
@@ -519,7 +531,8 @@ WHERE SURVEY_SPECIES = 1",
                     WHERE GROUP_CODE IS NOT NULL")
     
     RODBC::sqlQuery(channel = channel,
-                    query = "CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+                    query = "
+                    CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
                     SELECT *
                     FROM GAP_PRODUCTS.TAXON_GROUPS
                     WHERE GROUP_CODE IS NOT NULL")
@@ -527,8 +540,9 @@ WHERE SURVEY_SPECIES = 1",
     species_info <- data.table::data.table(
       RODBC::sqlQuery(channel = channel, 
                       query = "SELECT * 
-                    FROM GAP_PRODUCTS.TAXON_GROUPS
-                      WHERE GROUP_CODE IS NOT NULL"))
+                               FROM GAP_PRODUCTS.TAXON_GROUPS
+                               WHERE GROUP_CODE IS NOT NULL"),
+      key = "SPECIES_CODE")
     
     attributes(x = species_info)$sql_query <- 
       "SELECT * 
@@ -563,7 +577,8 @@ WHERE SPECIES_CODE NOT IN (
   unavail_species_info <- data.table::data.table(
     RODBC::sqlQuery(channel = channel,
                     query = "SELECT *
-                      FROM GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY")
+                      FROM GAPINDEX_TEMPORARY_UNAVAIL_SPP_QUERY"),
+    key = "SPECIES_CODE"
   )
   attributes(x = unavail_species_info)$sql_query <- unavailable_spp_sql
   
@@ -607,7 +622,8 @@ GROUP BY (HAULJOIN, GROUP_CODE)
   catch_data <-  data.table::data.table(
     RODBC::sqlQuery(
       channel = channel,
-      query = "SELECT * FROM GAPINDEX_TEMPORARY_CATCH_QUERY")
+      query = "SELECT * FROM GAPINDEX_TEMPORARY_CATCH_QUERY"),
+    key = c("HAULJOIN", "SPECIES_CODE")
   )
   attributes(x = catch_data)$sql_query <- catch_sql
   
@@ -656,7 +672,8 @@ ORDER BY CRUISEJOIN, HAULJOIN, SPECIES_CODE, LENGTH, SEX")
     size_data <- data.table::data.table(
       RODBC::sqlQuery(channel = channel,
                       query = "SELECT * FROM 
-                               GAPINDEX_TEMPORARY_SIZE_QUERY")
+                               GAPINDEX_TEMPORARY_SIZE_QUERY"),
+      key = c("HAULJOIN", "SPECIES_CODE", "SEX", "LENGTH")
     )
     
     attributes(x = size_data)$sql_query <- size_sql
@@ -706,7 +723,8 @@ ORDER BY HAULJOIN, SPECIES_CODE, AGE, LENGTH"
     speclist <- data.table::data.table(
       RODBC::sqlQuery(channel = channel,
                       query = "SELECT * FROM 
-                               GAPINDEX_TEMPORARY_SPECIMEN_QUERY"))
+                               GAPINDEX_TEMPORARY_SPECIMEN_QUERY"),
+      key = c("HAULJOIN", "SPECIES_CODE", "SEX", "AGE", "LENGTH"))
     
     attributes(x = speclist)$sql_query <- specimen_sql
     

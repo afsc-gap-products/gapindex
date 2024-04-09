@@ -173,5 +173,7 @@ calc_biomass_stratum <- function(gapdata = NULL,
                                          STRATUM %in% c(82, 90)) )
   }
   
-  return(stratum_stats)
+  return(data.table::data.table(stratum_stats, 
+                                key = c("SURVEY_DEFINITION_ID", "SURVEY", 
+                                        "SPECIES_CODE", "YEAR", "STRATUM")))
 }

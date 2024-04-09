@@ -53,6 +53,7 @@ calc_sizecomp_subarea <- function(gapdata = NULL,
   ## 2025-on the GOA time series will have two unique survey designs with 
   ## different design years.
   sizecomp_subarea <- data.table::data.table()
+  
   for (irow in 1:nrow(x = unique_surveys))
     sizecomp_subarea <- 
     rbind(sizecomp_subarea,
@@ -88,6 +89,10 @@ calc_sizecomp_subarea <- function(gapdata = NULL,
       c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE", 
         "LENGTH_MM", "SEX", "POPULATION_COUNT")]
   
-  return(sizecomp_subarea)
+  return(data.table::data.table(
+    sizecomp_subarea,
+    key = c("SURVEY_DEFINITION_ID", "YEAR", "AREA_ID", "SPECIES_CODE", 
+            "LENGTH_MM", "SEX"))
+  )
 }
 

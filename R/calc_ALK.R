@@ -205,6 +205,9 @@ calc_alk <- function(gapdata = NULL,
                   y = survey_design,
                   by = "SURVEY")
   
-  return(unique(x = p_yklm[, -"DESIGN_YEAR"]))
+  return(unique(x = data.table::data.table(
+    p_yklm[, -"DESIGN_YEAR"],
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", "SPECIES_CODE", "SEX",
+            "LENGTH_MM", "AGE") )))
 }
 

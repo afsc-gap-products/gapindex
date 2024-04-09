@@ -57,7 +57,8 @@ calc_agecomp_stratum <- function(gapdata = NULL,
     merge(x = subset(x = sizecomp_stratum,
                      subset = SPECIES_CODE %in% unique(x = alk$SPECIES_CODE)),
           y = alk,
-          by = c("SURVEY", "SURVEY_DEFINITION_ID", "YEAR", "SPECIES_CODE", "SEX", "LENGTH_MM"),
+          by = c("SURVEY", "SURVEY_DEFINITION_ID", "YEAR", "SPECIES_CODE", 
+                 "SEX", "LENGTH_MM"),
           all.x = TRUE, allow.cartesian = TRUE)
   age_comp$AGE[is.na(x = age_comp$AGE)] <- -9
   age_comp$AGE_FRAC[is.na(x = age_comp$AGE_FRAC)] <- 1
@@ -66,7 +67,10 @@ calc_agecomp_stratum <- function(gapdata = NULL,
   ## at length
   age_comp$AGEPOP <- age_comp$AGE_FRAC * age_comp$POPULATION_COUNT
   
-  count_length_age <- age_comp
+  count_length_age <- age_comp[, -c("POPULATION_COUNT")]
+  data.table::setnames(x = count_length_age, 
+                       old = "AGEPOP", 
+                       new = "POPULATION_COUNT")
   count_length_age$AGE[count_length_age$LENGTH_MM < 0] <- -99
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,6 +120,17 @@ calc_agecomp_stratum <- function(gapdata = NULL,
   ## FOR A SPECIES/YEAR EVEN THOUGH CATCH NUMBERS EXISTED.
   age_comp$AGE[is.na(x = age_comp$LENGTH_MM_MEAN)] <- -99
   
-  return(list(age_comp = age_comp[POPULATION_COUNT > 0],
-              length_at_age = count_length_age))
+  return(
+    list(age_comp = data.table::data.table(
+      age_comp[POPULATION_COUNT > 0],
+      key = c("SURVEY_DEFINITION_ID", "YEAR", "STRATUM", 
+              "SPECIES_CODE", "SEX", "AGE")),
+      length_at_age = data.table::data.table(
+        count_length_age[, c("SURVEY_DEFINITION_ID", "YEAR", "STRATUM", 
+                             "SPECIES_CODE", "SEX", "LENGTH_MM", "AGE", 
+                             "POPULATION_COUNT")],
+        key = c("SURVEY_DEFINITION_ID", "YEAR", "STRATUM", 
+                "SPECIES_CODE", "SEX", "LENGTH_MM", "AGE"))  
+    )
+  )
 }

@@ -17,9 +17,9 @@
 #' @export
 #' 
 
-calc_biomass_subarea <- function(racebase_tables = deprecated(),
+calc_biomass_subarea <- function(racebase_tables = lifecycle::deprecated(),
                                  gapdata = NULL,
-                                 biomass_strata = deprecated(),
+                                 biomass_strata = lifecycle::deprecated(),
                                  biomass_stratum = NULL) {
   
   ## Input checks
@@ -84,9 +84,6 @@ calc_biomass_subarea <- function(racebase_tables = deprecated(),
           by = c("SURVEY_DEFINITION_ID", "SURVEY", 
                  "DESIGN_YEAR", "YEAR", "STRATUM"), 
           allow.cartesian = TRUE)
-  
-  ## Remove NAs
-  
   
   ## Create a function `weighted_cpue` that calculates combines weighted, 
   ## stratum-level estimates to the subarea level.
@@ -155,5 +152,7 @@ calc_biomass_subarea <- function(racebase_tables = deprecated(),
                                                           8, 9)))
   }
   
-  return(biomass_subarea[, -c("TOT_AREA", "DESIGN_YEAR")])
+  return(data.table::data.table(
+    biomass_subarea[, -c("TOT_AREA", "DESIGN_YEAR")],
+    key = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", "SPECIES_CODE", "AREA_ID")) )
 }

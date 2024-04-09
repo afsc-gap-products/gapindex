@@ -25,11 +25,11 @@
 #'                       In the AI and GOA survey regions ("AIGOA"), an average
 #'                       size distribution is applied to these hauls so the 
 #'                       length -9 category does not exist in the AI or GOA
-#'                       versions of the size composition.              
-#' 
-#' @return dataframe of numerical CPUE ("S_ijklm_NO_KM2") by survey ("SURVEY"), 
-#' year ("YEAR"), stratum ("STRATUM"), haul ("HAULJOIN), species (SPECIES_CODE), 
-#' sex (SEX), and length (LENGTH_MM).
+#'                       versions of the size composition.   
+#'                                  
+#' @eval c("@return", get_table_metadata("inst/extdata/metadata.csv", 
+#' select = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", "STRATUM", 
+#' "SPECIES_CODE", "LENGTH_MM", "SEX", "POPULATION_COUNT")))
 #' 
 #' @export
 #' 
@@ -65,7 +65,7 @@ calc_sizecomp_stratum <- function(racebase_tables = deprecated(),
                               "calc_sizecomp_stratum(abundance_stratum)")
     abundance_stratum <- racebase_stratum_popn
   }
-
+  
   for (iarg in c("gapdata", "cpue", "abundance_stratum"))
     if (is.null(x = get(x = iarg)))
       stop(paste0("Must provide argument `", iarg, "`. ",
@@ -298,9 +298,14 @@ calc_sizecomp_stratum <- function(racebase_tables = deprecated(),
                   y = gapdata$survey_design,
                   by = "SURVEY")
   
-  S_iklm <- subset(x = S_iklm,
-                   select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
-                              SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT))
+  S_iklm <- 
+    subset(x = data.table::data.table(
+      S_iklm,
+      key = c("SURVEY_DEFINITION_ID", "SURVEY", "YEAR", "STRATUM",
+              "SPECIES_CODE", "LENGTH_MM", "SEX")),
+      select = c(SURVEY_DEFINITION_ID, SURVEY, YEAR, STRATUM,
+                 SPECIES_CODE, LENGTH_MM, SEX, POPULATION_COUNT)
+    )
   
   return(S_iklm)
 }
