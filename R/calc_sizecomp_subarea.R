@@ -73,11 +73,14 @@ calc_sizecomp_subarea <- function(gapdata = NULL,
                             by = c("SURVEY_DEFINITION_ID", "SURVEY", 
                                    "DESIGN_YEAR", "YEAR", "STRATUM"),
                             all = TRUE, allow.cartesian = TRUE)
-  
+  ## Remove NAs 
+  sizecomp_subarea <- subset(x = sizecomp_subarea,
+                             subset = !is.na(x = SPECIES_CODE))
+
   ## Aggregate size comps
   sizecomp_subarea <- 
     sizecomp_subarea[,
-                     .(POPULATION_COUNT = sum(POPULATION_COUNT)),
+                     .(POPULATION_COUNT = sum(POPULATION_COUNT, na.rm = TRUE)),
                      by = c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR",
                             "AREA_ID", "YEAR", "SPECIES_CODE", 
                             "SEX", "LENGTH_MM")]
