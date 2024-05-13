@@ -295,8 +295,8 @@ calc_sizecomp_stratum <- function(racebase_tables = deprecated(),
   
   ## Add SURVEY_DEFINITION_ID to output
   S_iklm <- merge(x = S_iklm,
-                  y = gapdata$survey_design,
-                  by = "SURVEY")
+                  y = gapdata$survey,
+                  by = c("SURVEY", "YEAR"))
   
   S_iklm <- 
     subset(x = data.table::data.table(

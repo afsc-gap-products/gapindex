@@ -55,7 +55,7 @@ calc_alk <- function(gapdata = NULL,
   cruise <- gapdata$cruise
   size <- gapdata$size
   specimen <- gapdata$specimen
-  survey_design <- gapdata$survey_design
+  survey <- gapdata$survey
   
   ## Make sure lengths are rounded to the nearest 10 mm. Fish are measured to 
   ## the nearest cm but crab are measured to the nearest mm. 
@@ -153,8 +153,7 @@ calc_alk <- function(gapdata = NULL,
     p_yklm <- merge(x = every_combo_of_lengths,
                     y = p_yklm,
                     by = c("SURVEY", "YEAR", "SPECIES_CODE", 
-                           "SEX", "LENGTH_MM", "AGE"),
-                    all.x = TRUE)
+                           "SEX", "LENGTH_MM", "AGE"))
     
     missing_lengths <-
       p_yklm[,
@@ -185,7 +184,6 @@ calc_alk <- function(gapdata = NULL,
       merge(x = missing_lengths,
             y = p_klm,
             all.x = TRUE,
-            allow.cartesian = TRUE,
             by = c("SURVEY", "SPECIES_CODE", "SEX", "LENGTH_MM"))
     
     ## Append the globally-filled lengths with the the non-global `p_yklm` alk
@@ -204,8 +202,8 @@ calc_alk <- function(gapdata = NULL,
   
   p_yklm$AGE_FRAC[is.na(x = p_yklm$AGE_FRAC)] <- 0
   p_yklm <- merge(x = p_yklm, 
-                  y = survey_design,
-                  by = "SURVEY")
+                  y = survey,
+                  by = c("SURVEY", "YEAR"))
   
   return(unique(x = data.table::data.table(
     p_yklm[, -"DESIGN_YEAR"],
