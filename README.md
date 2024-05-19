@@ -10,8 +10,21 @@ Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
 
 ## Installation Instructions
 
-Make sure you have installed R packages `devtools`, `RODBC`, and `getPass` 
-and are connected to the AFSC network or VPN while using this package.
+In addition to the default packages in R (base, stats), the functions in 
+gapindex use functions from five additional packages:
+
+- RODBC: Enables ODBC (Open Database Connectivity) interface to Oracle SQL 
+  Developer where the AFSC database is housed
+- getPass: Allows for masking of Oracle credentials (usernames, passwords) 
+  when accessing RODBC
+- keyring: Allows the option for users to store their passwords 
+- lifecycle: Aids developers and users with shared conventions, documentation 
+  badges, deprecation warnings as the package develops over time
+- data.table: Speeds up data.frame manipulations like reading, writing, 
+  aggregations, joins, ordering, sorting. The addition of data.table to 
+  gapindex v2.3.0 greatly speeds up computation time. 
+
+Please make sure these five packages are installed before installing gapindex
 
 ```
 library(devtools)
