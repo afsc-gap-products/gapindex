@@ -156,22 +156,14 @@ upload_oracle <- function(x = NULL,
     query = paste0('comment on table ', schema,'.', table_name, ' is \'',
                    table_metadata,'\';'))
   
-  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Grant select access to all users
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (share_with_all_users) {
-    
     cat("Granting select access to all users ... \n")
-    all_schemas <- RODBC::sqlQuery(channel = channel,
-                                   query = paste0('SELECT * FROM all_users;'))
-    
-    for (iname in sort(all_schemas$USERNAME)) {
       RODBC::sqlQuery(channel = channel,
-                      query = paste0('grant select on ', schema,'.', table_name,
-                                     ' to ', iname, ';'))
-    }
-    
+                      query = paste0('GRANT SELECT ON ', schema,'.', table_name,
+                                     ' TO PUBLIC;'))
   }
   cat("Finished.\n\n")
 }
