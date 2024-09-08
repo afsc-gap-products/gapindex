@@ -13,7 +13,7 @@
 #'                        5) colname_desc: Full description of field
 #' @param channel Establish your oracle connection using a function like `gapindex::get_connected()`. 
 #' @param schema character string. The name of the schema to save table. 
-#' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle view permissions. 
+#' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle select permissions. 
 #'
 #' @export
 #' 
