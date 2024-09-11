@@ -4,12 +4,20 @@
 \alias{get_station_info}
 \title{Pull station/grid data}
 \usage{
-get_station_info(region = NULL, sql_channel = NULL)
+get_station_info(
+  region = NULL,
+  channel = NULL,
+  sql_channel = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{region}{Survey region (GOA, AI, or EBS)}
 
-\item{sql_channel}{connection created via gapindex::get_connected()}
+\item{channel}{connection to Oracle created via
+gapindex::get_connected() or RODBC::odbcConnect().}
+
+\item{sql_channel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the \code{channel}
+argument instead.}
 }
 \value{
 a dataframe containing station information from the specified survey.
