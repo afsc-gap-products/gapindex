@@ -29,52 +29,52 @@ gapindex_data <- gapindex::get_data(
   haul_type = 3,
   abundance_haul = "Y",
   pull_lengths = T,
-  channel = sql_channel)
+  channel = channel)
 
 ## Fill in zeros and calculate CPUE
-cpue <- gapindex::calc_cpue(racebase_tables = gapindex_data)
+cpue <- gapindex::calc_cpue(gapdata = gapindex_data)
 
 ## Calculate stratum-level biomass, population abundance, mean CPUE and 
 ## associated variances
 biomass_stratum <- gapindex::calc_biomass_stratum(
-  racebase_tables = gapindex_data,
+  gapdata = gapindex_data,
   cpue = cpue)
 
 ## Calculate aggregated biomass and population abundance across subareas,
 ## management areas, and regions
 biomass_subareas <- gapindex::calc_biomass_subarea(
-  racebase_tables = gapindex_data,
-  biomass_strata = biomass_stratum)
+  gapdata = gapindex_data,
+  biomass_stratum = biomass_stratum)
 
 ## Calculate size composition by stratum. See ?gapindex::calc_sizecomp_stratum
 ## for details on arguments
 size_comp_stratum <- gapindex::calc_sizecomp_stratum(
-  racebase_tables = gapindex_data,
-  racebase_cpue = cpue,
-  racebase_stratum_popn = biomass_stratum,
+  gapdata = gapindex_data,
+  cpue = cpue,
+  abundance_stratum = biomass_stratum,
   spatial_level = "stratum",
   fill_NA_method = "AIGOA")
 
 ## Calculate aggregated size compositon across subareas, management areas, and
 ## regions
 size_comp_subareas <- gapindex::calc_sizecomp_subarea(
-  racebase_tables = gapindex_data,
-  size_comps = size_comp_stratum)
+  gapdata = gapindex_data,
+  sizecomp_stratum = size_comp_stratum)
 
 ## Calculate age-length key. See ?gapindex::calc_ALK for details on arguments
-alk <- gapindex::calc_alk(racebase_tables = gapindex_data, 
+alk <- gapindex::calc_alk(gapdata = gapindex_data, 
                           unsex = "all", 
                           global = F)
 
 ## Calculate age composition by stratum
 age_comp_stratum <- gapindex::calc_agecomp_stratum(
-  racebase_tables = gapindex_data, 
+  gapdata = gapindex_data, 
   alk = alk,
-  size_comp = size_comp_stratum)
+  sizecomp_stratum = size_comp_stratum)
 
 ## Calculate aggregated age compositon across regions
 age_comp_region <- gapindex::calc_agecomp_region(
-  racebase_tables = gapindex_data, 
-  age_comps_stratum = age_comp_stratum)
+  gapdata = gapindex_data, 
+  agecomp_stratum = age_comp_stratum)
 
 ```

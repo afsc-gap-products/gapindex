@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Here is an EBS example of how you would calculate design-based indices for a species complex, i.e., an aggregate of multiple SPECIES_CODE values. This script produces tables equivalent to HAEHNR.CPUE_EBS_PLUSNW_GROUPED, HAEHNR.BIOMASS_EBS_PLUSNW_GROUPED, HAEHNR.SIZECOMP_EBS_PLUSNW_GROUPED.
+Here is an EBS example of how you would calculate design-based indices for a species complex, i.e., an aggregate of multiple SPECIES_CODE values.
 
 ```{r setup, eval = F}
 library(gapindex)
@@ -22,35 +22,23 @@ library(gapindex)
 ## Connect to Oracle. Make sure you are on the NOAA internal network or VPN
 channel <- gapindex::get_connected()
 
-## Skate SPECIES_CODE values excluding SPECIES_CODE values for egg cases
-skate_unid <- RODBC::sqlQuery(
-  channel = channel, 
-  query = "SELECT SPECIES_CODE
-  FROM GAP_PRODUCTS.TEST_SPECIES_CLASSIFICATION 
-  WHERE SURVEY_SPECIES = 1 
-  AND SPECIES_CODE BETWEEN 400 AND 495 
-  AND SPECIES_CODE NOT IN (402, 403, 411, 421, 436, 441, 446, 456,
-  461, 473, 474, 476, 478, 481, 484, 486)")
-
 ## Pull data. Note the format of the `spp_codes` argument with the GROUP column
 production_data <- get_data(
   year_set = 1982:2023,
   survey_set = "EBS",
   spp_codes = rbind(
-    ## Skate unident.
-    data.frame(GROUP = 400, SPECIES_CODE = skate_unid),
     ## ATF + Kams
-    data.frame(GROUP = 10111, SPECIES_CODE = 10110:10112),
+    data.frame(GROUP_CODE = 10111, SPECIES_CODE = 10110:10112),
     ## FHS + Bering flounder
-    data.frame(GROUP = 10129, SPECIES_CODE = 10130:10140),
+    data.frame(GROUP_CODE = 10129, SPECIES_CODE = 10130:10140),
     ## rock sole unid.
-    data.frame(GROUP = 10260, SPECIES_CODE = 10260:10262),
+    data.frame(GROUP_CODE = 10260, SPECIES_CODE = 10260:10262),
     ## Octopididae
-    data.frame(GROUP = 78010, SPECIES_CODE = 78010:78455),
+    data.frame(GROUP_CODE = 78010, SPECIES_CODE = 78010:78455),
     ## Squid unid
-    data.frame(GROUP = 79000, SPECIES_CODE = 79000:79513),
-    ## Some test single species
-    data.frame(GROUP = c(21720, 30060), SPECIES_CODE = c(21720, 30060))
+    data.frame(GROUP_CODE = 79000, SPECIES_CODE = 79000:79513),
+    ## Some single species to test functionality
+    data.frame(GROUP_CODE = c(21720, 30060), SPECIES_CODE = c(21720, 30060))
   ),
   pull_lengths = TRUE, 
   haul_type = 3, 
@@ -58,17 +46,17 @@ production_data <- get_data(
   channel = channel)
 
 ## Zero-fill and calculate CPUE
-production_cpue <- calc_cpue(racebase_tables = production_data)
+production_cpue <- calc_cpue(gapdata = production_data)
 
 ## Calculate Biomass, abundance, mean CPUE, and associated variances by stratum
 production_biomass_stratum <- 
-  gapindex::calc_biomass_stratum(racebase_tables = production_data,
+  gapindex::calc_biomass_stratum(gapdata = production_data,
                                  cpue = production_cpue)
 
 ## Aggregate Biomass to subareas and region
 production_biomass_subarea <- 
-  calc_biomass_subarea(racebase_tables = production_data, 
-                       biomass_strata = production_biomass_stratum)
+  calc_biomass_subarea(gapdata = production_data, 
+                       biomass_stratum = production_biomass_stratum)
 
 ## Calculate size composition by stratum. Note fill_NA_method == "BS" because
 ## our region is EBS, NBS, or BSS. If the survey region of interest is AI or 
@@ -76,16 +64,16 @@ production_biomass_subarea <-
 ## details. 
 production_sizecomp_stratum <- 
   gapindex::calc_sizecomp_stratum(
-    racebase_tables = production_data,
-    racebase_cpue = production_cpue,
-    racebase_stratum_popn = production_biomass_stratum,
+    gapdata = production_data,
+    cpue = production_cpue,
+    abundance_stratum = production_biomass_stratum,
     spatial_level = "stratum",
     fill_NA_method = "BS")
 
 ## Aggregate size composition to subareas/region
 production_sizecomp_subarea <- gapindex::calc_sizecomp_subarea(
-  racebase_tables = production_data,
-  size_comps = production_sizecomp_stratum)
+  gapdata = production_data,
+  sizecomp_stratum = production_sizecomp_stratum)
 
 
 ## rbind stratum and subarea/region biomass estimates into one dataframe
@@ -100,13 +88,7 @@ names(x = production_sizecomp_stratum)[
   names(x = production_sizecomp_stratum) == "STRATUM"] <- "AREA_ID"
 production_sizecomp <- 
   rbind(production_sizecomp_subarea,
-        production_sizecomp_stratum[, names(production_sizecomp_subarea)])
+        production_sizecomp_stratum[, 
+                                    names(x = production_sizecomp_subarea), 
+                                    with = F])
 ```
-
-## Equivalent Tables:
-
-HAEHNR.CPUE_EBS_PLUSNW_GROUPED: `production_cpue`
-
-HAEHNR.BIOMASS_EBS_PLUSNW_GROUPED: `production_biomass`
-
-HAEHNR.SIZECOMP_EBS_PLUSNW_GROUPED: `production_sizecomp`
