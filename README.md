@@ -34,12 +34,12 @@ The gapindex R package is a product of two AFSC-RACE-GAP working groups
 regarding GAP data processes and index computation. Many thanks to those who 
 participated in those working groups:
 
-**Data Processes Working Group**|**Index Computation Working Group**|**Supervisors **
+**Data Processes Working Group**|**Index Computation Working Group**|**Supervisors**
 :-----:|:-----:|:-----:
 Alexandra Dowlin (AlexandraDowlin-NOAA)|Zack Oyafuso (zoyafuso-NOAA)*|Stan Kotwicki (StanKotwicki-NOAA)
 Emily Markowitz (EmilyMarkowitz-NOAA)|Margaret Siple (MargaretSiple-NOAA)|Duane Stevenson (Duane-Stevenson-NOAA)
 Liz Dawson (liz-dawson-NOAA)|Rebecca Haehn (RebeccaHaehn-NOAA)|Ned Laman (Ned-Laman-NOAA)
-Sarah Friedman (SarahFriedman-NOAA)|Lukas DeFilippo (Lukas-DeFilippo-NOAA)| 
+Sarah Friedman (SarahFriedman-NOAA)|Lukas DeFilippo (Lukas-DeFilippo-NOAA)|Susanne McDermott (smcdermo) 
 Christopher Anderson (ChrisAnderson-NOAA)|Paul von Szalay (vszalay)| 
 Nancy Roberson (NancyRoberson)|Thaddaeus Buser (ThaddaeusBuser-NOAA)| 
  |*package maintainer| 
