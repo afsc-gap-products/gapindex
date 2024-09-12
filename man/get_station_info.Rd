@@ -11,7 +11,7 @@ get_station_info(
 )
 }
 \arguments{
-\item{region}{Survey region (GOA, AI, or EBS)}
+\item{region}{Survey region (GOA, AI, EBS, or NBS)}
 
 \item{channel}{connection to Oracle created via
 gapindex::get_connected() or RODBC::odbcConnect().}
@@ -21,9 +21,10 @@ argument instead.}
 }
 \value{
 a dataframe containing station information from the specified survey.
-If you request data for the EBS survey, the columns in the dataframe will be STATIONID,
-LATITUDE, LONGITUDE, and STRATUM. For AI and GOA, the columns will be AIGRID_ID,
-TRAWLABLE, STRATUM, STATIONID, CENTER_LAT, CENTER_LONG, SOUTH_LAT, EAST_LONG, WEST_LONG.
+If you request data for the EBS survey, the columns in the dataframe will
+be STATIONID, LATITUDE, LONGITUDE, and STRATUM. For AI and GOA, the columns
+will be AIGRID_ID, TRAWLABLE, STRATUM, STATIONID, CENTER_LAT, CENTER_LONG,
+SOUTH_LAT, EAST_LONG, WEST_LONG.
 }
 \description{
 Pull station/grid data
