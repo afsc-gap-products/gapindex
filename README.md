@@ -4,7 +4,7 @@
 
 This R package generates the standard design-based indices of biomass, 
 abundance, size composition, and age composition from NOAA-NMFS-AFSC-RACE-GAP 
-bottom trawl survey data. Survey regions include: Gulf of Alaska (from 1993), 
+bottom trawl survey data. Survey regions include: Gulf of Alaska (from 1990), 
 Aleutian Islands (from 1991), Eastern Bering Sea Shelf (from 1982), 
 Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
 
@@ -13,21 +13,19 @@ Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
 In addition to the default packages in R (base, stats), the functions in 
 gapindex use functions from five additional packages:
 
-- RODBC: Enables ODBC (Open Database Connectivity) interface to Oracle SQL 
-  Developer where the AFSC database is housed
-- getPass: Allows for masking of Oracle credentials (usernames, passwords) 
+- RODBC: Enables ODBC (Open Database Connectivity) interface the AFSC Oracle
+  database where the survey data are housed
+- getPass: Allows for masking of Oracle user credentials (usernames, passwords) 
   when accessing RODBC
 - keyring: Allows the option for users to store their passwords 
 - lifecycle: Aids developers and users with shared conventions, documentation 
   badges, deprecation warnings as the package develops over time
 - data.table: Speeds up data.frame manipulations like reading, writing, 
-  aggregations, joins, ordering, sorting. The addition of data.table to 
-  gapindex v2.3.0 greatly speeds up computation time. 
+  aggregations, joins, ordering, sorting.
 
 Please make sure these five packages are installed before installing gapindex
 
 ```
-library(devtools)
 devtools::install_github("afsc-gap-products/gapindex")
 ```
 
@@ -62,7 +60,7 @@ Wakabayashi, K., R. G. Bakkala, and M. S. Alton. 1985. Methods of the
      investigations in the Bering Sea during May-August 1979. Int. North Pac. 
      Fish. Comm. Bull. 44.
 
-## Acronymns
+## Organization Acronymns
 NOAA: National Oceanic and Atmospheric Administration
 
 NMFS: National Marine Fisheries Service
