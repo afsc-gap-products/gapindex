@@ -69,13 +69,13 @@ get_data <- function(
   ##      Clear schema of temporary tables created in this function if present 
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (lifecycle::is_present(sql_channel)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "get_data(sql_channel)", 
                               "get_data(channel)")
     channel <- sql_channel
   }
   if (lifecycle::is_present(na_rm_strata)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "get_data(na_rm_strata)", 
                               "get_data(remove_na_strata)")
     remove_na_strata <- na_rm_strata

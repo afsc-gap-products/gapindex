@@ -48,19 +48,19 @@ calc_sizecomp_stratum <- function(racebase_tables = deprecated(),
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Error Check on function arguments
   if (lifecycle::is_present(racebase_tables)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_sizecomp_stratum(racebase_tables)", 
                               "calc_sizecomp_stratum(gapdata)")
     gapdata <- racebase_tables
   }
   if (lifecycle::is_present(racebase_cpue)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_sizecomp_stratum(racebase_cpue)", 
                               "calc_sizecomp_stratum(cpue)")
     cpue <- racebase_cpue
   }
   if (lifecycle::is_present(racebase_stratum_popn)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_sizecomp_stratum(racebase_stratum_popn)", 
                               "calc_sizecomp_stratum(abundance_stratum)")
     abundance_stratum <- racebase_stratum_popn

@@ -24,14 +24,14 @@ calc_biomass_subarea <- function(racebase_tables = lifecycle::deprecated(),
   
   ## Input checks
   if (lifecycle::is_present(racebase_tables)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_biomass_subarea(racebase_tables)", 
                               "calc_biomass_subarea(gapdata)")
     gapdata <- racebase_tables
   }
   
   if (lifecycle::is_present(biomass_strata)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_biomass_subarea(biomass_strata)", 
                               "calc_biomass_subarea(biomass_stratum)")
     biomass_stratum <- biomass_strata

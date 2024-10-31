@@ -30,7 +30,7 @@ calc_alk <- function(gapdata = NULL,
   
   ## Input check
   if (lifecycle::is_present(racebase_tables)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_alk(racebase_tables)", 
                               "calc_alk(gapdata)")
     gapdata <- racebase_tables

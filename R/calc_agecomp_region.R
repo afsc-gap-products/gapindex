@@ -26,13 +26,13 @@ calc_agecomp_region <- function(gapdata = NULL,
   
   ## Input Check
   if (lifecycle::is_present(racebase_tables)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_agecomp_region(racebase_tables)", 
                               "calc_agecomp_region(gapdata)")
     gapdata <- racebase_tables
   }
   if (lifecycle::is_present(age_comps_stratum)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_agecomp_region(age_comps_stratum)", 
                               "calc_agecomp_region(agecomp_stratum)")
     agecomp_stratum <- age_comps_stratum

@@ -22,7 +22,7 @@ calc_cpue <- function(gapdata = NULL,
   
   ## Input check
   if (lifecycle::is_present(racebase_tables)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_cpue(racebase_tables)", 
                               "calc_cpue(gapdata)")
     gapdata <- racebase_tables

@@ -22,13 +22,13 @@ calc_sizecomp_subarea <- function(gapdata = NULL,
                                   size_comps = lifecycle::deprecated()) {
   ## Input check
   if (lifecycle::is_present(racebase_tables)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_sizecomp_subarea(racebase_tables)", 
                               "calc_sizecomp_subarea(gapdata)")
     gapdata <- racebase_tables
   }
   if (lifecycle::is_present(size_comps)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "calc_sizecomp_subarea(size_comps)", 
                               "calc_sizecomp_subarea(sizecomp_stratum)")
     sizecomp_stratum <- size_comps

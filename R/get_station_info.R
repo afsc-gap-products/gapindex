@@ -25,7 +25,7 @@ get_station_info <- function(region = NULL,
   
   ##   Set up channel if channel = NULL
   if (lifecycle::is_present(sql_channel)) {
-    lifecycle::deprecate_warn("2.2.0", 
+    lifecycle::deprecate_warn("3.0.0", 
                               "get_data(sql_channel)", 
                               "get_data(channel)")
     channel <- sql_channel
