@@ -4,25 +4,36 @@
 \alias{calc_sizecomp_subarea}
 \title{Calculate size composition across aggregated subareas}
 \usage{
-calc_sizecomp_subarea(racebase_tables, size_comps)
+calc_sizecomp_subarea(
+  gapdata = NULL,
+  racebase_tables = lifecycle::deprecated(),
+  sizecomp_stratum = NULL,
+  size_comps = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from `gapindex::get_data()``}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
 
-\item{size_comps}{a dataframe of stratum biomass, result object from either
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
+
+\item{sizecomp_stratum}{a dataframe of stratum biomass, result object from either
 \code{gapindex::calc_sizecomp_aigoa_stratum()} or
 \code{gapindex::calc_sizecomp_bs_stratum()}}
+
+\item{size_comps}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{sizecomp_stratum} argument instead.}
 }
 \value{
 \tabular{ll}{
 \bold{Field} \tab \bold{Description} \cr
-YEAR                 \tab Year the survey was conducted in.                                                                                                                                                                                                                                                                                          \cr
-AREA_ID              \tab Area ID code for each statistical area used to produce production estimates (e.g., biomass, population, age comps, length comps). Each area ID is unique within each survey.                                                                                                                                               \cr
-LENGTH_MM            \tab Length of a specimen in millimeters.                                                                                                                                                                                                                                                                                       \cr
-POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                           \cr
-SEX                  \tab Sex of a specimen where "1" = "Male", "2" = "Female", "3" = Unsexed.                                                                                                                                                                                                                                                       \cr
-SPECIES_CODE         \tab The species code of the organism associated with the 'common_name' and 'scientific_name' columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                      \cr
-SURVEY_DEFINITION_ID \tab This number uniquely identifies a survey. Name and description of survey. The column 'survey_id' is associated with the 'srvy' and 'survey' columns. For a complete list of surveys, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.
+LENGTH_MM            \tab Length bin in millimeters. A length of -9 indicates cases where no lengths were collected within a stratum for a species/year, even though catch numbers were recorded.                                                                                                                                                                                                                              \cr
+POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                                                                                                     \cr
+SEX                  \tab Sex of a specimen where "1" = "Male", "2" = "Female", "3" = Unsexed.                                                                                                                                                                                                                                                                                                                                 \cr
+SPECIES_CODE         \tab The species code of the organism associated with the common_name and scientific_name columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                                                                                                    \cr
+SURVEY_DEFINITION_ID \tab The survey definition ID key code is an integer that uniquely identifies a survey region/survey design. The column survey_definition_id is associated with the srvy and survey columns. Full list of survey definition IDs are in RACE_DATA.SURVEY_DEFINITIONS and in the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.\cr
+YEAR                 \tab Year the observation (survey) was collected.                                                                                                                                                                                                                                                                                                                                                         \cr
+AREA_ID              \tab Area ID key code for each statistical area used to produce production estimates (e.g., biomass, population, age comps, length comps). Each area ID is unique within each survey.
 }
 }
 \description{

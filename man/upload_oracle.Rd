@@ -34,7 +34,7 @@ purposes.
 
 \item{schema}{character string. The name of the schema to save table.}
 
-\item{share_with_all_users}{boolean. Default = TRUE. Give all users in Oracle view permissions.}
+\item{share_with_all_users}{boolean. Default = TRUE. Give all users in Oracle select permissions.}
 }
 \description{
 Upload a table to Oracle with associated metadata

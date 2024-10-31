@@ -13,7 +13,7 @@
 #'                        5) colname_desc: Full description of field
 #' @param channel Establish your oracle connection using a function like `gapindex::get_connected()`. 
 #' @param schema character string. The name of the schema to save table. 
-#' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle view permissions. 
+#' @param share_with_all_users boolean. Default = TRUE. Give all users in Oracle select permissions. 
 #'
 #' @export
 #' 
@@ -156,22 +156,14 @@ upload_oracle <- function(x = NULL,
     query = paste0('comment on table ', schema,'.', table_name, ' is \'',
                    table_metadata,'\';'))
   
-  
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Grant select access to all users
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (share_with_all_users) {
-    
     cat("Granting select access to all users ... \n")
-    all_schemas <- RODBC::sqlQuery(channel = channel,
-                                   query = paste0('SELECT * FROM all_users;'))
-    
-    for (iname in sort(all_schemas$USERNAME)) {
       RODBC::sqlQuery(channel = channel,
-                      query = paste0('grant select on ', schema,'.', table_name,
-                                     ' to ', iname, ';'))
-    }
-    
+                      query = paste0('GRANT SELECT ON ', schema,'.', table_name,
+                                     ' TO PUBLIC;'))
   }
   cat("Finished.\n\n")
 }

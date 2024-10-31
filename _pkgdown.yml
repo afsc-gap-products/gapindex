@@ -18,8 +18,6 @@ navbar:
         href: articles/ex_workflow.html
       - text: Incorporating Species Complexes
         href: articles/ex_species_complex.html
-      - text: EBS Standard Region-Age Composition 
-        href: articles/ex_agecomps_ebs_standard.html
     articles:
       text: Background
       href: articles/background_equations.html

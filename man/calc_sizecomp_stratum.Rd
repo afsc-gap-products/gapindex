@@ -5,19 +5,31 @@
 \title{Calculate numerical CPUE at length by haul}
 \usage{
 calc_sizecomp_stratum(
-  racebase_tables = NULL,
-  racebase_cpue = NULL,
-  racebase_stratum_popn = NULL,
+  racebase_tables = deprecated(),
+  gapdata = NULL,
+  racebase_cpue = deprecated(),
+  cpue = NULL,
+  racebase_stratum_popn = deprecated(),
+  abundance_stratum = NULL,
   spatial_level = c("stratum", "haul")[1],
   fill_NA_method = c("AIGOA", "BS")[1]
 )
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{gapindex::get_data()}.}
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
 
-\item{racebase_cpue}{object created from \code{gapindex::calc_cpue()}.}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
 
-\item{racebase_stratum_popn}{object created from
+\item{racebase_cpue}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{cpue} argument instead.}
+
+\item{cpue}{catch per unit effort object created from \code{gapindex::calc_cpue()}.}
+
+\item{racebase_stratum_popn}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{abundance_stratum} argument instead.}
+
+\item{abundance_stratum}{biomass/abundance by stratum object created from
 \code{gapindex::calc_biomass_stratum()}}
 
 \item{spatial_level}{string, one of c("stratum", "haul"). Should size
@@ -36,9 +48,17 @@ length -9 category does not exist in the AI or GOA
 versions of the size composition.}
 }
 \value{
-dataframe of numerical CPUE ("S_ijklm_NO_KM2") by survey ("SURVEY"),
-year ("YEAR"), stratum ("STRATUM"), haul ("HAULJOIN), species (SPECIES_CODE),
-sex (SEX), and length (LENGTH_MM).
+\tabular{ll}{
+\bold{Field} \tab \bold{Description} \cr
+LENGTH_MM            \tab Length bin in millimeters. A length of -9 indicates cases where no lengths were collected within a stratum for a species/year, even though catch numbers were recorded.                                                                                                                                                                                                                              \cr
+POPULATION_COUNT     \tab The estimated population caught in the survey for a species, group, or total for a given survey.                                                                                                                                                                                                                                                                                                     \cr
+SEX                  \tab Sex of a specimen where "1" = "Male", "2" = "Female", "3" = Unsexed.                                                                                                                                                                                                                                                                                                                                 \cr
+SPECIES_CODE         \tab The species code of the organism associated with the common_name and scientific_name columns. For a complete species list, review the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.                                                                                                                                    \cr
+STRATUM              \tab RACE database statistical area for analyzing data. Strata were designed using bathymetry and other geographic and habitat-related elements. The strata are unique to each survey region. Stratum of value 0 indicates experimental tows.                                                                                                                                                             \cr
+SURVEY               \tab Name and description of survey. The column survey is associated with the srvy and survey_definition_id columns.                                                                                                                                                                                                                                                                                      \cr
+SURVEY_DEFINITION_ID \tab The survey definition ID key code is an integer that uniquely identifies a survey region/survey design. The column survey_definition_id is associated with the srvy and survey columns. Full list of survey definition IDs are in RACE_DATA.SURVEY_DEFINITIONS and in the \href{https://www.fisheries.noaa.gov/resource/document/groundfish-survey-species-code-manual-and-data-codes-manual}{code books}.\cr
+YEAR                 \tab Year the observation (survey) was collected.
+}
 }
 \description{
 Uses Equation 16 in Wakabayashi et al. 1985 to calculate

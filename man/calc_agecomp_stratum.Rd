@@ -4,15 +4,27 @@
 \alias{calc_agecomp_stratum}
 \title{Calculate stratum-level age composition and mean/std.dev length at age}
 \usage{
-calc_agecomp_stratum(racebase_tables = NULL, alk = NULL, size_comp = NULL)
+calc_agecomp_stratum(
+  gapdata = NULL,
+  racebase_tables = lifecycle::deprecated(),
+  alk = NULL,
+  sizecomp_stratum = NULL,
+  size_comp = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{racebase_tables}{data object created from \code{gapindex::get_data()}}
+\item{gapdata}{data object created from \code{gapindex::get_data()}}
+
+\item{racebase_tables}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{gapdata} argument instead.}
 
 \item{alk}{age-length key (dataframe) created from \code{gapindex::calc_alk()}}
 
-\item{size_comp}{a dataframe of size compositions created from
+\item{sizecomp_stratum}{a dataframe of size compositions created from
 \code{gapindex::calc_sizecomp_stratum()}.}
+
+\item{size_comp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the
+\code{sizecomp_stratum} argument instead.}
 }
 \value{
 A named list with two elements. "age_comp" is a dataframe of numbers

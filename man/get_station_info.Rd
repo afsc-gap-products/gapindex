@@ -4,18 +4,27 @@
 \alias{get_station_info}
 \title{Pull station/grid data}
 \usage{
-get_station_info(region = NULL, sql_channel = NULL)
+get_station_info(
+  region = NULL,
+  channel = NULL,
+  sql_channel = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{region}{Survey region (GOA, AI, or EBS)}
+\item{region}{Survey region (GOA, AI, EBS, or NBS)}
 
-\item{sql_channel}{connection created via gapindex::get_connected()}
+\item{channel}{connection to Oracle created via
+gapindex::get_connected() or RODBC::odbcConnect().}
+
+\item{sql_channel}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use the \code{channel}
+argument instead.}
 }
 \value{
 a dataframe containing station information from the specified survey.
-If you request data for the EBS survey, the columns in the dataframe will be STATIONID,
-LATITUDE, LONGITUDE, and STRATUM. For AI and GOA, the columns will be AIGRID_ID,
-TRAWLABLE, STRATUM, STATIONID, CENTER_LAT, CENTER_LONG, SOUTH_LAT, EAST_LONG, WEST_LONG.
+If you request data for the EBS survey, the columns in the dataframe will
+be STATIONID, LATITUDE, LONGITUDE, and STRATUM. For AI and GOA, the columns
+will be AIGRID_ID, TRAWLABLE, STRATUM, STATIONID, CENTER_LAT, CENTER_LONG,
+SOUTH_LAT, EAST_LONG, WEST_LONG.
 }
 \description{
 Pull station/grid data

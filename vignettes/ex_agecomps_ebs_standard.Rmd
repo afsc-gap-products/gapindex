@@ -20,12 +20,12 @@ By default, gapindex calculates age composition only for the EBS + NW region. Th
 library(gapindex)
 
 ## Connect to Oracle. Make sure you are on the NOAA internal network or VPN
-sql_channel <- gapindex::get_connected()
+channel <- gapindex::get_connected()
 
 ## Import table of different start times for particular species (e.g., 
 ## northern rock sole SPECIES_CODE established start year of 1996)
 spp_start_year <-
-  RODBC::sqlQuery(channel = sql_channel, 
+  RODBC::sqlQuery(channel = channel, 
                   query = "SELECT * FROM GAP_PRODUCTS.SPECIES_YEAR")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -15,7 +15,7 @@ library(devtools)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##   Connect to Oracle and pull GAP_PRODUCTS.METADATA_COLUMN
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sql_channel <- gapindex::get_connected()
+sql_channel <- gapindex::get_connected(check_access = FALSE)
 
 metadata_column <- 
   RODBC::sqlQuery(channel = sql_channel, 
@@ -24,8 +24,8 @@ metadata_column <-
 names(x = metadata_column) <- c("Field", "Description")
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##   Write to data-raw folder
+##   Write to inst/extdata/ folder
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 utils::write.csv(x = metadata_column,
-                 file = "data-raw/metadata.csv",
+                 file = "inst/extdata/metadata.csv",
                  row.names = FALSE)
