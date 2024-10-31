@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.0.7
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   background_equations: background_equations.html
@@ -7,5 +7,4 @@ articles:
   ex_goa_modsquad: ex_goa_modsquad.html
   ex_species_complex: ex_species_complex.html
   ex_workflow: ex_workflow.html
-last_built: 2024-03-09T04:14Z
-
+last_built: 2024-10-31T00:29Z
