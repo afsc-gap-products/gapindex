@@ -20,8 +20,9 @@ calc_biomass_stratum <- function(gapdata = NULL,
   ## Input check
   if (lifecycle::is_present(racebase_tables)) {
     lifecycle::deprecate_warn("3.0.0", 
-                              "get_data(sql_channel)", 
-                              "get_data(channel)")
+                              "get_data(racebase_tables)", 
+                              "get_data(gapdata)")
+
     gapdata <- racebase_tables
   }
   
