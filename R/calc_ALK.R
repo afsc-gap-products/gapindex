@@ -153,7 +153,8 @@ calc_alk <- function(gapdata = NULL,
     p_yklm <- merge(x = every_combo_of_lengths,
                     y = p_yklm,
                     by = c("SURVEY", "YEAR", "SPECIES_CODE", 
-                           "SEX", "LENGTH_MM", "AGE"))
+                           "SEX", "LENGTH_MM", "AGE"), 
+                    all.x = TRUE)
     
     missing_lengths <-
       p_yklm[,
@@ -182,8 +183,8 @@ calc_alk <- function(gapdata = NULL,
     ## from `p_klm` for that length bin. 
     filled_in_lengths <-
       merge(x = missing_lengths,
+            allow.cartesian = TRUE,
             y = p_klm,
-            all.x = TRUE,
             by = c("SURVEY", "SPECIES_CODE", "SEX", "LENGTH_MM"))
     
     ## Append the globally-filled lengths with the the non-global `p_yklm` alk
