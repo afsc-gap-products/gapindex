@@ -756,6 +756,18 @@ ORDER BY HAULJOIN, SPECIES_CODE, AGE, LENGTH"
                                      itable, "_QUERY"))
   }
   
+  RODBC::sqlQuery(channel = channel,
+                  query = "
+BEGIN
+  FOR obj IN (
+    SELECT OBJECT_NAME 
+    FROM RECYCLEBIN
+    WHERE ORIGINAL_NAME LIKE 'GAPINDEX_TEMPORARY_%'
+  ) LOOP
+    EXECUTE IMMEDIATE 'PURGE TABLE \"' || obj.OBJECT_NAME || '\"';
+  END LOOP;
+END;")
+  
   cat("Finished.\n")
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
