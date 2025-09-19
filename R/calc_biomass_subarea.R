@@ -58,9 +58,9 @@ calc_biomass_subarea <- function(racebase_tables = lifecycle::deprecated(),
   ## Attach "AREA_KM2" from `strata` to `biomass_stratum` using 
   ## "SURVEY_DEFINITION_ID", "SURVEY", "STRATUM" as a composite key.
   biomass_stratum <- merge(x = biomass_stratum,
-                           y = strata[, c("SURVEY_DEFINITION_ID", "SURVEY", 
+                           y = strata[, c("SURVEY_DEFINITION_ID", "SURVEY", "DESIGN_YEAR",
                                           "STRATUM", "AREA_KM2")],
-                           by = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM"))
+                           by = c("SURVEY_DEFINITION_ID", "SURVEY", "STRATUM", "DESIGN_YEAR"))
   
   ## Create set of subareas given the different surveys and design years. From 
   ## 2025-on the GOA time series will have two unique survey designs with 
