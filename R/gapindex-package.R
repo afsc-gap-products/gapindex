@@ -3,8 +3,10 @@
 
 ## usethis namespace: start
 #' @import data.table
+#' @import DBI 
+#' @import odbc
+#' @importFrom RODBC sqlSave odbcConnect
 #' @importFrom lifecycle deprecated
-#' @importFrom stats aggregate
-#' @importFrom stats weighted.mean
+#' @importFrom stats aggregate weighted.mean na.omit var
 ## usethis namespace: end
 NULL
