@@ -18,11 +18,11 @@
 #' @export
 #' 
 
-upload_oracle <- function(x = NULL, 
-                          table_name = NULL, 
-                          metadata_column = NULL, 
+upload_oracle <- function(x = NULL,
+                          table_name = NULL,
+                          metadata_column = NULL,
                           table_metadata = NULL,
-                          channel = NULL, 
+                          channel = NULL,
                           schema = NULL,
                           share_with_all_users = TRUE) {
   
@@ -84,13 +84,19 @@ upload_oracle <- function(x = NULL,
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ## If table is currently in the argument `schema`, drop (delete) the table
-  existing_tables <- RODBC::sqlTables(channel = channel, schema = schema)
+  existing_tables <- 
+    gapindex::sql_query(
+      channel = channel, 
+      query = paste0("SELECT OWNER, TABLE_NAME FROM ALL_TABLES WHERE OWNER = ",
+                     "'", schema, "';")
+    )
   
   if (table_name %in% existing_tables$TABLE_NAME) {
     cat(paste0("Dropping table ", schema, ".", table_name, " ... \n"))
-    
-    RODBC::sqlDrop(channel = channel, sqtable = table_name, errors = FALSE)
-    
+    gapindex::sql_query(
+      channel = channel, 
+      query = paste0("DROP TABLE ", schema, ".", table_name, ";")
+    )
   } 
   cat(paste0("Creating table: ", schema, ".", table_name, " ... "))
   
@@ -110,13 +116,22 @@ upload_oracle <- function(x = NULL,
   assign(x = table_name, value = x)
   
   ## Upload table to Oracle
-  sql_save_args <- list(channel = channel, 
-                        dat = x, 
-                        varTypes = vartype_vec, 
-                        tablename = paste0(schema, ".", table_name), 
-                        rownames = FALSE)
-  
-  do.call(what = RODBC::sqlSave, args = sql_save_args)
+  if (inherits(channel, "Oracle")) {
+    sql_save_args <- list(con = channel, 
+                          value = x, 
+                          field.types = vartype_vec, 
+                          name = DBI::Id(schema = schema, table = table_name), 
+                          overwrite = TRUE, append = FALSE)
+    do.call(what = DBI::dbWriteTable, args = sql_save_args)
+  }
+  else {
+    sql_save_args <- list(channel = channel, 
+                          dat = x, 
+                          varTypes = vartype_vec, 
+                          tablename = paste0(schema, ".", table_name), 
+                          rownames = FALSE)
+    do.call(what = RODBC::sqlSave, args = sql_save_args)
+  }
   
   end_time <- Sys.time()
   cat(paste("Time Elapsed:", round(end_time - start_time, 2), 
@@ -139,31 +154,33 @@ upload_oracle <- function(x = NULL,
                           x = metadata_column$colname[i], 
                           fixed = TRUE)
     
-    RODBC::sqlQuery(
+    gapindex::sql_query(
       channel = channel,
       query = paste0('comment on column ', 
                      schema, '.', table_name,'.',
                      short_colname,' is \'',
                      desc, ". ", # remove markdown/html code
                      gsub(pattern = "'", replacement ='\"',
-                          x = metadata_column$colname_desc[i]),'\';'))
-    
+                          x = metadata_column$colname_desc[i]),'\';')
+    )
   }
   
   ## Add table metadata 
-  RODBC::sqlQuery(
+  gapindex::sql_query(
     channel = channel,
     query = paste0('comment on table ', schema,'.', table_name, ' is \'',
-                   table_metadata,'\';'))
+                   table_metadata,'\';')
+  )
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   Grant select access to all users
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (share_with_all_users) {
     cat("Granting select access to all users ... \n")
-      RODBC::sqlQuery(channel = channel,
-                      query = paste0('GRANT SELECT ON ', schema,'.', table_name,
-                                     ' TO PUBLIC;'))
+    gapindex::sql_query(
+      channel = channel,
+      query = paste0('GRANT SELECT ON ', schema,'.', table_name, ' TO PUBLIC;')
+    )
   }
   cat("Finished.\n\n")
 }
