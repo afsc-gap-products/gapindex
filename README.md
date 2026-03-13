@@ -10,24 +10,19 @@ Eastern Bering Sea Slope (from 2002), and Northern Bering Sea Shelf (from 2010).
 
 ## Installation Instructions
 
-In addition to the default packages in R (base, stats), the functions in 
-gapindex use functions from five additional packages:
-
-- RODBC: Enables ODBC (Open Database Connectivity) interface the AFSC Oracle
-  database where the survey data are housed
-- getPass: Allows for masking of Oracle user credentials (usernames, passwords) 
-  when accessing RODBC
-- keyring: Allows the option for users to store their passwords 
-- lifecycle: Aids developers and users with shared conventions, documentation 
-  badges, deprecation warnings as the package develops over time
-- data.table: Speeds up data.frame manipulations like reading, writing, 
-  aggregations, joins, ordering, sorting.
-
-Please make sure these five packages are installed before installing gapindex
-
 ```
 devtools::install_github("afsc-gap-products/gapindex")
 ```
+
+In addition to the default packages in R (base, stats), the functions in 
+gapindex use functions from these additional packages:
+
+
+- RODBC, odbc, and DBI: Enables ODBC (Open Database Connectivity) interface to the AFSC Oracle database where the survey data are housed. Users can choose to use either RODBC or odbc/DBI to connect to Oracle. 
+- getPass: Allows for masking of Oracle user credentials (usernames, passwords) when accessing RODBC
+- keyring: Allows the option for users to store their passwords 
+- lifecycle: Aids developers and users with shared conventions, documentation  badges, deprecation warnings as the package develops over time
+- data.table: Speeds up data.frame manipulations like reading, writing,  aggregations, joins, ordering, sorting.
 
 ## Collaborators
 The gapindex R package is a product of two AFSC-RACE-GAP working groups 
@@ -45,13 +40,6 @@ Nancy Roberson (NancyRoberson)|Thaddaeus Buser (ThaddaeusBuser-NOAA)|
  |*package maintainer| 
 
 ## Legacy
-Here is an non-exhaustive list of people who provided the foundation for many 
-of the functions in this package:
-
-AI-GOA: Michael Martin, Peter Munro, Ned Laman
-
-Bering Sea: REM, Jason Conner, Jerry Hoff, Rebecca Haehn 
-
 Many of the index calculations are from Wakabayashi et al. (1985):
 
 Wakabayashi, K., R. G. Bakkala, and M. S. Alton. 1985. Methods of the 
