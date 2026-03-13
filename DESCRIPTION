@@ -10,13 +10,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     RODBC,
+    DBI,
+    odbc,
     getPass,
     stats,
     data.table,
     keyring,
     lifecycle
 Depends: 
-    R (>= 4.0.0)
+    R (>= 4.1.0)
 LazyData: true
 Suggests: 
     knitr,
