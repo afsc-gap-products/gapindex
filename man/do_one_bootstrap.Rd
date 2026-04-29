@@ -4,7 +4,7 @@
 \alias{do_one_bootstrap}
 \title{Bootstrap a CPUE table from gapindex}
 \usage{
-do_one_bootstrap(boot, gapcpue)
+do_one_bootstrap(boot, gapdata, gapcpue)
 }
 \arguments{
 \item{boot}{(numeric) bootstrap number.}
@@ -31,8 +31,8 @@ testdata <- gapindex::get_data(
 )
 testcpue <- gapindex::calc_cpue(gapdata = testdata)
 
-x1 <- do_one_bootstrap(boot = 1, gapcpue = testcpue)
-x2 <- do_one_bootstrap(boot = 2, gapcpue = testcpue)
+x1 <- do_one_bootstrap(boot = 1, gapdata = testdata, gapcpue = testcpue)
+x2 <- do_one_bootstrap(boot = 2, gapdata = testdata, gapcpue = testcpue)
 
 library(ggplot2)
 ggplot(testcpue, aes(x = factor(YEAR), y = CPUE_KGKM2)) +

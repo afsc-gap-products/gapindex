@@ -20,15 +20,15 @@
 #' )
 #' testcpue <- gapindex::calc_cpue(gapdata = testdata)
 #'
-#' x1 <- do_one_bootstrap(boot = 1, gapcpue = testcpue)
-#' x2 <- do_one_bootstrap(boot = 2, gapcpue = testcpue)
+#' x1 <- do_one_bootstrap(boot = 1, gapdata = testdata, gapcpue = testcpue)
+#' x2 <- do_one_bootstrap(boot = 2, gapdata = testdata, gapcpue = testcpue)
 #'
 #' library(ggplot2)
 #' ggplot(testcpue, aes(x = factor(YEAR), y = CPUE_KGKM2)) +
 #'   geom_jitter(width = 0.05, height = 0.00001) +
 #'   geom_jitter(data = x1, width = 0.05, color = "blue", alpha = 0.2) +
 #'   geom_jitter(data = x2, width = 0.05, color = "red", alpha = 0.2)
-do_one_bootstrap <- function(boot, gapcpue) {
+do_one_bootstrap <- function(boot, gapdata, gapcpue) {
   if (length(unique(gapcpue$SPECIES_CODE)) > 1) {
     stop("More than one species detected in gapdata object. Please filter your gapdata to a single species and try again. More than one year is ok.")
   }
@@ -71,8 +71,13 @@ do_one_bootstrap <- function(boot, gapcpue) {
 
   # combine years
   result <- do.call(rbind, boot_list)
-
-  rownames(result) <- NULL
+  result <- as.data.table(result)
   
-  return(result)
+  # calculate stratum biomasses
+  biomass_stratum <- gapindex::calc_biomass_stratum(gapdata = gapdata, cpue = result)
+  biomass_subarea <- gapindex::calc_biomass_subarea(gapdata = gapdata, biomass_stratum = biomass_stratum)
+  
+  return(list("cpue" = result, 
+              "biomass_stratum" = biomass_stratum,
+              "biomass_subarea" = biomass_subarea))
 }
