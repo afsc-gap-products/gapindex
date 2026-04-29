@@ -1,9 +1,12 @@
 #' Bootstrap a CPUE table from gapindex
 #'
 #' @param boot (numeric) bootstrap number.
-#' @param gapcpue object created from gapindex::calc_cpue()
+#' @param gapcpue object created from gapindex::calc_cpue(). This can have multiple years of data, but should be one species and one region only. 
 #'
-#' @returns a dataframe with one row per bootstrap
+#' @returns a resampled CPUE table with one row per sample.
+#' @details
+#' This function returns one single resample of a CPUE table. Usually, you would be running this function several times (1 for each bootstrap you want to do of the data). 
+#' 
 #' @export
 #'
 #' @examples
@@ -70,5 +73,6 @@ do_one_bootstrap <- function(boot, gapcpue) {
   result <- do.call(rbind, boot_list)
 
   rownames(result) <- NULL
-  result
+  
+  return(result)
 }
