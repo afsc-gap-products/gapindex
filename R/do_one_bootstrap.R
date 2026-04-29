@@ -5,6 +5,7 @@
 #'
 #' @returns a resampled CPUE table with one row per sample.
 #' @details
+#' This function bootstraps CPUE within stratum (i.e., the bootstrapped dataset will have the same number of hauls per stratum) with replacement. This is the same method used in Monnahan et al. (2026).
 #' This function returns one single resample of a CPUE table. Usually, you would be running this function several times (1 for each bootstrap you want to do of the data).
 #'
 #' @export
@@ -26,8 +27,8 @@
 #' library(ggplot2)
 #' ggplot(testcpue, aes(x = factor(YEAR), y = CPUE_KGKM2)) +
 #'   geom_jitter(width = 0.05, height = 0.00001) +
-#'   geom_jitter(data = x1, width = 0.05, color = "blue", alpha = 0.2) +
-#'   geom_jitter(data = x2, width = 0.05, color = "red", alpha = 0.2)
+#'   geom_jitter(data = x1$cpue, width = 0.05, color = "blue", alpha = 0.2) +
+#'   geom_jitter(data = x2$cpue, width = 0.05, color = "red", alpha = 0.2)
 do_one_bootstrap <- function(boot, gapdata, gapcpue) {
   if (length(unique(gapcpue$SPECIES_CODE)) > 1) {
     stop("More than one species detected in gapdata object. Please filter your gapdata to a single species and try again. More than one year is ok.")
