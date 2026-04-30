@@ -34,8 +34,8 @@ gapindex_data <- gapindex::get_data(survey_set = "GOA",
 ## Calculate and zero-fill CPUE using gapindex
 gapindex_cpue <- gapindex::calc_cpue(gapdata = gapindex_data)
 
-# Bootstrap the data 100 times (should be more, this is just for an example)
-bootstrapped_data <- suppressWarnings(run_bootstraps(nboot = 500, gapdata = gapindex_data, gapcpue = gapindex_cpue)) # this function gives warnings about depth categories; suppress them to save your brain
+# Bootstrap the data 50 times (should be more, this is just for an example. Boost this up to 500 or more if you want to see a reasonable-looking distribution.
+bootstrapped_data <- suppressWarnings(run_bootstraps(nboot = 50, gapdata = gapindex_data, gapcpue = gapindex_cpue)) # this function gives warnings about depth categories; suppress them to save your brain
 
 biomass_stratum <- gapindex::calc_biomass_stratum(gapdata = gapindex_data, cpue = gapindex_cpue)
 biomass_subarea <- gapindex::calc_biomass_subarea(gapdata = gapindex_data, biomass_stratum = biomass_stratum)
