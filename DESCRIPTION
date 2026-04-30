@@ -12,6 +12,7 @@ Imports:
     RODBC,
     getPass,
     stats,
+    sampling,
     data.table,
     keyring,
     lifecycle
