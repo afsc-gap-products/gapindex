@@ -2,6 +2,7 @@
 #'
 #' @param boot (numeric) bootstrap number.
 #' @param gapcpue object created from gapindex::calc_cpue(). This can have multiple years of data, but should be one species and one region only.
+#' @import sampling
 #'
 #' @returns a resampled CPUE table with one row per sample.
 #' @details
