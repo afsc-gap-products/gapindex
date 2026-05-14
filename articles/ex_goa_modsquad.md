@@ -1,0 +1,32 @@
+# Example: Data Inputs for VAST
+
+Example data pulling in the format of a
+[VAST](https://github.com/James-Thorson-NOAA/VAST) model
+
+``` r
+
+library(gapindex)
+
+## Connect to Oracle. Make sure you are on the NOAA internal network or VPN
+channel <- gapindex::get_connected()
+
+## Pull Pacific cod GOA data from 1993:2023
+gapindex_data <- gapindex::get_data(survey_set = "GOA",
+                                    year_set = 1990:2023,
+                                    spp_codes = 21720,
+                                    pull_lengths = FALSE,
+                                    channel = channel)
+
+## Calculate and zero-fill CPUE using gapindex
+gapindex_cpue <- gapindex::calc_cpue(gapdata = gapindex_data)
+
+## Format catch and effort data for VAST. Note: The `AreaSwept_km2` field set 
+## to 1 when using CPUE in the `Catch_KG` field.
+data_geostat <- with(gapindex_cpue, data.frame(Catch_KG = CPUE_KGKM2, 
+                                               Year = YEAR,
+                                               Vessel = "missing",
+                                               AreaSwept_km2 = 1, 
+                                               Lat = LATITUDE_DD_START,
+                                               Lon = LONGITUDE_DD_START,
+                                               Pass = 0) )
+```

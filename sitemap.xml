@@ -4,6 +4,7 @@
 <url><loc>/LICENSE.html</loc></url>
 <url><loc>/articles/background_equations.html</loc></url>
 <url><loc>/articles/ex_agecomps_ebs_standard.html</loc></url>
+<url><loc>/articles/ex_bootstrap_haul_data.html</loc></url>
 <url><loc>/articles/ex_goa_modsquad.html</loc></url>
 <url><loc>/articles/ex_species_complex.html</loc></url>
 <url><loc>/articles/ex_workflow.html</loc></url>
@@ -19,12 +20,14 @@
 <url><loc>/reference/calc_cpue.html</loc></url>
 <url><loc>/reference/calc_sizecomp_stratum.html</loc></url>
 <url><loc>/reference/calc_sizecomp_subarea.html</loc></url>
+<url><loc>/reference/do_one_bootstrap.html</loc></url>
 <url><loc>/reference/gapindex-package.html</loc></url>
 <url><loc>/reference/get_connected.html</loc></url>
 <url><loc>/reference/get_data.html</loc></url>
 <url><loc>/reference/get_station_info.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/remove_temp_tables.html</loc></url>
+<url><loc>/reference/run_bootstraps.html</loc></url>
 <url><loc>/reference/stitch_entries.html</loc></url>
 <url><loc>/reference/upload_oracle.html</loc></url>
 </urlset>

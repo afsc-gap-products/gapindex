@@ -1,0 +1,66 @@
+# Example Workflow
+
+``` r
+
+
+library(gapindex)
+
+## Connect to Oracle
+channel <- gapindex::get_connected()
+
+## Pull data.
+gapindex_data <- gapindex::get_data(
+  year_set = c(2007, 2009),
+  survey_set = "GOA",
+  spp_codes = 10261,   
+  haul_type = 3,
+  abundance_haul = "Y",
+  pull_lengths = T,
+  channel = channel)
+
+## Fill in zeros and calculate CPUE
+cpue <- gapindex::calc_cpue(gapdata = gapindex_data)
+
+## Calculate stratum-level biomass, population abundance, mean CPUE and 
+## associated variances
+biomass_stratum <- gapindex::calc_biomass_stratum(
+  gapdata = gapindex_data,
+  cpue = cpue)
+
+## Calculate aggregated biomass and population abundance across subareas,
+## management areas, and regions
+biomass_subareas <- gapindex::calc_biomass_subarea(
+  gapdata = gapindex_data,
+  biomass_stratum = biomass_stratum)
+
+## Calculate size composition by stratum. See ?gapindex::calc_sizecomp_stratum
+## for details on arguments
+size_comp_stratum <- gapindex::calc_sizecomp_stratum(
+  gapdata = gapindex_data,
+  cpue = cpue,
+  abundance_stratum = biomass_stratum,
+  spatial_level = "stratum",
+  fill_NA_method = "AIGOA")
+
+## Calculate aggregated size compositon across subareas, management areas, and
+## regions
+size_comp_subareas <- gapindex::calc_sizecomp_subarea(
+  gapdata = gapindex_data,
+  sizecomp_stratum = size_comp_stratum)
+
+## Calculate age-length key. See ?gapindex::calc_ALK for details on arguments
+alk <- gapindex::calc_alk(gapdata = gapindex_data, 
+                          unsex = "all", 
+                          global = F)
+
+## Calculate age composition by stratum
+age_comp_stratum <- gapindex::calc_agecomp_stratum(
+  gapdata = gapindex_data, 
+  alk = alk,
+  sizecomp_stratum = size_comp_stratum)
+
+## Calculate aggregated age compositon across regions
+age_comp_region <- gapindex::calc_agecomp_region(
+  gapdata = gapindex_data, 
+  agecomp_stratum = age_comp_stratum)
+```

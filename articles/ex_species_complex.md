@@ -1,0 +1,83 @@
+# Example: Production Run with Species Complexes
+
+Here is an EBS example of how you would calculate design-based indices
+for a species complex, i.e., an aggregate of multiple SPECIES_CODE
+values.
+
+``` r
+
+library(gapindex)
+
+## Connect to Oracle. Make sure you are on the NOAA internal network or VPN
+channel <- gapindex::get_connected()
+
+## Pull data. Note the format of the `spp_codes` argument with the GROUP column
+production_data <- get_data(
+  year_set = 1982:2023,
+  survey_set = "EBS",
+  spp_codes = rbind(
+    ## ATF + Kams
+    data.frame(GROUP_CODE = 10111, SPECIES_CODE = 10110:10112),
+    ## FHS + Bering flounder
+    data.frame(GROUP_CODE = 10129, SPECIES_CODE = 10130:10140),
+    ## rock sole unid.
+    data.frame(GROUP_CODE = 10260, SPECIES_CODE = 10260:10262),
+    ## Octopididae
+    data.frame(GROUP_CODE = 78010, SPECIES_CODE = 78010:78455),
+    ## Squid unid
+    data.frame(GROUP_CODE = 79000, SPECIES_CODE = 79000:79513),
+    ## Some single species to test functionality
+    data.frame(GROUP_CODE = c(21720, 30060), SPECIES_CODE = c(21720, 30060))
+  ),
+  pull_lengths = TRUE, 
+  haul_type = 3, 
+  abundance_haul = "Y",
+  channel = channel)
+
+## Zero-fill and calculate CPUE
+production_cpue <- calc_cpue(gapdata = production_data)
+
+## Calculate Biomass, abundance, mean CPUE, and associated variances by stratum
+production_biomass_stratum <- 
+  gapindex::calc_biomass_stratum(gapdata = production_data,
+                                 cpue = production_cpue)
+
+## Aggregate Biomass to subareas and region
+production_biomass_subarea <- 
+  calc_biomass_subarea(gapdata = production_data, 
+                       biomass_stratum = production_biomass_stratum)
+
+## Calculate size composition by stratum. Note fill_NA_method == "BS" because
+## our region is EBS, NBS, or BSS. If the survey region of interest is AI or 
+## GOA, use "AIGOA". See ?gapindex::gapindex::calc_sizecomp_stratum for more
+## details. 
+production_sizecomp_stratum <- 
+  gapindex::calc_sizecomp_stratum(
+    gapdata = production_data,
+    cpue = production_cpue,
+    abundance_stratum = production_biomass_stratum,
+    spatial_level = "stratum",
+    fill_NA_method = "BS")
+
+## Aggregate size composition to subareas/region
+production_sizecomp_subarea <- gapindex::calc_sizecomp_subarea(
+  gapdata = production_data,
+  sizecomp_stratum = production_sizecomp_stratum)
+
+
+## rbind stratum and subarea/region biomass estimates into one dataframe
+names(x = production_biomass_stratum)[
+  names(x = production_biomass_stratum) == "STRATUM"
+] <- "AREA_ID"
+production_biomass <- rbind(production_biomass_stratum, 
+                            production_biomass_subarea)
+
+## rbind stratum and subarea/region biomass estimates into one dataframe
+names(x = production_sizecomp_stratum)[
+  names(x = production_sizecomp_stratum) == "STRATUM"] <- "AREA_ID"
+production_sizecomp <- 
+  rbind(production_sizecomp_subarea,
+        production_sizecomp_stratum[, 
+                                    names(x = production_sizecomp_subarea), 
+                                    with = F])
+```
