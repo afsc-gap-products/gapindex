@@ -69,6 +69,8 @@ reference:
       - "calc_alk"
       - "calc_agecomp_stratum"
       - "calc_agecomp_region"
+      - "do_one_bootstrap"
+      - "run_bootstraps"
   - title: Utility Functions
     contents:
       - starts_with("upload_")
