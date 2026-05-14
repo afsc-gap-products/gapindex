@@ -73,7 +73,7 @@ reference:
       - "run_bootstraps"
   - title: Utility Functions
     contents:
-      - starts_with("upload_")
+      - "sql_query"
+      - "upload_oracle"
       - "stitch_entries"
-      - "remove_temp_tables"
 
