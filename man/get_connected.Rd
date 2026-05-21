@@ -4,15 +4,22 @@
 \alias{get_connected}
 \title{Define RODBC connection to Oracle}
 \usage{
-get_connected(db = "AFSC", check_access = TRUE)
+get_connected(
+  db = "AFSC",
+  conn_type = c("RODBC", "DBI")[1],
+  check_access = TRUE
+)
 }
 \arguments{
 \item{db}{string. A registered data source name, in this case "AFSC" by default. This argument is passed to the \code{dsn} argument in \code{RODBC::odbcConnect()}}
 
+\item{conn_type}{string. Which package should be used to set up the database
+connection. Default is "RODBC" but "DBI" can also be used.}
+
 \item{check_access}{boolean. If TRUE (by default), checks whether you have the specific tables in GAP_PRODUCTS, RACEBASE and RACE_DATA used in the gapindex package. Outputs an error if the user does not have access to these tables with a message of the point of contact information for access.}
 }
 \value{
-channel of class "RODBC". See \code{?RODBC::odbcConnect()} for more detail
+channel either of class "RODBC" or "Oracle". See \code{?RODBC::odbcConnect()} or \code{?DBI::dbConnect()}for more detail
 }
 \description{
 Creates the RODBC connection to Oracle needed to pull SQL

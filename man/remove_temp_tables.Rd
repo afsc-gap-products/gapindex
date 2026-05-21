@@ -4,9 +4,12 @@
 \alias{remove_temp_tables}
 \title{Drop Temporary Tables Created within the get_data() call}
 \usage{
-remove_temp_tables(channel)
+remove_temp_tables(channel = NULL)
+}
+\arguments{
+\item{channel}{connection to Oracle created via gapindex::get_connected()}
 }
 \description{
-#' @param channel      connection to Oracle created via
-gapindex::get_connected() or RODBC::odbcConnect().
+Drop Temporary Tables Created within the get_data() call
 }
+\keyword{internal}
