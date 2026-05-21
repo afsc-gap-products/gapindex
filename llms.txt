@@ -11,11 +11,15 @@ Eastern Bering Sea Shelf (from 1982), Eastern Bering Sea Slope (from
 
 ## Installation Instructions
 
-In addition to the default packages in R (base, stats), the functions in
-gapindex use functions from five additional packages:
+    devtools::install_github("afsc-gap-products/gapindex")
 
-- RODBC: Enables ODBC (Open Database Connectivity) interface the AFSC
-  Oracle database where the survey data are housed
+In addition to the default packages in R (base, stats), the functions in
+gapindex use functions from these additional packages:
+
+- RODBC, odbc, and DBI: Enables ODBC (Open Database Connectivity)
+  interface to the AFSC Oracle database where the survey data are
+  housed. Users can choose to use either RODBC or odbc/DBI to connect to
+  Oracle.
 - getPass: Allows for masking of Oracle user credentials (usernames,
   passwords) when accessing RODBC
 - keyring: Allows the option for users to store their passwords
@@ -24,11 +28,6 @@ gapindex use functions from five additional packages:
   over time
 - data.table: Speeds up data.frame manipulations like reading, writing,
   aggregations, joins, ordering, sorting.
-
-Please make sure these five packages are installed before installing
-gapindex
-
-    devtools::install_github("afsc-gap-products/gapindex")
 
 ## Collaborators
 
@@ -47,13 +46,6 @@ who participated in those working groups:
 | \*package maintainer |  |  |
 
 ## Legacy
-
-Here is an non-exhaustive list of people who provided the foundation for
-many of the functions in this package:
-
-AI-GOA: Michael Martin, Peter Munro, Ned Laman
-
-Bering Sea: REM, Jason Conner, Jerry Hoff, Rebecca Haehn
 
 Many of the index calculations are from Wakabayashi et al. (1985):
 
@@ -97,7 +89,6 @@ activity by the DOC or the United States Government.
 - [`get_connected()`](get_connected.md) : Define RODBC connection to
   Oracle
 - [`get_data()`](get_data.md) : Pull AFSC GAP BTS survey data
-- [`get_station_info()`](get_station_info.md) : Pull station/grid data
 
 ## Design-Based Index and Composition Estimation
 
@@ -123,12 +114,12 @@ activity by the DOC or the United States Government.
 
 ## Utility Functions
 
+- [`sql_query()`](sql_query.md) : Streamlined querying function using
+  the DBI package
 - [`upload_oracle()`](upload_oracle.md) : Upload a table to Oracle with
   associated metadata
 - [`stitch_entries()`](stitch_entries.md) : Helper function to format
   sql queries
-- [`remove_temp_tables()`](remove_temp_tables.md) : Drop Temporary
-  Tables Created within the get_data() call
 
 # Articles
 

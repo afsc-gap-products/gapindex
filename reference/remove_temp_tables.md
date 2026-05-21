@@ -1,10 +1,15 @@
 # Drop Temporary Tables Created within the get_data() call
 
-\#' @param channel connection to Oracle created via
-gapindex::get_connected() or RODBC::odbcConnect().
+Drop Temporary Tables Created within the get_data() call
 
 ## Usage
 
 ``` r
-remove_temp_tables(channel)
+remove_temp_tables(channel = NULL)
 ```
+
+## Arguments
+
+- channel:
+
+  connection to Oracle created via gapindex::get_connected()

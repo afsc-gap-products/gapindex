@@ -24,10 +24,10 @@
 <url><loc>/reference/gapindex-package.html</loc></url>
 <url><loc>/reference/get_connected.html</loc></url>
 <url><loc>/reference/get_data.html</loc></url>
-<url><loc>/reference/get_station_info.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/remove_temp_tables.html</loc></url>
 <url><loc>/reference/run_bootstraps.html</loc></url>
+<url><loc>/reference/sql_query.html</loc></url>
 <url><loc>/reference/stitch_entries.html</loc></url>
 <url><loc>/reference/upload_oracle.html</loc></url>
 </urlset>

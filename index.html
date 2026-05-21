@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Standard AFSC GAP Product Calculations">
 <meta name="description" content="This package contains functions to calculate standard NOAA AFSC GAP summer groundfish bottom trawl survey data products (CPUE, Biomass, Size Composition, and Age Composition) for the Gulf of Alaska (1990-current), Aleutian Islands (1991-current), Eastern Bering Sea Shelf (1982-current), Northern Bering Sea Shelf (2010-current), and Eastern Bering Sea Slope (2002-2016).">
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">gapindex</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,16 +88,15 @@
 <div class="section level2">
 <h2 id="installation-instructions">Installation Instructions<a class="anchor" aria-label="anchor" href="#installation-instructions"></a>
 </h2>
-<p>In addition to the default packages in R (base, stats), the functions in gapindex use functions from five additional packages:</p>
+<pre><code><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"afsc-gap-products/gapindex"</span><span class="op">)</span></span></code></pre>
+<p>In addition to the default packages in R (base, stats), the functions in gapindex use functions from these additional packages:</p>
 <ul>
-<li>RODBC: Enables ODBC (Open Database Connectivity) interface the AFSC Oracle database where the survey data are housed</li>
+<li>RODBC, odbc, and DBI: Enables ODBC (Open Database Connectivity) interface to the AFSC Oracle database where the survey data are housed. Users can choose to use either RODBC or odbc/DBI to connect to Oracle.</li>
 <li>getPass: Allows for masking of Oracle user credentials (usernames, passwords) when accessing RODBC</li>
 <li>keyring: Allows the option for users to store their passwords</li>
 <li>lifecycle: Aids developers and users with shared conventions, documentation badges, deprecation warnings as the package develops over time</li>
 <li>data.table: Speeds up data.frame manipulations like reading, writing, aggregations, joins, ordering, sorting.</li>
 </ul>
-<p>Please make sure these five packages are installed before installing gapindex</p>
-<pre><code><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"afsc-gap-products/gapindex"</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="collaborators">Collaborators<a class="anchor" aria-label="anchor" href="#collaborators"></a>
@@ -156,9 +155,6 @@
 <div class="section level2">
 <h2 id="legacy">Legacy<a class="anchor" aria-label="anchor" href="#legacy"></a>
 </h2>
-<p>Here is an non-exhaustive list of people who provided the foundation for many of the functions in this package:</p>
-<p>AI-GOA: Michael Martin, Peter Munro, Ned Laman</p>
-<p>Bering Sea: REM, Jason Conner, Jerry Hoff, Rebecca Haehn</p>
 <p>Many of the index calculations are from Wakabayashi et al. (1985):</p>
 <p>Wakabayashi, K., R. G. Bakkala, and M. S. Alton. 1985. Methods of the U.S.-Japan demersal trawl surveys, p. 7-29. In R. G. Bakkala and K. Wakabayashi (editors), Results of cooperative U.S.-Japan groundfish investigations in the Bering Sea during May-August 1979. Int. North Pac. Fish. Comm. Bull. 44.</p>
 </div>

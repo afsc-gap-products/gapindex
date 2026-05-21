@@ -8,7 +8,11 @@ usernames and passwords.
 ## Usage
 
 ``` r
-get_connected(db = "AFSC", check_access = TRUE)
+get_connected(
+  db = "AFSC",
+  conn_type = c("RODBC", "DBI")[1],
+  check_access = TRUE
+)
 ```
 
 ## Arguments
@@ -19,6 +23,11 @@ get_connected(db = "AFSC", check_access = TRUE)
   This argument is passed to the `dsn` argument in
   [`RODBC::odbcConnect()`](https://rdrr.io/pkg/RODBC/man/odbcConnect.html)
 
+- conn_type:
+
+  string. Which package should be used to set up the database
+  connection. Default is "RODBC" but "DBI" can also be used.
+
 - check_access:
 
   boolean. If TRUE (by default), checks whether you have the specific
@@ -28,4 +37,5 @@ get_connected(db = "AFSC", check_access = TRUE)
 
 ## Value
 
-channel of class "RODBC". See `?RODBC::odbcConnect()` for more detail
+channel either of class "RODBC" or "Oracle". See `?RODBC::odbcConnect()`
+or `?DBI::dbConnect()`for more detail

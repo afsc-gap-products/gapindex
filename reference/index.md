@@ -5,7 +5,6 @@
 - [`get_connected()`](get_connected.md) : Define RODBC connection to
   Oracle
 - [`get_data()`](get_data.md) : Pull AFSC GAP BTS survey data
-- [`get_station_info()`](get_station_info.md) : Pull station/grid data
 
 ## Design-Based Index and Composition Estimation
 
@@ -31,9 +30,9 @@
 
 ## Utility Functions
 
+- [`sql_query()`](sql_query.md) : Streamlined querying function using
+  the DBI package
 - [`upload_oracle()`](upload_oracle.md) : Upload a table to Oracle with
   associated metadata
 - [`stitch_entries()`](stitch_entries.md) : Helper function to format
   sql queries
-- [`remove_temp_tables()`](remove_temp_tables.md) : Drop Temporary
-  Tables Created within the get_data() call
