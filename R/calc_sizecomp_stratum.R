@@ -192,7 +192,8 @@ calc_sizecomp_stratum <- function(racebase_tables = deprecated(),
     ## "SURVEY", "YEAR", "STRATUM", "SPECIES_CODE" as a composite key.
     imputted_size <- merge(x = missing_hauljoins,
                            y = imputted_size,
-                           by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"))
+                           by = c("SURVEY", "YEAR", "STRATUM", "SPECIES_CODE"),
+                           allow.cartesian = TRUE)
     
     ## Recalculate S_ijklm using the imputted size composition. 
     imputted_size$S_ijklm <- with(imputted_size, p_ijklm * CPUE_NOKM2)
