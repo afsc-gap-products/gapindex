@@ -12,7 +12,7 @@ get_data(
   abundance_haul = c("Y", "N")[1],
   pull_lengths = FALSE,
   taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
-    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
+    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION", "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION")[1],
   remove_na_strata = FALSE,
   na_rm_strata = lifecycle::deprecated(),
   channel = NULL,
