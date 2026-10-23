@@ -55,7 +55,8 @@ get_data <- function(
     abundance_haul = c("Y", "N")[1],
     pull_lengths = FALSE,
     taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
-                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
+                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION",
+                         "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION")[1],
     remove_na_strata = FALSE,
     na_rm_strata = lifecycle::deprecated(),
     channel = NULL,
@@ -67,13 +68,13 @@ get_data <- function(
   ##   1) Repair any deprecated arguments
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (lifecycle::is_present(sql_channel)) {
-    lifecycle::deprecate_warn("3.0.0", 
+    lifecycle::deprecate_stop("3.0.0", 
                               "get_data(sql_channel)", 
                               "get_data(channel)")
     channel <- sql_channel
   }
   if (lifecycle::is_present(na_rm_strata)) {
-    lifecycle::deprecate_warn("3.0.0", 
+    lifecycle::deprecate_stop("3.0.0", 
                               "get_data(na_rm_strata)", 
                               "get_data(remove_na_strata)")
     remove_na_strata <- na_rm_strata
@@ -142,18 +143,24 @@ get_data <- function(
     channel = channel, 
     query = paste("
       CREATE TABLE GAPINDEX_TEMPORARY_SURVEY_QUERY AS
-      SELECT SURVEY_DEFINITION_ID, 
-      CASE 
-        WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
-        WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
-        WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
-        WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
-        WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
-        ELSE NULL
-      END AS SURVEY, YEAR, DESIGN_YEAR 
-      FROM GAP_PRODUCTS.SURVEY_DESIGN 
-      WHERE SURVEY_DEFINITION_ID IN", survey_def_ids_vec, 
-                  "\nAND YEAR IN", year_vec
+      
+      SELECT 
+        SURVEY_DEFINITION_ID, 
+        CASE 
+          WHEN SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+          WHEN SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+          WHEN SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+          WHEN SURVEY_DEFINITION_ID = 52 THEN 'AI'
+          WHEN SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+          ELSE NULL
+        END AS SURVEY, 
+        YEAR, 
+        DESIGN_YEAR 
+      FROM 
+        GAP_PRODUCTS.SURVEY_DESIGN 
+      WHERE 
+        SURVEY_DEFINITION_ID IN", survey_def_ids_vec, "
+        AND YEAR IN", year_vec
     )
   )
   
@@ -174,9 +181,15 @@ get_data <- function(
   
   gapindex::sql_query(
     channel = channel,
-    query = "CREATE TABLE GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY AS
-    SELECT DISTINCT SURVEY_DEFINITION_ID, SURVEY, DESIGN_YEAR
-    FROM GAPINDEX_TEMPORARY_SURVEY_QUERY"
+    query = "
+    CREATE TABLE GAPINDEX_TEMPORARY_SURVEY_DESIGN_QUERY AS
+    
+    SELECT 
+      DISTINCT SURVEY_DEFINITION_ID, 
+      SURVEY, 
+      DESIGN_YEAR
+    FROM 
+      GAPINDEX_TEMPORARY_SURVEY_QUERY"
   )
   
   survey_design <- data.table::data.table(
@@ -197,32 +210,44 @@ get_data <- function(
     query =
       paste("
     CREATE TABLE GAPINDEX_TEMPORARY_CRUISE_QUERY AS
-    SELECT DISTINCT A.CRUISEJOIN, B.CRUISE, FLOOR(B.CRUISE/100) YEAR,
-    D.SURVEY_DEFINITION_ID, B.VESSEL_ID, E.NAME VESSEL_NAME,
-    CASE
-      WHEN D.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
-      WHEN D.SURVEY_DEFINITION_ID = 98 THEN 'EBS'
-      WHEN D.SURVEY_DEFINITION_ID = 47 THEN 'GOA'
-      WHEN D.SURVEY_DEFINITION_ID = 52 THEN 'AI'
-      WHEN D.SURVEY_DEFINITION_ID = 78 THEN 'BSS'
-      ELSE NULL
-    END AS SURVEY, F.DESIGN_YEAR
+    
+    SELECT 
+      DISTINCT A.CRUISEJOIN, 
+      B.CRUISE, 
+      FLOOR(B.CRUISE/100) YEAR,
+      D.SURVEY_DEFINITION_ID, 
+      B.VESSEL_ID, 
+      E.NAME 
+      VESSEL_NAME,
+      CASE
+        WHEN D.SURVEY_DEFINITION_ID = 143 THEN 'NBS'
+        WHEN D.SURVEY_DEFINITION_ID = 98 THEN 'EBS'
+        WHEN D.SURVEY_DEFINITION_ID = 47 THEN 'GOA'
+        WHEN D.SURVEY_DEFINITION_ID = 52 THEN 'AI'
+        WHEN D.SURVEY_DEFINITION_ID = 78 THEN 'BSS'
+        ELSE NULL
+      END AS SURVEY, 
+      F.DESIGN_YEAR
 
-    FROM RACEBASE.HAUL A, RACE_DATA.CRUISES B, RACE_DATA.SURVEYS C,
-    RACE_DATA.SURVEY_DEFINITIONS D, RACE_DATA.VESSELS E,
-    GAP_PRODUCTS.SURVEY_DESIGN F
+    FROM 
+      RACEBASE.HAUL A, 
+      RACE_DATA.CRUISES B, 
+      RACE_DATA.SURVEYS C,
+      RACE_DATA.SURVEY_DEFINITIONS D, 
+      RACE_DATA.VESSELS E,
+      GAP_PRODUCTS.SURVEY_DESIGN F
 
-    WHERE A.VESSEL = B.VESSEL_ID
-    AND B.VESSEL_ID = E.VESSEL_ID
-    AND A.CRUISE = B.CRUISE
-    AND C.SURVEY_ID = B.SURVEY_ID
-    AND C.SURVEY_DEFINITION_ID = D.SURVEY_DEFINITION_ID
-    AND D.SURVEY_DEFINITION_ID IN", survey_def_ids_vec,
-            "
-    AND F.SURVEY_DEFINITION_ID = D.SURVEY_DEFINITION_ID
-    AND F.YEAR = FLOOR(B.CRUISE/100)
-    AND A.ABUNDANCE_HAUL IN", gapindex::stitch_entries(abundance_haul),
-            "\nAND FLOOR(B.CRUISE/100) IN", year_vec)
+    WHERE 
+      A.VESSEL = B.VESSEL_ID
+      AND B.VESSEL_ID = E.VESSEL_ID
+      AND A.CRUISE = B.CRUISE
+      AND C.SURVEY_ID = B.SURVEY_ID
+      AND C.SURVEY_DEFINITION_ID = D.SURVEY_DEFINITION_ID
+      AND D.SURVEY_DEFINITION_ID IN", survey_def_ids_vec, "
+      AND F.SURVEY_DEFINITION_ID = D.SURVEY_DEFINITION_ID
+      AND F.YEAR = FLOOR(B.CRUISE/100)
+      AND A.ABUNDANCE_HAUL IN", gapindex::stitch_entries(abundance_haul), "
+      AND FLOOR(B.CRUISE/100) IN", year_vec)
   )
   
   ## Pull queried cruise table
@@ -434,9 +459,7 @@ get_data <- function(
                    dat = spp_codes,
                    tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
                    rownames = F,
-                   append = F#,
-                   # varTypes = c("SPECIES_CODE" = "NUMBER (5,0)",
-                   #              "GROUP_CODE" = "CLOB")
+                   append = F
     )
     
     gapindex::sql_query(
@@ -451,8 +474,9 @@ get_data <- function(
       JOIN", taxonomic_source, "USING (SPECIES_CODE)\n",
           switch(
             taxonomic_source,
-            "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"="WHERE SURVEY_SPECIES=1",
-            "RACEBASE.SPECIES_CLASSIFICATION"="")
+            "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE SURVEY_SPECIES = 1",
+            "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE ACTIVE = 1",
+            "RACEBASE.SPECIES_CLASSIFICATION" = "")
         )
     )
     
@@ -496,6 +520,7 @@ get_data <- function(
         switch(
           taxonomic_source,
           "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE SURVEY_SPECIES = 1",
+          "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE ACTIVE = 1",
           "RACEBASE.SPECIES_CLASSIFICATION" = "")
       )
     )
@@ -511,29 +536,35 @@ get_data <- function(
   
   ## 3) NULL: usually for production purposes
   ## Pull from the GAP_PRODUCTS.TAXON_GROUPS
-  if (is.null(x = spp_codes)) {
-    gapindex::sql_query(channel = channel,
-                        query = "
-      CREATE TABLE GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY AS
-      SELECT SPECIES_CODE, GROUP_CODE
-      FROM GAP_PRODUCTS.TAXON_GROUPS
-      WHERE GROUP_CODE IS NOT NULL")
-    
-    gapindex::sql_query(channel = channel,
-                        query = "
-      CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
-      SELECT *
-      FROM GAP_PRODUCTS.TAXON_GROUPS
-      WHERE GROUP_CODE IS NOT NULL")
-    
-    species_info <- data.table::data.table(
-      gapindex::sql_query(
-        channel = channel,
-        query = "SELECT * FROM GAP_PRODUCTS.TAXON_GROUPS
-                 WHERE GROUP_CODE IS NOT NULL"
-      ),
-      key = "SPECIES_CODE")
-  }
+#   if (is.null(x = spp_codes)) {
+#     gapindex::sql_query(channel = channel,
+#                         query = "
+# CREATE TABLE GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY AS
+# 
+# SELECT 
+#     STANZAS.*, COMPS.SPECIES_CODE
+# FROM 
+#     GAP_TAXONOMY.TAXON_GROUP_COMPOSITION COMPS
+# JOIN 
+#     GAP_TAXONOMY.TAXON_GROUP_STANZAS STANZAS ON COMPS.GROUP_STANZA_ID = STANZAS.GROUP_STANZA_ID
+# ;"
+#     )
+#     
+#     gapindex::sql_query(channel = channel,
+#                         query = "
+#       CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+#       SELECT *
+#       FROM GAP_PRODUCTS.TAXON_GROUPS
+#       WHERE GROUP_CODE IS NOT NULL")
+#     
+#     species_info <- data.table::data.table(
+#       gapindex::sql_query(
+#         channel = channel,
+#         query = "SELECT * FROM GAP_PRODUCTS.TAXON_GROUPS
+#                  WHERE GROUP_CODE IS NOT NULL"
+#       ),
+#       key = "SPECIES_CODE")
+#   }
   
   ## Error check if there are no data for the user-inputted species_code values
   if (!is.data.frame(x = species_info) | nrow(x = species_info) == 0)
