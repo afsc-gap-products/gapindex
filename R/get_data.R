@@ -23,7 +23,7 @@
 #'                       production and "N" are non-standard hauls due to 
 #'                       bad performance, different gear, etc.
 #' @param taxonomic_source  character string. Table used to source taxonomic
-#'                         information. One of two options: "RACEBASE.SPECIES" 
+#'                         information. One of three options: "RACEBASE.SPECIES" 
 #'                         (default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
 #'                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
 #'                         provisional table is an option for testing only. 
@@ -445,6 +445,7 @@ get_data <- function(
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   11) Format user-inputted species and taxon group information
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cat("Preparing Species List...\n")
   
   ## Check that spp_codes can either be:
   ## 1) dataframe with columns "GROUP_CODE" and "SPECIES_CODE" for instances
@@ -470,12 +471,12 @@ get_data <- function(
       CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
       SELECT *
       FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
-      JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
-      JOIN", taxonomic_source, "USING (SPECIES_CODE)\n",
+      LEFT JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
+      LEFT JOIN", taxonomic_source, "USING (SPECIES_CODE)\n",
           switch(
             taxonomic_source,
-            "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE SURVEY_SPECIES = 1",
-            "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE ACTIVE = 1",
+            "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE (SURVEY_SPECIES = 1 OR SURVEY_SPECIES IS NULL)",
+            "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE (ACTIVE = 1 OR ACTIVE IS NULL)",
             "RACEBASE.SPECIES_CLASSIFICATION" = "")
         )
     )
