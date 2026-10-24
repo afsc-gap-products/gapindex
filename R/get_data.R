@@ -456,12 +456,20 @@ get_data <- function(
          `GROUP_CODE` and `SPECIES_CODE`. See ?gapindex::get_data for
          more details and examples.")
     
-    RODBC::sqlSave(channel = channel,
-                   dat = spp_codes,
-                   tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
-                   rownames = F,
-                   append = F
-    )
+    if (inherits(channel, "RODBC"))
+      RODBC::sqlSave(channel = channel,
+                     dat = spp_codes,
+                     tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
+                     rownames = F,
+                     append = F
+      )
+    
+    if (inherits(channel, "Oracle"))
+      DBI::dbWriteTable(conn = channel,
+                        name = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
+                        value = spp_codes,
+                        field.types = c("SPECIES_CODE" = "NUMBER(5,0)",
+                                        "GROUP_CODE" = "NUMBER(5,0)"))
     
     gapindex::sql_query(
       channel = channel,
@@ -537,35 +545,35 @@ get_data <- function(
   
   ## 3) NULL: usually for production purposes
   ## Pull from the GAP_PRODUCTS.TAXON_GROUPS
-#   if (is.null(x = spp_codes)) {
-#     gapindex::sql_query(channel = channel,
-#                         query = "
-# CREATE TABLE GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY AS
-# 
-# SELECT 
-#     STANZAS.*, COMPS.SPECIES_CODE
-# FROM 
-#     GAP_TAXONOMY.TAXON_GROUP_COMPOSITION COMPS
-# JOIN 
-#     GAP_TAXONOMY.TAXON_GROUP_STANZAS STANZAS ON COMPS.GROUP_STANZA_ID = STANZAS.GROUP_STANZA_ID
-# ;"
-#     )
-#     
-#     gapindex::sql_query(channel = channel,
-#                         query = "
-#       CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
-#       SELECT *
-#       FROM GAP_PRODUCTS.TAXON_GROUPS
-#       WHERE GROUP_CODE IS NOT NULL")
-#     
-#     species_info <- data.table::data.table(
-#       gapindex::sql_query(
-#         channel = channel,
-#         query = "SELECT * FROM GAP_PRODUCTS.TAXON_GROUPS
-#                  WHERE GROUP_CODE IS NOT NULL"
-#       ),
-#       key = "SPECIES_CODE")
-#   }
+  #   if (is.null(x = spp_codes)) {
+  #     gapindex::sql_query(channel = channel,
+  #                         query = "
+  # CREATE TABLE GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY AS
+  # 
+  # SELECT 
+  #     STANZAS.*, COMPS.SPECIES_CODE
+  # FROM 
+  #     GAP_TAXONOMY.TAXON_GROUP_COMPOSITION COMPS
+  # JOIN 
+  #     GAP_TAXONOMY.TAXON_GROUP_STANZAS STANZAS ON COMPS.GROUP_STANZA_ID = STANZAS.GROUP_STANZA_ID
+  # ;"
+  #     )
+  #     
+  #     gapindex::sql_query(channel = channel,
+  #                         query = "
+  #       CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
+  #       SELECT *
+  #       FROM GAP_PRODUCTS.TAXON_GROUPS
+  #       WHERE GROUP_CODE IS NOT NULL")
+  #     
+  #     species_info <- data.table::data.table(
+  #       gapindex::sql_query(
+  #         channel = channel,
+  #         query = "SELECT * FROM GAP_PRODUCTS.TAXON_GROUPS
+  #                  WHERE GROUP_CODE IS NOT NULL"
+  #       ),
+  #       key = "SPECIES_CODE")
+  #   }
   
   ## Error check if there are no data for the user-inputted species_code values
   if (!is.data.frame(x = species_info) | nrow(x = species_info) == 0)
