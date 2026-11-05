@@ -2,21 +2,15 @@
 #' 
 #' @description Pulls survey, cruise, haul, catch, size, specimen (age), 
 #'              stratum, subarea, stratum grouping information for the 
-#'              region, years, and species of interest from the RACEBASE,
-#'              RACE_DATA, and GAP_PRODUCTS schemata in the AFSC Oracle database. 
+#'              region, years, and species of interest from AFSC Oracle database. 
 #' 
 #' @param year_set  numeric or integer vector of years
 #' @param survey_set character string. One of c("GOA", "AI", "EBS", "NBS", "BSS"). 
-#' @param spp_codes two-column data.frame of species codes (column name 
-#'                  SPECIES_CODE) and GROUP_CODE name (column name GROUP_CODE). 
-#'                  For single-species, the GROUP_CODE and species codes can be the
-#'                  same. Examples: 
-#'                  1) For a mixture of individual taxa and taxon groups: 
+#' @param spp_codes either a vector of species codes e.g., c(21720, 21740, 10110)
+#'                  or a data frame with columns SPECIES_CODE and GROUP_CODE 
+#'                  to denote taxonomic complexes, e.g., 
 #'                  data.frame("SPECIES_CODE" = c(21720, 21220, 21230, 21232), 
 #'                  "GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
-#'                  2) For single taxa: c(21720, 21740, 10110) 
-#'                  3) FOR PRODUCTION PURPOSES: a NULL value by default uses 
-#'                  GAP_PRODUCTS.TAXON_GROUPS from the AFSC Oracle database. 
 #' @param haul_type integer. Defaults to haul type "3" for "standard bottom 
 #'                  sample (preprogrammed station)" used for production purposes. 
 #' @param abundance_haul character string. "Y" are standardized hauls used in 
@@ -67,6 +61,7 @@ get_data <- function(
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   1) Repair any deprecated arguments
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Handle argument deprecation on channel if passed
   if (lifecycle::is_present(sql_channel)) {
     lifecycle::deprecate_stop("3.0.0", 
                               "get_data(sql_channel)", 
@@ -78,6 +73,15 @@ get_data <- function(
                               "get_data(na_rm_strata)", 
                               "get_data(remove_na_strata)")
     remove_na_strata <- na_rm_strata
+  }
+  
+  # Warn if the deprecated taxonomic_source option is selected
+  if (identical(taxonomic_source, "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")) {
+    lifecycle::deprecate_warn(
+      when = "3.0.0", # adjust to your target version
+      what = I("The argument value `taxonomic_source = 'GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION'`"),
+      details = "Please use`taxonomic_source = 'GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION'` instead. 'GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION' will not be an option by the end of 2027."
+    )
   }
   
   if (is.data.frame(x = spp_codes) &
@@ -450,136 +454,105 @@ get_data <- function(
   ## Check that spp_codes can either be:
   ## 1) dataframe with columns "GROUP_CODE" and "SPECIES_CODE" for instances
   ##    where species complexes are defined (e.g., rock soles).
+  ## 2) a vector with SPECIES_CODES for single taxa.
   if (is.data.frame(x = spp_codes)) {
     if (!all(c("SPECIES_CODE", "GROUP_CODE") %in% names(x = spp_codes)))
       stop("If argument `spp_codes` is a dataframe, it must contain column names
          `GROUP_CODE` and `SPECIES_CODE`. See ?gapindex::get_data for
          more details and examples.")
-    
-    if (inherits(channel, "RODBC"))
-      RODBC::sqlSave(channel = channel,
-                     dat = spp_codes,
-                     tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
-                     rownames = F,
-                     append = F
-      )
-    
-    if (inherits(channel, "Oracle"))
-      DBI::dbWriteTable(conn = channel,
-                        name = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
-                        value = spp_codes,
-                        field.types = c("SPECIES_CODE" = "NUMBER(5,0)",
-                                        "GROUP_CODE" = "NUMBER(5,0)"))
-    
-    gapindex::sql_query(
-      channel = channel,
-      query =
-        paste(
-          "
+  }
+  
+  if (is.numeric(x = spp_codes)) {
+    spp_codes <- data.table::data.table(SPECIES_CODE = spp_codes,
+                                        GROUP_CODE = spp_codes)
+  }
+  
+  ## Upload the species list 
+  if (inherits(channel, "RODBC"))
+    RODBC::sqlSave(channel = channel,
+                   dat = spp_codes,
+                   tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
+                   rownames = F,
+                   append = F
+    )
+  
+  if (inherits(channel, "Oracle"))
+    DBI::dbWriteTable(conn = channel,
+                      name = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
+                      value = spp_codes,
+                      field.types = c("SPECIES_CODE" = "NUMBER(5,0)",
+                                      "GROUP_CODE" = "NUMBER(5,0)"))
+  
+  ## Join the species list with the taxonomic information from the 
+  ## user-inputted taxonomic source
+  gapindex::sql_query(
+    channel = channel,
+    query =
+      paste(
+        "
       CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
       SELECT *
       FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
       LEFT JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
       LEFT JOIN", taxonomic_source, "USING (SPECIES_CODE)\n",
-          switch(
-            taxonomic_source,
-            "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE (SURVEY_SPECIES = 1 OR SURVEY_SPECIES IS NULL)",
-            "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE (ACTIVE = 1 OR ACTIVE IS NULL)",
-            "RACEBASE.SPECIES_CLASSIFICATION" = "")
-        )
-    )
-    
-    species_info <- data.table::data.table(
-      gapindex::sql_query(
-        channel = channel,
-        query = "SELECT * FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY"
-      ),
-      key = "SPECIES_CODE"
-    )
-  }
-  
-  ## 2) a vector with SPECIES_CODES for single taxa.
-  if (is.numeric(x = spp_codes)) {
-    
-    spp_codes <- data.table::data.table(SPECIES_CODE = spp_codes,
-                                        GROUP_CODE = spp_codes)
-    if (inherits(channel, "RODBC"))
-      RODBC::sqlSave(channel = channel, 
-                     dat = spp_codes,
-                     tablename = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
-                     rownames = F, append = F,
-                     varTypes = c("SPECIES_CODE" = "NUMBER(5,0)",
-                                  "GROUP_CODE" = "NUMBER(5,0)"))
-    
-    if (inherits(channel, "Oracle"))
-      DBI::dbWriteTable(conn = channel,
-                        name = "GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY",
-                        value = spp_codes,
-                        field.types = c("SPECIES_CODE" = "NUMBER(5,0)",
-                                        "GROUP_CODE" = "NUMBER(5,0)"))
-    
-    gapindex::sql_query(
-      channel = channel,
-      query = paste(
-        "
-      CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
-      SELECT * FROM GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY
-      JOIN GAPINDEX_TEMPORARY_AVAIL_SPP_QUERY USING (SPECIES_CODE)
-      JOIN", taxonomic_source, "USING (SPECIES_CODE)\n",
         switch(
           taxonomic_source,
-          "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE SURVEY_SPECIES = 1",
-          "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE ACTIVE = 1",
+          "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE (SURVEY_SPECIES = 1 OR SURVEY_SPECIES IS NULL)",
+          "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE (ACTIVE = 1 OR ACTIVE IS NULL)",
           "RACEBASE.SPECIES_CLASSIFICATION" = "")
       )
-    )
-    
-    species_info <- data.table::data.table(
-      gapindex::sql_query(
-        channel = channel,
-        query = "SELECT * FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY"
-      ),
-      key = "SPECIES_CODE"
-    )
-  }
+  )
   
-  ## 3) NULL: usually for production purposes
-  ## Pull from the GAP_PRODUCTS.TAXON_GROUPS
-  #   if (is.null(x = spp_codes)) {
-  #     gapindex::sql_query(channel = channel,
-  #                         query = "
-  # CREATE TABLE GAPINDEX_TEMPORARY_USER_INPUT_SPP_QUERY AS
-  # 
-  # SELECT 
-  #     STANZAS.*, COMPS.SPECIES_CODE
-  # FROM 
-  #     GAP_TAXONOMY.TAXON_GROUP_COMPOSITION COMPS
-  # JOIN 
-  #     GAP_TAXONOMY.TAXON_GROUP_STANZAS STANZAS ON COMPS.GROUP_STANZA_ID = STANZAS.GROUP_STANZA_ID
-  # ;"
-  #     )
-  #     
-  #     gapindex::sql_query(channel = channel,
-  #                         query = "
-  #       CREATE TABLE GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY AS
-  #       SELECT *
-  #       FROM GAP_PRODUCTS.TAXON_GROUPS
-  #       WHERE GROUP_CODE IS NOT NULL")
-  #     
-  #     species_info <- data.table::data.table(
-  #       gapindex::sql_query(
-  #         channel = channel,
-  #         query = "SELECT * FROM GAP_PRODUCTS.TAXON_GROUPS
-  #                  WHERE GROUP_CODE IS NOT NULL"
-  #       ),
-  #       key = "SPECIES_CODE")
-  #   }
+  ## Pull the resulting query 
+  species_info <- data.table::data.table(
+    gapindex::sql_query(
+      channel = channel,
+      query = "SELECT * FROM GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY"
+    ),
+    key = "SPECIES_CODE"
+  )
   
   ## Error check if there are no data for the user-inputted species_code values
   if (!is.data.frame(x = species_info) | nrow(x = species_info) == 0)
     stop("There are no catch records for any of the species codes in argument
          spp_codes for survey area '", gapindex::stitch_entries(survey_set),
          "' in the chosen years ", year_vec)
+  
+  ## In the event where the user is using GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION
+  ## as the source of the taxonomic information and inputs a SPECIES_CODE value
+  ## that is not in GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION, use the taxonomic
+  ## information attributed to the updated species code
+  if (taxonomic_source == "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION"
+      & any(is.na(x = species_info$ACTIVE))) {
+    recovered_tax_info <- data.table::data.table(
+      gapindex::sql_query(
+        channel = channel,
+        query = "
+        select 
+          user_input.species_code defunct_code, 
+          tax_class.*
+        from 
+          GAPINDEX_TEMPORARY_USER_TAXONOMIC_INFO_QUERY user_input 
+        join
+          GAP_TAXONOMY.TAXONOMIC_CHANGES changes on 
+            changes.old_species_code = user_input.species_code
+        join 
+          gap_taxonomy.taxonomic_classification tax_class on 
+            tax_class.species_code = changes.new_species_code
+        where 
+          user_input.active is null    
+          and tax_class.active = 1;"
+      ) 
+    )
+    
+    updated_tax_info <- 
+      merge(x = species_info[is.na(ACTIVE), c("SPECIES_CODE", "GROUP_CODE")],
+            y = recovered_tax_info,
+            by.x = "SPECIES_CODE", by.y = "DEFUNCT_CODE")
+    
+    species_info <- rbind(updated_tax_info[, -"SPECIES_CODE.y"],
+                          species_info[!is.na(ACTIVE)])
+  }
   
   ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ##   12) Identify any user-inputted SPECIES_CODE values not present in the
