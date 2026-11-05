@@ -18,9 +18,9 @@
 #'                       bad performance, different gear, etc.
 #' @param taxonomic_source  character string. Table used to source taxonomic
 #'                         information. One of three options: "RACEBASE.SPECIES" 
-#'                         (default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
-#'                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
-#'                         provisional table is an option for testing only. 
+#'                         (default), "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION",
+#'                         or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" 
+#'                         (in the process of deprecation). 
 #'                         
 #' @param na_rm_strata `r lifecycle::badge("deprecated")` Use the 
 #'                     `remove_na_strata` argument instead. 
