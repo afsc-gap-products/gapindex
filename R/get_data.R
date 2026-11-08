@@ -19,8 +19,8 @@
 #' @param taxonomic_source  character string. Table used to source taxonomic
 #'                         information. One of three options: "RACEBASE.SPECIES" 
 #'                         (default), "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION",
-#'                         or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" 
-#'                         (in the process of deprecation). 
+#'                         or the equivalent 
+#'                         "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION". 
 #'                         
 #' @param na_rm_strata `r lifecycle::badge("deprecated")` Use the 
 #'                     `remove_na_strata` argument instead. 
@@ -73,15 +73,6 @@ get_data <- function(
                               "get_data(na_rm_strata)", 
                               "get_data(remove_na_strata)")
     remove_na_strata <- na_rm_strata
-  }
-  
-  # Warn if the deprecated taxonomic_source option is selected
-  if (identical(taxonomic_source, "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")) {
-    lifecycle::deprecate_warn(
-      when = "3.0.0", # adjust to your target version
-      what = I("The argument value `taxonomic_source = 'GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION'`"),
-      details = "Please use`taxonomic_source = 'GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION'` instead. 'GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION' will not be an option by the end of 2027."
-    )
   }
   
   if (is.data.frame(x = spp_codes) &
@@ -497,7 +488,7 @@ get_data <- function(
       LEFT JOIN", taxonomic_source, "USING (SPECIES_CODE)\n",
         switch(
           taxonomic_source,
-          "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE (SURVEY_SPECIES = 1 OR SURVEY_SPECIES IS NULL)",
+          "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" = "WHERE (ACTIVE = 1 OR ACTIVE IS NULL)",
           "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" = "WHERE (ACTIVE = 1 OR ACTIVE IS NULL)",
           "RACEBASE.SPECIES_CLASSIFICATION" = "")
       )
@@ -522,8 +513,8 @@ get_data <- function(
   ## as the source of the taxonomic information and inputs a SPECIES_CODE value
   ## that is not in GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION, use the taxonomic
   ## information attributed to the updated species code
-  if (taxonomic_source == "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION"
-      & any(is.na(x = species_info$ACTIVE))) {
+  if (taxonomic_source == "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION" & 
+      any(is.na(x = species_info$ACTIVE))) {
     recovered_tax_info <- data.table::data.table(
       gapindex::sql_query(
         channel = channel,
