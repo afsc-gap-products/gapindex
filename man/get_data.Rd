@@ -12,7 +12,7 @@ get_data(
   abundance_haul = c("Y", "N")[1],
   pull_lengths = FALSE,
   taxonomic_source = c("RACEBASE.SPECIES_CLASSIFICATION",
-    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION")[1],
+    "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION", "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION")[1],
   remove_na_strata = FALSE,
   na_rm_strata = lifecycle::deprecated(),
   channel = NULL,
@@ -24,16 +24,11 @@ get_data(
 
 \item{survey_set}{character string. One of c("GOA", "AI", "EBS", "NBS", "BSS").}
 
-\item{spp_codes}{two-column data.frame of species codes (column name
-SPECIES_CODE) and GROUP_CODE name (column name GROUP_CODE).
-For single-species, the GROUP_CODE and species codes can be the
-same. Examples:
-1) For a mixture of individual taxa and taxon groups:
+\item{spp_codes}{either a vector of species codes e.g., c(21720, 21740, 10110)
+or a data frame with columns SPECIES_CODE and GROUP_CODE
+to denote taxonomic complexes, e.g.,
 data.frame("SPECIES_CODE" = c(21720, 21220, 21230, 21232),
-"GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))
-2) For single taxa: c(21720, 21740, 10110)
-3) FOR PRODUCTION PURPOSES: a NULL value by default uses
-GAP_PRODUCTS.TAXON_GROUPS from the AFSC Oracle database.}
+"GROUP_CODE" = c(21720, "Grenadiers", "Grenadiers", "Grenadiers"))}
 
 \item{haul_type}{integer. Defaults to haul type "3" for "standard bottom
 sample (preprogrammed station)" used for production purposes.}
@@ -46,10 +41,10 @@ bad performance, different gear, etc.}
 Defaults to FALSE for speed.}
 
 \item{taxonomic_source}{character string. Table used to source taxonomic
-information. One of two options: "RACEBASE.SPECIES"
-(default) or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
-"GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" is still a
-provisional table is an option for testing only.}
+information. One of three options: "RACEBASE.SPECIES"
+(default), "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION",
+or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"
+(in the process of deprecation).}
 
 \item{remove_na_strata}{boolean. Remove hauls with NA stratum information.
 Defaults to FALSE.}
@@ -72,6 +67,5 @@ survey, years, and species of interest.
 \description{
 Pulls survey, cruise, haul, catch, size, specimen (age),
 stratum, subarea, stratum grouping information for the
-region, years, and species of interest from the RACEBASE,
-RACE_DATA, and GAP_PRODUCTS schemata in the AFSC Oracle database.
+region, years, and species of interest from AFSC Oracle database.
 }
