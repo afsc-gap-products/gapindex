@@ -93,24 +93,22 @@ calc_cpue <- function(gapdata = NULL,
       c("WEIGHT", "NUMBER_FISH")] <- 0
   
   ## reorder columns, rename some
-  dat <- 
-    with(dat,
-         data.table::data.table(
-           SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
-           HAULJOIN, STRATUM, DESIGN_YEAR,
-           LATITUDE_DD_START = START_LATITUDE, 
-           LATITUDE_DD_END = END_LATITUDE, 
-           LONGITUDE_DD_START = START_LONGITUDE, 
-           LONGITUDE_DD_END = END_LONGITUDE,
-           DEPTH_M = BOTTOM_DEPTH,
-           BOTTOM_TEMPERATURE_C = GEAR_TEMPERATURE,
-           SPECIES_CODE,
-           WEIGHT_KG = WEIGHT,
-           COUNT = NUMBER_FISH,
-           AREA_SWEPT_KM2 = round(x = DISTANCE_FISHED * (0.001 * NET_WIDTH), 
-                                  digits = 6),
-           key = c("HAULJOIN", "SPECIES_CODE"))
-    )
+  dat <- with(dat,
+              data.table::data.table(
+                SURVEY_DEFINITION_ID, SURVEY, CRUISE, CRUISEJOIN, YEAR, 
+                HAULJOIN, STRATUM, DESIGN_YEAR,
+                LATITUDE_DD_START = START_LATITUDE, 
+                LATITUDE_DD_END = END_LATITUDE, 
+                LONGITUDE_DD_START = START_LONGITUDE, 
+                LONGITUDE_DD_END = END_LONGITUDE,
+                DEPTH_M = BOTTOM_DEPTH,
+                BOTTOM_TEMPERATURE_C = GEAR_TEMPERATURE,
+                SPECIES_CODE,
+                WEIGHT_KG = WEIGHT,
+                COUNT = NUMBER_FISH,
+                AREA_SWEPT_KM2 = DISTANCE_FISHED * (0.001 * NET_WIDTH),
+                key = c("HAULJOIN", "SPECIES_CODE"))
+  )
   
   ## CPUE calculations
   dat <- cbind(dat, 
