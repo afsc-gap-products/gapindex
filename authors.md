@@ -7,11 +7,11 @@
 ## Citation
 
 Oyafuso Z (2026). *gapindex: Standard AFSC GAP Product Calculations*. R
-package version 3.1.0.
+package version 3.2.0.
 
     @Manual{,
       title = {gapindex: Standard AFSC GAP Product Calculations},
       author = {Zack Oyafuso},
       year = {2026},
-      note = {R package version 3.1.0},
+      note = {R package version 3.2.0},
     }
