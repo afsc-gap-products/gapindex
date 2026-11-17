@@ -2,12 +2,14 @@
 % Please edit documentation in R/get_connected.R
 \name{get_connected}
 \alias{get_connected}
-\title{Define RODBC connection to Oracle}
+\title{Define Oracle connection to Oracle}
 \usage{
 get_connected(
   db = "AFSC",
   conn_type = c("RODBC", "DBI")[1],
-  check_access = TRUE
+  check_access = TRUE,
+  check_expiry = TRUE,
+  warn_days = 7
 )
 }
 \arguments{
@@ -17,12 +19,16 @@ get_connected(
 connection. Default is "RODBC" but "DBI" can also be used.}
 
 \item{check_access}{boolean. If TRUE (by default), checks whether you have the specific tables in GAP_PRODUCTS, RACEBASE and RACE_DATA used in the gapindex package. Outputs an error if the user does not have access to these tables with a message of the point of contact information for access.}
+
+\item{check_expiry}{boolean. If TRUE (by default), checks whether the user's Oracle password is in its grace period or within \code{warn_days} of expiring.}
+
+\item{warn_days}{numeric. Number of days before password expiration to trigger a warning message. Default is 7.}
 }
 \value{
 channel either of class "RODBC" or "Oracle". See \code{?RODBC::odbcConnect()} or \code{?DBI::dbConnect()}for more detail
 }
 \description{
-Creates the RODBC connection to Oracle needed to pull SQL
+Creates the database connection to Oracle needed to pull SQL
 queries from RACE database. Make sure you are connected to the VPN before
 running the function. Also support users who use the Rpackage \code{keyring} to
 store usernames and passwords.
