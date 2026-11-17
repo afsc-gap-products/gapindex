@@ -43,8 +43,8 @@ Defaults to FALSE for speed.}
 \item{taxonomic_source}{character string. Table used to source taxonomic
 information. One of three options: "RACEBASE.SPECIES"
 (default), "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION",
-or "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION"
-(in the process of deprecation).}
+or the equivalent
+"GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".}
 
 \item{remove_na_strata}{boolean. Remove hauls with NA stratum information.
 Defaults to FALSE.}
