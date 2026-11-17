@@ -1,9 +1,9 @@
-# Define RODBC connection to Oracle
+# Define Oracle connection to Oracle
 
-Creates the RODBC connection to Oracle needed to pull SQL queries from
-RACE database. Make sure you are connected to the VPN before running the
-function. Also support users who use the Rpackage `keyring` to store
-usernames and passwords.
+Creates the database connection to Oracle needed to pull SQL queries
+from RACE database. Make sure you are connected to the VPN before
+running the function. Also support users who use the Rpackage `keyring`
+to store usernames and passwords.
 
 ## Usage
 
@@ -11,7 +11,9 @@ usernames and passwords.
 get_connected(
   db = "AFSC",
   conn_type = c("RODBC", "DBI")[1],
-  check_access = TRUE
+  check_access = TRUE,
+  check_expiry = TRUE,
+  warn_days = 7
 )
 ```
 
@@ -34,6 +36,16 @@ get_connected(
   tables in GAP_PRODUCTS, RACEBASE and RACE_DATA used in the gapindex
   package. Outputs an error if the user does not have access to these
   tables with a message of the point of contact information for access.
+
+- check_expiry:
+
+  boolean. If TRUE (by default), checks whether the user's Oracle
+  password is in its grace period or within `warn_days` of expiring.
+
+- warn_days:
+
+  numeric. Number of days before password expiration to trigger a
+  warning message. Default is 7.
 
 ## Value
 

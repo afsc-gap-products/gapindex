@@ -2,7 +2,7 @@
 
 ## Get Data
 
-- [`get_connected()`](get_connected.md) : Define RODBC connection to
+- [`get_connected()`](get_connected.md) : Define Oracle connection to
   Oracle
 - [`get_data()`](get_data.md) : Pull AFSC GAP BTS survey data
 

@@ -31,10 +31,17 @@ upload_oracle(
 - metadata_column:
 
   data.frame describing the metadata for each of the fields in the
-  table. Must contain these columns: 1) colname: name of field 2)
-  colname_long: longer version of name for printing purposes. 3) units:
-  units of field 4) dataype: Oracle data type 5) colname_desc: Full
-  description of field
+  table. Must contain these columns:
+
+  1.  colname: name of field
+
+  2.  colname_long: longer version of name for printing purposes.
+
+  3.  units: units of field
+
+  4.  dataype: Oracle data type
+
+  5.  colname_desc: Full description of field
 
 - table_metadata:
 

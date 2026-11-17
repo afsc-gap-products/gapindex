@@ -61,9 +61,8 @@ get_data(
 
   character string. Table used to source taxonomic information. One of
   three options: "RACEBASE.SPECIES" (default),
-  "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION", or
-  "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION" (in the process of
-  deprecation).
+  "GAP_TAXONOMY.TAXONOMIC_CLASSIFICATION", or the equivalent
+  "GAP_PRODUCTS.TAXONOMIC_CLASSIFICATION".
 
 - remove_na_strata:
 

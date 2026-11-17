@@ -10,3 +10,7 @@ Bering Sea Slope (2002-2016).
 ## Author
 
 **Maintainer**: Zack Oyafuso <zack.oyafuso@noaa.gov>
+
+Authors:
+
+- Zack Oyafuso <zack.oyafuso@noaa.gov>
