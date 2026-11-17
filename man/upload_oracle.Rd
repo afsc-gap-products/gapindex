@@ -21,12 +21,14 @@ upload_oracle(
 
 \item{metadata_column}{data.frame describing the metadata for each of the
 fields in the table. Must contain these columns:
-1) colname: name of field
-2) colname_long: longer version of name for printing
+\enumerate{
+\item colname: name of field
+\item colname_long: longer version of name for printing
 purposes.
-3) units: units of field
-4) dataype: Oracle data type
-5) colname_desc: Full description of field}
+\item units: units of field
+\item dataype: Oracle data type
+\item colname_desc: Full description of field
+}}
 
 \item{table_metadata}{Description of what the table is.}
 

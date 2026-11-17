@@ -13,5 +13,10 @@ This package contains functions to calculate standard NOAA AFSC GAP summer groun
 \author{
 \strong{Maintainer}: Zack Oyafuso \email{zack.oyafuso@noaa.gov}
 
+Authors:
+\itemize{
+  \item Zack Oyafuso \email{zack.oyafuso@noaa.gov}
+}
+
 }
 \keyword{internal}

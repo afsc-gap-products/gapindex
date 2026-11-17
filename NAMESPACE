@@ -19,11 +19,15 @@ import(DBI)
 import(data.table)
 import(odbc)
 import(sampling)
-importFrom(RODBC,odbcConnect)
-importFrom(RODBC,sqlSave)
+importFrom(RODBC,
+  odbcConnect,
+  sqlSave
+)
 importFrom(lifecycle,deprecated)
-importFrom(stats,aggregate)
-importFrom(stats,na.omit)
-importFrom(stats,var)
-importFrom(stats,weighted.mean)
+importFrom(stats,
+  aggregate,
+  na.omit,
+  var,
+  weighted.mean
+)
 importFrom(utils,read.csv)
