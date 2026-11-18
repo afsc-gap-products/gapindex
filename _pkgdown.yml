@@ -24,6 +24,8 @@ navbar:
     news:
      text: Release Notes
      menu:
+      - text: "gapindex 3.1.0"
+        href: "https://github.com/afsc-gap-products/gapindex/releases/tag/v3.1.0" 
       - text: "gapindex 3.0.3"
         href: "https://github.com/afsc-gap-products/gapindex/releases/tag/v3.0.3" 
       - text: "gapindex 3.0.2"
